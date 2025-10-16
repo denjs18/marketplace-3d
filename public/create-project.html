@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Créer un projet - Marketplace 3D</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="/" class="logo">Marketplace 3D</a>
+      <div class="flex gap-2">
+        <a href="/dashboard-client.html" class="btn btn-outline">Retour Dashboard</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container" style="max-width: 900px; margin-top: 2rem;">
+    <h1 class="mb-3">Créer un nouveau projet</h1>
+
+    <div id="alert-container"></div>
+
+    <form id="project-form" enctype="multipart/form-data">
+      <!-- Informations générales -->
+      <div class="card mb-3">
+        <div class="card-header">
+          <h2 class="card-title">Informations du projet</h2>
+        </div>
+        <div class="card-body">
+          <div class="form-group">
+            <label class="form-label" for="title">Titre du projet *</label>
+            <input type="text" class="form-input" id="title" required placeholder="Ex: Support tablette pour voiture">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="description">Description *</label>
+            <textarea class="form-textarea" id="description" required placeholder="Décrivez votre projet en détail..."></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Upload fichier STL -->
+      <div class="card mb-3">
+        <div class="card-header">
+          <h2 class="card-title">Fichier 3D</h2>
+        </div>
+        <div class="card-body">
+          <div class="form-group">
+            <label class="form-label">Fichier 3D (STL, OBJ, 3MF) - Max 50MB *</label>
+            <div class="upload-area" id="upload-area">
+              <input type="file" id="stlFile" name="stlFile" accept=".stl,.obj,.3mf" style="display: none;" required>
+              <div id="upload-prompt">
+                <p style="font-size: 3rem; margin-bottom: 1rem;">📁</p>
+                <p><strong>Cliquez pour sélectionner</strong> ou glissez-déposez votre fichier</p>
+                <p class="text-secondary">Formats acceptés : STL, OBJ, 3MF</p>
+              </div>
+              <div id="file-info" class="hidden">
+                <p style="font-size: 2rem; margin-bottom: 0.5rem;">✓</p>
+                <p id="file-name" class="text-success"></p>
+                <p id="file-size" class="text-secondary"></p>
+                <button type="button" class="btn btn-outline mt-2" id="change-file">Changer de fichier</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Prévisualisation 3D (sera ajoutée dynamiquement) -->
+          <div id="preview-container" class="hidden mt-3">
+            <h3 class="mb-2">Prévisualisation 3D</h3>
+            <div id="stl-viewer" style="width: 100%; height: 400px; background: #1a1a1a; border-radius: 8px; position: relative;">
+              <div class="loading" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);"></div>
+            </div>
+            <div id="model-info" class="mt-2 grid grid-3">
+              <div class="card text-center">
+                <div class="card-body">
+                  <strong>Dimensions</strong>
+                  <p id="dimensions" class="text-primary">-</p>
+                </div>
+              </div>
+              <div class="card text-center">
+                <div class="card-body">
+                  <strong>Volume</strong>
+                  <p id="volume" class="text-primary">-</p>
+                </div>
+              </div>
+              <div class="card text-center">
+                <div class="card-body">
+                  <strong>Poids estimé</strong>
+                  <p id="weight" class="text-primary">-</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Spécifications -->
+      <div class="card mb-3">
+        <div class="card-header">
+          <h2 class="card-title">Spécifications d'impression</h2>
+        </div>
+        <div class="card-body">
+          <div class="grid grid-2">
+            <div class="form-group">
+              <label class="form-label" for="material">Matériau souhaité *</label>
+              <select class="form-select form-input" id="material" required>
+                <option value="">Choisir...</option>
+                <option value="PLA">PLA (Standard)</option>
+                <option value="ABS">ABS (Résistant)</option>
+                <option value="PETG">PETG (Flexible/Résistant)</option>
+                <option value="Resin">Résine (Haute précision)</option>
+                <option value="Nylon">Nylon (Ultra-résistant)</option>
+                <option value="TPU">TPU (Souple)</option>
+                <option value="Other">Autre</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="color">Couleur souhaitée</label>
+              <input type="text" class="form-input" id="color" placeholder="Ex: Noir, Blanc, Rouge...">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="quantity">Quantité *</label>
+              <input type="number" class="form-input" id="quantity" min="1" value="1" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="infill">Remplissage (%)</label>
+              <input type="number" class="form-input" id="infill" min="0" max="100" value="20">
+              <small class="text-secondary">20% = Standard, 100% = Solide</small>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="postProcessing">Finition</label>
+              <select class="form-select form-input" id="postProcessing">
+                <option value="None">Aucune</option>
+                <option value="Sanding">Ponçage</option>
+                <option value="Painting">Peinture</option>
+                <option value="Assembly">Assemblage</option>
+                <option value="Other">Autre</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="layerHeight">Hauteur de couche (mm)</label>
+              <input type="number" class="form-input" id="layerHeight" step="0.01" value="0.2">
+              <small class="text-secondary">0.2mm = Standard, 0.1mm = Haute qualité</small>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Budget et délai -->
+      <div class="card mb-3">
+        <div class="card-header">
+          <h2 class="card-title">Budget et délai (optionnel)</h2>
+        </div>
+        <div class="card-body">
+          <div class="grid grid-2">
+            <div class="form-group">
+              <label class="form-label" for="budgetMin">Budget minimum (€)</label>
+              <input type="number" class="form-input" id="budgetMin" min="0" step="0.01" placeholder="Ex: 50">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="budgetMax">Budget maximum (€)</label>
+              <input type="number" class="form-input" id="budgetMax" min="0" step="0.01" placeholder="Ex: 100">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="deadline">Délai souhaité</label>
+              <input type="date" class="form-input" id="deadline">
+            </div>
+          </div>
+
+          <div id="estimated-price" class="hidden mt-3 card" style="background: #f0f9ff; border: 2px solid var(--primary-color);">
+            <div class="card-body text-center">
+              <p class="text-secondary mb-2">Prix estimé basé sur vos spécifications</p>
+              <p class="text-primary" style="font-size: 2rem; font-weight: 700;"><span id="price-estimate">-</span> €</p>
+              <small class="text-secondary">Cette estimation est indicative. Les imprimeurs vous fourniront des devis précis.</small>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="flex gap-2">
+        <button type="button" class="btn btn-outline" onclick="window.location.href='/dashboard-client.html'">Annuler</button>
+        <button type="submit" class="btn btn-primary" style="flex: 1;">
+          <span id="submit-text">Publier le projet</span>
+          <span id="submit-loading" class="loading hidden"></span>
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="/js/app.js"></script>
+  <script src="/js/stl-viewer.js"></script>
+  <script>
+    const uploadArea = document.getElementById('upload-area');
+    const fileInput = document.getElementById('stlFile');
+    const uploadPrompt = document.getElementById('upload-prompt');
+    const fileInfo = document.getElementById('file-info');
+    const fileName = document.getElementById('file-name');
+    const fileSize = document.getElementById('file-size');
+    const changeFileBtn = document.getElementById('change-file');
+    const previewContainer = document.getElementById('preview-container');
+    let selectedFile = null;
+
+    // Upload area click
+    uploadArea.addEventListener('click', () => {
+      if (!fileInfo.classList.contains('hidden')) return;
+      fileInput.click();
+    });
+
+    // Drag and drop
+    uploadArea.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      uploadArea.classList.add('dragover');
+    });
+
+    uploadArea.addEventListener('dragleave', () => {
+      uploadArea.classList.remove('dragover');
+    });
+
+    uploadArea.addEventListener('drop', (e) => {
+      e.preventDefault();
+      uploadArea.classList.remove('dragover');
+      const file = e.dataTransfer.files[0];
+      if (file) handleFileSelect(file);
+    });
+
+    // File input change
+    fileInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) handleFileSelect(file);
+    });
+
+    // Change file button
+    changeFileBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      fileInput.value = '';
+      fileInput.click();
+    });
+
+    function handleFileSelect(file) {
+      // Validate file type
+      const ext = file.name.split('.').pop().toLowerCase();
+      if (!['stl', 'obj', '3mf'].includes(ext)) {
+        alert('Format de fichier non supporté. Utilisez STL, OBJ ou 3MF.');
+        return;
+      }
+
+      // Validate file size (50MB)
+      if (file.size > 50 * 1024 * 1024) {
+        alert('Le fichier est trop volumineux. Maximum 50MB.');
+        return;
+      }
+
+      selectedFile = file;
+      fileName.textContent = file.name;
+      fileSize.textContent = formatFileSize(file.size);
+
+      uploadPrompt.classList.add('hidden');
+      fileInfo.classList.remove('hidden');
+
+      // Show preview for STL files
+      if (ext === 'stl') {
+        loadSTLPreview(file);
+      }
+
+      // Calculate estimate
+      calculateEstimate();
+    }
+
+    function loadSTLPreview(file) {
+      previewContainer.classList.remove('hidden');
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          if (typeof initSTLViewer === 'function') {
+            initSTLViewer('stl-viewer', e.target.result);
+          }
+        } catch (error) {
+          console.error('Error loading STL preview:', error);
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    }
+
+    function calculateEstimate() {
+      // Simple estimation based on file size and material
+      const material = document.getElementById('material').value;
+      const quantity = parseInt(document.getElementById('quantity').value) || 1;
+
+      if (!selectedFile || !material) return;
+
+      // Base price calculation (very simplified)
+      const sizeInMB = selectedFile.size / (1024 * 1024);
+      let basePrice = sizeInMB * 5; // 5€ per MB as base
+
+      // Material multiplier
+      const materialMultipliers = {
+        'PLA': 1.0,
+        'ABS': 1.2,
+        'PETG': 1.3,
+        'Resin': 2.0,
+        'Nylon': 2.5,
+        'TPU': 1.8,
+        'Other': 1.5
+      };
+
+      basePrice *= (materialMultipliers[material] || 1.0);
+      basePrice *= quantity;
+
+      document.getElementById('estimated-price').classList.remove('hidden');
+      document.getElementById('price-estimate').textContent = Math.round(basePrice);
+    }
+
+    // Recalculate on material or quantity change
+    document.getElementById('material').addEventListener('change', calculateEstimate);
+    document.getElementById('quantity').addEventListener('change', calculateEstimate);
+
+    // Form submission
+    document.getElementById('project-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      if (!selectedFile) {
+        alert('Veuillez sélectionner un fichier 3D');
+        return;
+      }
+
+      const submitText = document.getElementById('submit-text');
+      const submitLoading = document.getElementById('submit-loading');
+      const alertContainer = document.getElementById('alert-container');
+
+      submitText.classList.add('hidden');
+      submitLoading.classList.remove('hidden');
+      alertContainer.innerHTML = '';
+
+      // Create FormData
+      const formData = new FormData();
+      formData.append('stlFile', selectedFile);
+      formData.append('title', document.getElementById('title').value);
+      formData.append('description', document.getElementById('description').value);
+
+      const specifications = {
+        material: document.getElementById('material').value,
+        color: document.getElementById('color').value || 'Natural',
+        quantity: parseInt(document.getElementById('quantity').value),
+        infill: parseInt(document.getElementById('infill').value),
+        layerHeight: parseFloat(document.getElementById('layerHeight').value),
+        postProcessing: document.getElementById('postProcessing').value
+      };
+      formData.append('specifications', JSON.stringify(specifications));
+
+      const budgetMin = document.getElementById('budgetMin').value;
+      const budgetMax = document.getElementById('budgetMax').value;
+      if (budgetMin || budgetMax) {
+        formData.append('budget', JSON.stringify({
+          min: parseFloat(budgetMin) || 0,
+          max: parseFloat(budgetMax) || 0
+        }));
+      }
+
+      const deadline = document.getElementById('deadline').value;
+      if (deadline) {
+        formData.append('deadline', deadline);
+      }
+
+      // For demo mode, just show success
+      setTimeout(() => {
+        alertContainer.innerHTML = '<div class="alert alert-success">✓ Projet créé avec succès! Redirection...</div>';
+        setTimeout(() => {
+          window.location.href = '/dashboard-client.html';
+        }, 1500);
+      }, 1000);
+
+      submitText.classList.remove('hidden');
+      submitLoading.classList.add('hidden');
+    });
+  </script>
+</body>
+</html>

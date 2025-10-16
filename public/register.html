@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inscription - Marketplace 3D</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="/" class="logo">Marketplace 3D</a>
+      <div class="flex gap-2">
+        <a href="/login.html" class="btn btn-outline">Se connecter</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container" style="max-width: 600px; margin-top: 4rem;">
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title text-center">Inscription</h2>
+      </div>
+      <div class="card-body">
+        <div id="alert-container"></div>
+
+        <form id="register-form">
+          <!-- Role Selection -->
+          <div class="form-group">
+            <label class="form-label">Je suis :</label>
+            <div class="grid grid-2">
+              <label class="card" style="cursor: pointer;">
+                <input type="radio" name="role" value="client" required>
+                <div class="card-body text-center">
+                  <h4>👤 Client</h4>
+                  <p>Je veux faire imprimer mes fichiers 3D</p>
+                </div>
+              </label>
+              <label class="card" style="cursor: pointer;">
+                <input type="radio" name="role" value="printer" required>
+                <div class="card-body text-center">
+                  <h4>🖨️ Imprimeur</h4>
+                  <p>Je propose des services d'impression 3D</p>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <!-- Personal Info -->
+          <div class="grid grid-2">
+            <div class="form-group">
+              <label class="form-label" for="firstName">Prénom</label>
+              <input type="text" class="form-input" id="firstName" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="lastName">Nom</label>
+              <input type="text" class="form-input" id="lastName" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="email">Email</label>
+            <input type="email" class="form-input" id="email" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="password">Mot de passe</label>
+            <input type="password" class="form-input" id="password" required minlength="6">
+            <small class="text-secondary">Minimum 6 caractères</small>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="phone">Téléphone (optionnel)</label>
+            <input type="tel" class="form-input" id="phone">
+          </div>
+
+          <!-- Printer specific fields -->
+          <div id="printer-fields" class="hidden">
+            <div class="form-group">
+              <label class="form-label" for="companyName">Nom de l'entreprise (optionnel)</label>
+              <input type="text" class="form-input" id="companyName">
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-full">
+            <span id="btn-text">S'inscrire</span>
+            <span id="btn-loading" class="loading hidden"></span>
+          </button>
+        </form>
+
+        <p class="text-center mt-3">
+          Déjà un compte ?
+          <a href="/login.html" class="text-primary">Se connecter</a>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Show/hide printer fields
+    document.querySelectorAll('input[name="role"]').forEach(radio => {
+      radio.addEventListener('change', (e) => {
+        const printerFields = document.getElementById('printer-fields');
+        if (e.target.value === 'printer') {
+          printerFields.classList.remove('hidden');
+        } else {
+          printerFields.classList.add('hidden');
+        }
+      });
+    });
+
+    // Auto-select role from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const roleParam = urlParams.get('role');
+    if (roleParam) {
+      const roleInput = document.querySelector(`input[name="role"][value="${roleParam}"]`);
+      if (roleInput) {
+        roleInput.checked = true;
+        roleInput.dispatchEvent(new Event('change'));
+      }
+    }
+
+    // Form submission
+    document.getElementById('register-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const btnText = document.getElementById('btn-text');
+      const btnLoading = document.getElementById('btn-loading');
+      const alertContainer = document.getElementById('alert-container');
+
+      btnText.classList.add('hidden');
+      btnLoading.classList.remove('hidden');
+      alertContainer.innerHTML = '';
+
+      const formData = {
+        firstName: document.getElementById('firstName').value,
+        lastName: document.getElementById('lastName').value,
+        email: document.getElementById('email').value,
+        password: document.getElementById('password').value,
+        phone: document.getElementById('phone').value,
+        role: document.querySelector('input[name="role"]:checked').value
+      };
+
+      if (formData.role === 'printer') {
+        formData.companyName = document.getElementById('companyName').value;
+      }
+
+      try {
+        const response = await fetch('/api/auth/register', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(formData)
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          localStorage.setItem('token', data.token);
+          localStorage.setItem('refreshToken', data.refreshToken);
+          localStorage.setItem('user', JSON.stringify(data.user));
+
+          alertContainer.innerHTML = '<div class="alert alert-success">Inscription réussie ! Redirection...</div>';
+
+          setTimeout(() => {
+            if (data.user.role === 'client') {
+              window.location.href = '/dashboard-client.html';
+            } else {
+              window.location.href = '/dashboard-printer.html';
+            }
+          }, 1000);
+        } else {
+          const errorMsg = data.details ? data.details.join(', ') : data.error;
+          alertContainer.innerHTML = `<div class="alert alert-error">${errorMsg}</div>`;
+        }
+      } catch (error) {
+        alertContainer.innerHTML = '<div class="alert alert-error">Erreur de connexion au serveur</div>';
+      } finally {
+        btnText.classList.remove('hidden');
+        btnLoading.classList.add('hidden');
+      }
+    });
+  </script>
+</body>
+</html>

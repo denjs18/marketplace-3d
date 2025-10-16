@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Client - Marketplace 3D</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="/" class="logo">Marketplace 3D</a>
+      <div class="flex gap-2">
+        <span class="badge badge-info">Mode Test - Client</span>
+        <a href="/" class="btn btn-outline">Retour Accueil</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="dashboard">
+    <aside class="sidebar">
+      <h3 class="mb-3">Menu Client</h3>
+      <ul class="sidebar-nav">
+        <li><a href="#" class="active">📊 Tableau de bord</a></li>
+        <li><a href="#">📦 Mes projets</a></li>
+        <li><a href="#">💬 Messages</a></li>
+        <li><a href="#">👤 Mon profil</a></li>
+      </ul>
+      <hr class="mt-3 mb-3">
+      <div class="text-center">
+        <a href="/dashboard-printer.html" class="btn btn-secondary btn-full">Voir Dashboard Imprimeur</a>
+      </div>
+    </aside>
+
+    <main class="dashboard-content">
+      <h1 class="mb-3">Dashboard Client</h1>
+
+      <!-- Stats -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-value">5</div>
+          <div class="stat-label">Projets actifs</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">12</div>
+          <div class="stat-label">Devis reçus</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">3</div>
+          <div class="stat-label">En cours</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">8</div>
+          <div class="stat-label">Terminés</div>
+        </div>
+      </div>
+
+      <!-- Actions rapides -->
+      <div class="card mb-3">
+        <div class="card-header">
+          <h2 class="card-title">Actions rapides</h2>
+        </div>
+        <div class="card-body">
+          <div class="flex gap-2">
+            <button class="btn btn-primary" onclick="window.location.href='/create-project.html'">
+              ➕ Nouveau projet
+            </button>
+            <button class="btn btn-secondary" onclick="alert('Messagerie en développement\n\nCette fonctionnalité permettra de communiquer en temps réel avec les imprimeurs via Socket.IO')">
+              💬 Voir messages
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mes projets récents -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">Mes projets récents</h2>
+        </div>
+        <div class="card-body">
+          <div class="grid grid-2">
+            <!-- Projet 1 -->
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">Figurine Star Wars</h3>
+                <span class="badge badge-warning">En cours</span>
+              </div>
+              <div class="card-body">
+                <p class="text-secondary mb-2">Figurine Yoda 15cm de hauteur</p>
+                <div class="flex-between mb-2">
+                  <span><strong>Matériau:</strong> PLA</span>
+                  <span><strong>Quantité:</strong> 5</span>
+                </div>
+                <div class="flex-between">
+                  <span class="text-primary"><strong>3 devis reçus</strong></span>
+                  <button class="btn btn-primary" onclick="alert('Mode test : Détails du projet\n\nVous pourriez voir :\n- Fichier STL 3D\n- Tous les devis reçus\n- Historique des messages')">Voir détails</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Projet 2 -->
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">Pièce mécanique</h3>
+                <span class="badge badge-info">Ouvert</span>
+              </div>
+              <div class="card-body">
+                <p class="text-secondary mb-2">Support de téléphone pour voiture</p>
+                <div class="flex-between mb-2">
+                  <span><strong>Matériau:</strong> PETG</span>
+                  <span><strong>Quantité:</strong> 10</span>
+                </div>
+                <div class="flex-between">
+                  <span class="text-primary"><strong>2 devis reçus</strong></span>
+                  <button class="btn btn-primary" onclick="alert('Mode test : Détails du projet')">Voir détails</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Projet 3 -->
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">Prototype boîtier</h3>
+                <span class="badge badge-success">Terminé</span>
+              </div>
+              <div class="card-body">
+                <p class="text-secondary mb-2">Boîtier pour Raspberry Pi 4</p>
+                <div class="flex-between mb-2">
+                  <span><strong>Matériau:</strong> ABS</span>
+                  <span><strong>Quantité:</strong> 1</span>
+                </div>
+                <div class="flex-between">
+                  <span class="text-success"><strong>Livré le 10/10/2025</strong></span>
+                  <button class="btn btn-secondary" onclick="alert('Mode test : Laisser un avis\n\nVous pourriez noter l\'imprimeur et laisser un commentaire')">Laisser un avis</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Projet 4 -->
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">Décoration murale</h3>
+                <span class="badge badge-warning">En cours</span>
+              </div>
+              <div class="card-body">
+                <p class="text-secondary mb-2">Logo entreprise en relief 30x30cm</p>
+                <div class="flex-between mb-2">
+                  <span><strong>Matériau:</strong> PLA</span>
+                  <span><strong>Quantité:</strong> 3</span>
+                </div>
+                <div class="flex-between">
+                  <span class="text-warning"><strong>En impression...</strong></span>
+                  <button class="btn btn-primary" onclick="alert('Mode test : Suivi en temps réel\n\nVous pourriez voir la progression de l\'impression')">Suivre</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Derniers devis reçus -->
+      <div class="card mt-3">
+        <div class="card-header">
+          <h2 class="card-title">Derniers devis reçus</h2>
+        </div>
+        <div class="card-body">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Projet</th>
+                <th>Imprimeur</th>
+                <th>Prix</th>
+                <th>Délai</th>
+                <th>Note</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Figurine Star Wars</td>
+                <td>Print3D Pro</td>
+                <td><strong>45,00 €</strong></td>
+                <td>5 jours</td>
+                <td>⭐⭐⭐⭐⭐ 4.8</td>
+                <td>
+                  <button class="btn btn-secondary" onclick="alert('Mode test : Accepter le devis\n\nCela déclencherait :\n- Paiement Stripe\n- Notification à l\'imprimeur\n- Début du projet')">Accepter</button>
+                </td>
+              </tr>
+              <tr>
+                <td>Pièce mécanique</td>
+                <td>ImprimTech</td>
+                <td><strong>120,00 €</strong></td>
+                <td>3 jours</td>
+                <td>⭐⭐⭐⭐ 4.2</td>
+                <td>
+                  <button class="btn btn-secondary" onclick="alert('Mode test : Accepter le devis')">Accepter</button>
+                </td>
+              </tr>
+              <tr>
+                <td>Pièce mécanique</td>
+                <td>3D Factory</td>
+                <td><strong>98,00 €</strong></td>
+                <td>4 jours</td>
+                <td>⭐⭐⭐⭐⭐ 4.9</td>
+                <td>
+                  <button class="btn btn-secondary" onclick="alert('Mode test : Accepter le devis')">Accepter</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="/js/app.js"></script>
+</body>
+</html>

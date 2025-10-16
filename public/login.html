@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Connexion - Marketplace 3D</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="/" class="logo">Marketplace 3D</a>
+      <div class="flex gap-2">
+        <a href="/register.html" class="btn btn-outline">S'inscrire</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container" style="max-width: 500px; margin-top: 4rem;">
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title text-center">Connexion</h2>
+      </div>
+      <div class="card-body">
+        <div id="alert-container"></div>
+
+        <form id="login-form">
+          <div class="form-group">
+            <label class="form-label" for="email">Email</label>
+            <input type="email" class="form-input" id="email" required placeholder="votre@email.com">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="password">Mot de passe</label>
+            <input type="password" class="form-input" id="password" required placeholder="••••••••">
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-full">
+            <span id="btn-text">Se connecter</span>
+            <span id="btn-loading" class="loading hidden"></span>
+          </button>
+        </form>
+
+        <p class="text-center mt-3">
+          Pas encore de compte ?
+          <a href="/register.html" class="text-primary">S'inscrire</a>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/auth.js"></script>
+  <script>
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const btnText = document.getElementById('btn-text');
+      const btnLoading = document.getElementById('btn-loading');
+      const alertContainer = document.getElementById('alert-container');
+
+      btnText.classList.add('hidden');
+      btnLoading.classList.remove('hidden');
+      alertContainer.innerHTML = '';
+
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+
+      try {
+        const response = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ email, password })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          localStorage.setItem('token', data.token);
+          localStorage.setItem('refreshToken', data.refreshToken);
+          localStorage.setItem('user', JSON.stringify(data.user));
+
+          alertContainer.innerHTML = '<div class="alert alert-success">Connexion réussie ! Redirection...</div>';
+
+          setTimeout(() => {
+            if (data.user.role === 'client') {
+              window.location.href = '/dashboard-client.html';
+            } else {
+              window.location.href = '/dashboard-printer.html';
+            }
+          }, 1000);
+        } else {
+          alertContainer.innerHTML = `<div class="alert alert-error">${data.error || 'Erreur de connexion'}</div>`;
+        }
+      } catch (error) {
+        alertContainer.innerHTML = '<div class="alert alert-error">Erreur de connexion au serveur</div>';
+      } finally {
+        btnText.classList.remove('hidden');
+        btnLoading.classList.add('hidden');
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Imprimeur - Marketplace 3D</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="/" class="logo">Marketplace 3D</a>
+      <div class="flex gap-2">
+        <span class="badge badge-success">Mode Test - Imprimeur</span>
+        <a href="/" class="btn btn-outline">Retour Accueil</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="dashboard">
+    <aside class="sidebar">
+      <h3 class="mb-3">Menu Imprimeur</h3>
+      <ul class="sidebar-nav">
+        <li><a href="#" class="active">📊 Tableau de bord</a></li>
+        <li><a href="#">🔍 Projets disponibles</a></li>
+        <li><a href="#">📝 Mes devis</a></li>
+        <li><a href="#">💬 Messages</a></li>
+        <li><a href="#">💰 Revenus</a></li>
+        <li><a href="#">👤 Mon profil</a></li>
+      </ul>
+      <hr class="mt-3 mb-3">
+      <div class="text-center">
+        <a href="/dashboard-client.html" class="btn btn-primary btn-full">Voir Dashboard Client</a>
+      </div>
+    </aside>
+
+    <main class="dashboard-content">
+      <h1 class="mb-3">Dashboard Imprimeur</h1>
+
+      <!-- Stats -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-value">24</div>
+          <div class="stat-label">Projets disponibles</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">8</div>
+          <div class="stat-label">Devis envoyés</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">5</div>
+          <div class="stat-label">Projets actifs</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">1,845 €</div>
+          <div class="stat-label">Revenus ce mois</div>
+        </div>
+      </div>
+
+      <!-- Actions rapides -->
+      <div class="card mb-3">
+        <div class="card-header">
+          <h2 class="card-title">Actions rapides</h2>
+        </div>
+        <div class="card-body">
+          <div class="flex gap-2">
+            <button class="btn btn-primary" onclick="alert('Mode test : Parcourir les projets\n\nVous pourriez voir tous les projets disponibles avec filtres par :\n- Matériau\n- Budget\n- Délai\n- Localisation')">
+              🔍 Voir projets disponibles
+            </button>
+            <button class="btn btn-secondary" onclick="alert('Mode test : Mes devis\n\nVous pourriez gérer vos devis :\n- En attente\n- Acceptés\n- Refusés')">
+              📝 Gérer mes devis
+            </button>
+            <button class="btn btn-secondary" onclick="alert('Mode test : Revenus\n\nVous pourriez voir :\n- Graphiques de revenus\n- Historique des paiements\n- Gains totaux (90% du montant)')">
+              💰 Voir revenus
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Nouveaux projets disponibles -->
+      <div class="card mb-3">
+        <div class="card-header">
+          <h2 class="card-title">Nouveaux projets disponibles</h2>
+        </div>
+        <div class="card-body">
+          <div class="grid grid-2">
+            <!-- Projet 1 -->
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">Lot de pièces mécaniques</h3>
+                <span class="badge badge-info">Nouveau</span>
+              </div>
+              <div class="card-body">
+                <p class="text-secondary mb-2">20 pièces identiques pour prototype industriel</p>
+                <div class="mb-2">
+                  <span class="badge badge-info">PETG</span>
+                  <span class="badge badge-warning">Quantité: 20</span>
+                </div>
+                <div class="flex-between mb-2">
+                  <span><strong>Budget:</strong> 150-200 €</span>
+                  <span><strong>Délai:</strong> 7 jours</span>
+                </div>
+                <button class="btn btn-primary btn-full" onclick="window.location.href='/submit-quote.html'">Soumettre un devis</button>
+              </div>
+            </div>
+
+            <!-- Projet 2 -->
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">Figurines décoratives</h3>
+                <span class="badge badge-info">Nouveau</span>
+              </div>
+              <div class="card-body">
+                <p class="text-secondary mb-2">Série de 10 figurines personnages</p>
+                <div class="mb-2">
+                  <span class="badge badge-info">Résine</span>
+                  <span class="badge badge-warning">Quantité: 10</span>
+                </div>
+                <div class="flex-between mb-2">
+                  <span><strong>Budget:</strong> 80-120 €</span>
+                  <span><strong>Délai:</strong> 5 jours</span>
+                </div>
+                <button class="btn btn-primary btn-full" onclick="window.location.href='/submit-quote.html'">Soumettre un devis</button>
+              </div>
+            </div>
+
+            <!-- Projet 3 -->
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">Boîtier électronique</h3>
+                <span class="badge badge-info">Nouveau</span>
+              </div>
+              <div class="card-body">
+                <p class="text-secondary mb-2">Protection pour carte électronique custom</p>
+                <div class="mb-2">
+                  <span class="badge badge-info">ABS</span>
+                  <span class="badge badge-warning">Quantité: 50</span>
+                </div>
+                <div class="flex-between mb-2">
+                  <span><strong>Budget:</strong> 300-400 €</span>
+                  <span><strong>Délai:</strong> 10 jours</span>
+                </div>
+                <button class="btn btn-primary btn-full" onclick="window.location.href='/submit-quote.html'">Soumettre un devis</button>
+              </div>
+            </div>
+
+            <!-- Projet 4 -->
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">Accessoires cosplay</h3>
+                <span class="badge badge-info">Nouveau</span>
+              </div>
+              <div class="card-body">
+                <p class="text-secondary mb-2">Épée et bouclier pour costume</p>
+                <div class="mb-2">
+                  <span class="badge badge-info">PLA</span>
+                  <span class="badge badge-warning">Quantité: 1</span>
+                </div>
+                <div class="flex-between mb-2">
+                  <span><strong>Budget:</strong> 60-90 €</span>
+                  <span><strong>Délai:</strong> 4 jours</span>
+                </div>
+                <button class="btn btn-primary btn-full" onclick="window.location.href='/submit-quote.html'">Soumettre un devis</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mes devis en cours -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">Mes devis en attente</h2>
+        </div>
+        <div class="card-body">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Projet</th>
+                <th>Client</th>
+                <th>Mon prix</th>
+                <th>Délai proposé</th>
+                <th>Statut</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Support tablette</strong></td>
+                <td>Jean Dupont</td>
+                <td><strong>35,00 €</strong></td>
+                <td>3 jours</td>
+                <td><span class="badge badge-warning">En attente</span></td>
+                <td>14/10/2025</td>
+              </tr>
+              <tr>
+                <td><strong>Pièces détachées</strong></td>
+                <td>Marie Martin</td>
+                <td><strong>85,00 €</strong></td>
+                <td>5 jours</td>
+                <td><span class="badge badge-warning">En attente</span></td>
+                <td>13/10/2025</td>
+              </tr>
+              <tr>
+                <td><strong>Décoration murale</strong></td>
+                <td>Pierre Durand</td>
+                <td><strong>125,00 €</strong></td>
+                <td>7 jours</td>
+                <td><span class="badge badge-success">Accepté ✓</span></td>
+                <td>12/10/2025</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Projets en cours -->
+      <div class="card mt-3">
+        <div class="card-header">
+          <h2 class="card-title">Projets en cours d'impression</h2>
+        </div>
+        <div class="card-body">
+          <div class="grid grid-2">
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">Décoration murale</h3>
+                <span class="badge badge-warning">En cours</span>
+              </div>
+              <div class="card-body">
+                <p class="text-secondary mb-2">Logo entreprise 30x30cm</p>
+                <div class="mb-2">
+                  <strong>Client:</strong> Pierre Durand<br>
+                  <strong>Votre paiement:</strong> 112,50 €
+                </div>
+                <div class="progress-bar mb-2" style="background: #e5e7eb; height: 20px; border-radius: 10px;">
+                  <div style="width: 60%; background: var(--secondary-color); height: 100%; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.875rem;">
+                    60% terminé
+                  </div>
+                </div>
+                <button class="btn btn-secondary btn-full" onclick="alert('Mode test : Marquer comme terminé\n\nCela déclencherait :\n- Notification au client\n- Traitement du paiement\n- Transfert de 90% du montant vers votre compte Stripe')">Marquer comme terminé</button>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">Prototype technique</h3>
+                <span class="badge badge-warning">En cours</span>
+              </div>
+              <div class="card-body">
+                <p class="text-secondary mb-2">Pièce mécanique de précision</p>
+                <div class="mb-2">
+                  <strong>Client:</strong> Sophie Laurent<br>
+                  <strong>Votre paiement:</strong> 85,50 €
+                </div>
+                <div class="progress-bar mb-2" style="background: #e5e7eb; height: 20px; border-radius: 10px;">
+                  <div style="width: 30%; background: var(--secondary-color); height: 100%; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.875rem;">
+                    30% terminé
+                  </div>
+                </div>
+                <button class="btn btn-secondary btn-full" onclick="alert('Mode test : Marquer comme terminé')">Marquer comme terminé</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Statistiques revenus -->
+      <div class="card mt-3">
+        <div class="card-header">
+          <h2 class="card-title">Aperçu des revenus</h2>
+        </div>
+        <div class="card-body">
+          <div class="grid grid-3">
+            <div class="text-center">
+              <div class="stat-value text-success">1,845 €</div>
+              <div class="stat-label">Ce mois-ci</div>
+            </div>
+            <div class="text-center">
+              <div class="stat-value text-primary">4,280 €</div>
+              <div class="stat-label">Total année</div>
+            </div>
+            <div class="text-center">
+              <div class="stat-value text-secondary">27</div>
+              <div class="stat-label">Projets terminés</div>
+            </div>
+          </div>
+          <div class="mt-3 text-center">
+            <p class="text-secondary">Les montants affichés sont après déduction de la commission plateforme (10%)</p>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="/js/app.js"></script>
+</body>
+</html>
