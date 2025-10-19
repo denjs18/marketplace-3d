@@ -1,52 +1,13 @@
 const multer = require('multer');
 const path = require('path');
-const fs = require('fs');
+const { put } = require('@vercel/blob');
 
-// Ensure upload directories exist
-const uploadDirs = {
-  stl: path.join(__dirname, '../uploads/stl'),
-  images: path.join(__dirname, '../uploads/images'),
-  attachments: path.join(__dirname, '../uploads/attachments')
-};
+// NOTE: Using Vercel Blob for file storage
+// Vercel serverless functions have a read-only filesystem.
+// All files are stored in Vercel Blob storage instead of local directories.
 
-Object.values(uploadDirs).forEach(dir => {
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
-  }
-});
-
-// Storage configuration for STL files
-const stlStorage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, uploadDirs.stl);
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, 'stl-' + uniqueSuffix + path.extname(file.originalname));
-  }
-});
-
-// Storage configuration for images
-const imageStorage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, uploadDirs.images);
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, 'img-' + uniqueSuffix + path.extname(file.originalname));
-  }
-});
-
-// Storage configuration for general attachments
-const attachmentStorage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, uploadDirs.attachments);
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, 'file-' + uniqueSuffix + path.extname(file.originalname));
-  }
-});
+// Use memory storage to handle files in memory before uploading to Vercel Blob
+const memoryStorage = multer.memoryStorage();
 
 // File filter for 3D model files (STL, OBJ, 3MF)
 const stlFileFilter = (req, file, cb) => {
@@ -90,38 +51,158 @@ const attachmentFileFilter = (req, file, cb) => {
   }
 };
 
-// Multer configurations
+// Helper function to upload file to Vercel Blob
+const uploadToVercelBlob = async (file, folder) => {
+  try {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    const ext = path.extname(file.originalname);
+    const filename = `${folder}/${file.fieldname}-${uniqueSuffix}${ext}`;
+
+    const blob = await put(filename, file.buffer, {
+      access: 'public',
+      contentType: file.mimetype
+    });
+
+    return {
+      url: blob.url,
+      pathname: blob.pathname,
+      size: file.size,
+      mimetype: file.mimetype,
+      originalname: file.originalname
+    };
+  } catch (error) {
+    console.error('Error uploading to Vercel Blob:', error);
+    throw new Error('Failed to upload file to storage');
+  }
+};
+
+// Middleware to handle STL file upload
 const uploadSTL = multer({
-  storage: stlStorage,
+  storage: memoryStorage,
   fileFilter: stlFileFilter,
   limits: {
     fileSize: 50 * 1024 * 1024 // 50 MB
   }
 }).single('stlFile');
 
+// Middleware to handle single image upload
 const uploadImage = multer({
-  storage: imageStorage,
+  storage: memoryStorage,
   fileFilter: imageFileFilter,
   limits: {
     fileSize: 5 * 1024 * 1024 // 5 MB
   }
 }).single('image');
 
+// Middleware to handle multiple images upload
 const uploadMultipleImages = multer({
-  storage: imageStorage,
+  storage: memoryStorage,
   fileFilter: imageFileFilter,
   limits: {
     fileSize: 5 * 1024 * 1024 // 5 MB per file
   }
 }).array('images', 5); // Max 5 images
 
+// Middleware to handle attachment upload
 const uploadAttachment = multer({
-  storage: attachmentStorage,
+  storage: memoryStorage,
   fileFilter: attachmentFileFilter,
   limits: {
     fileSize: 10 * 1024 * 1024 // 10 MB
   }
 }).single('attachment');
+
+// Wrapper middleware for STL upload with Vercel Blob
+const uploadSTLToBlob = (req, res, next) => {
+  uploadSTL(req, res, async (err) => {
+    if (err) {
+      return next(err);
+    }
+
+    if (req.file) {
+      try {
+        const blobData = await uploadToVercelBlob(req.file, 'uploads/stl');
+        req.file.url = blobData.url;
+        req.file.pathname = blobData.pathname;
+        req.file.path = blobData.url; // For backward compatibility
+      } catch (error) {
+        return next(error);
+      }
+    }
+
+    next();
+  });
+};
+
+// Wrapper middleware for image upload with Vercel Blob
+const uploadImageToBlob = (req, res, next) => {
+  uploadImage(req, res, async (err) => {
+    if (err) {
+      return next(err);
+    }
+
+    if (req.file) {
+      try {
+        const blobData = await uploadToVercelBlob(req.file, 'uploads/images');
+        req.file.url = blobData.url;
+        req.file.pathname = blobData.pathname;
+        req.file.path = blobData.url; // For backward compatibility
+      } catch (error) {
+        return next(error);
+      }
+    }
+
+    next();
+  });
+};
+
+// Wrapper middleware for multiple images upload with Vercel Blob
+const uploadMultipleImagesToBlob = (req, res, next) => {
+  uploadMultipleImages(req, res, async (err) => {
+    if (err) {
+      return next(err);
+    }
+
+    if (req.files && req.files.length > 0) {
+      try {
+        const uploadPromises = req.files.map(file => uploadToVercelBlob(file, 'uploads/images'));
+        const blobDataArray = await Promise.all(uploadPromises);
+
+        req.files.forEach((file, index) => {
+          file.url = blobDataArray[index].url;
+          file.pathname = blobDataArray[index].pathname;
+          file.path = blobDataArray[index].url; // For backward compatibility
+        });
+      } catch (error) {
+        return next(error);
+      }
+    }
+
+    next();
+  });
+};
+
+// Wrapper middleware for attachment upload with Vercel Blob
+const uploadAttachmentToBlob = (req, res, next) => {
+  uploadAttachment(req, res, async (err) => {
+    if (err) {
+      return next(err);
+    }
+
+    if (req.file) {
+      try {
+        const blobData = await uploadToVercelBlob(req.file, 'uploads/attachments');
+        req.file.url = blobData.url;
+        req.file.pathname = blobData.pathname;
+        req.file.path = blobData.url; // For backward compatibility
+      } catch (error) {
+        return next(error);
+      }
+    }
+
+    next();
+  });
+};
 
 // Error handling middleware for multer
 const handleUploadError = (err, req, res, next) => {
@@ -153,26 +234,26 @@ const handleUploadError = (err, req, res, next) => {
   next();
 };
 
-// Helper function to delete file
-const deleteFile = (filePath) => {
+// Helper function to delete file from Vercel Blob
+const deleteFile = async (fileUrl) => {
   try {
-    if (fs.existsSync(filePath)) {
-      fs.unlinkSync(filePath);
-      return true;
-    }
-    return false;
+    // Vercel Blob delete functionality
+    // Note: You need to use the del function from @vercel/blob
+    const { del } = require('@vercel/blob');
+    await del(fileUrl);
+    return true;
   } catch (error) {
-    console.error('Error deleting file:', error);
+    console.error('Error deleting file from Vercel Blob:', error);
     return false;
   }
 };
 
 module.exports = {
-  uploadSTL,
-  uploadImage,
-  uploadMultipleImages,
-  uploadAttachment,
+  uploadSTL: uploadSTLToBlob,
+  uploadImage: uploadImageToBlob,
+  uploadMultipleImages: uploadMultipleImagesToBlob,
+  uploadAttachment: uploadAttachmentToBlob,
   handleUploadError,
   deleteFile,
-  uploadDirs
+  uploadToVercelBlob // Export helper for custom usage
 };

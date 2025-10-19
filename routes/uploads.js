@@ -16,7 +16,7 @@ router.post('/images', authenticate, uploadMultipleImages, handleUploadError, (r
       });
     }
 
-    const imageUrls = req.files.map(file => `/uploads/images/${file.filename}`);
+    const imageUrls = req.files.map(file => file.url);
 
     res.json({
       message: 'Images uploaded successfully',

@@ -11,8 +11,8 @@
     <div class="nav-container">
       <a href="/" class="logo">Marketplace 3D</a>
       <div class="flex gap-2">
-        <span class="badge badge-success">Mode Test - Imprimeur</span>
-        <a href="/" class="btn btn-outline">Retour Accueil</a>
+        <span id="user-name" class="badge badge-success">Chargement...</span>
+        <button class="btn btn-outline" onclick="logout()">Déconnexion</button>
       </div>
     </div>
   </nav>
@@ -28,31 +28,30 @@
         <li><a href="#">💰 Revenus</a></li>
         <li><a href="#">👤 Mon profil</a></li>
       </ul>
-      <hr class="mt-3 mb-3">
-      <div class="text-center">
-        <a href="/dashboard-client.html" class="btn btn-primary btn-full">Voir Dashboard Client</a>
-      </div>
     </aside>
 
     <main class="dashboard-content">
       <h1 class="mb-3">Dashboard Imprimeur</h1>
 
       <!-- Stats -->
-      <div class="stats-grid">
+      <div id="loading-stats" class="text-center mb-3">
+        <p>Chargement des statistiques...</p>
+      </div>
+      <div id="stats-grid" class="stats-grid hidden">
         <div class="stat-card">
-          <div class="stat-value">24</div>
+          <div id="stat-available" class="stat-value">0</div>
           <div class="stat-label">Projets disponibles</div>
         </div>
         <div class="stat-card">
-          <div class="stat-value">8</div>
+          <div id="stat-quotes" class="stat-value">0</div>
           <div class="stat-label">Devis envoyés</div>
         </div>
         <div class="stat-card">
-          <div class="stat-value">5</div>
+          <div id="stat-active" class="stat-value">0</div>
           <div class="stat-label">Projets actifs</div>
         </div>
         <div class="stat-card">
-          <div class="stat-value">1,845 €</div>
+          <div id="stat-revenue" class="stat-value">0 €</div>
           <div class="stat-label">Revenus ce mois</div>
         </div>
       </div>
@@ -64,13 +63,13 @@
         </div>
         <div class="card-body">
           <div class="flex gap-2">
-            <button class="btn btn-primary" onclick="alert('Mode test : Parcourir les projets\n\nVous pourriez voir tous les projets disponibles avec filtres par :\n- Matériau\n- Budget\n- Délai\n- Localisation')">
+            <button class="btn btn-primary" onclick="alert('Fonctionnalité disponible prochainement')">
               🔍 Voir projets disponibles
             </button>
-            <button class="btn btn-secondary" onclick="alert('Mode test : Mes devis\n\nVous pourriez gérer vos devis :\n- En attente\n- Acceptés\n- Refusés')">
+            <button class="btn btn-secondary" onclick="alert('Fonctionnalité disponible prochainement')">
               📝 Gérer mes devis
             </button>
-            <button class="btn btn-secondary" onclick="alert('Mode test : Revenus\n\nVous pourriez voir :\n- Graphiques de revenus\n- Historique des paiements\n- Gains totaux (90% du montant)')">
+            <button class="btn btn-secondary" onclick="alert('Fonctionnalité disponible prochainement')">
               💰 Voir revenus
             </button>
           </div>
@@ -83,86 +82,14 @@
           <h2 class="card-title">Nouveaux projets disponibles</h2>
         </div>
         <div class="card-body">
-          <div class="grid grid-2">
-            <!-- Projet 1 -->
-            <div class="card">
-              <div class="card-header">
-                <h3 class="card-title">Lot de pièces mécaniques</h3>
-                <span class="badge badge-info">Nouveau</span>
-              </div>
-              <div class="card-body">
-                <p class="text-secondary mb-2">20 pièces identiques pour prototype industriel</p>
-                <div class="mb-2">
-                  <span class="badge badge-info">PETG</span>
-                  <span class="badge badge-warning">Quantité: 20</span>
-                </div>
-                <div class="flex-between mb-2">
-                  <span><strong>Budget:</strong> 150-200 €</span>
-                  <span><strong>Délai:</strong> 7 jours</span>
-                </div>
-                <button class="btn btn-primary btn-full" onclick="window.location.href='/submit-quote.html'">Soumettre un devis</button>
-              </div>
-            </div>
-
-            <!-- Projet 2 -->
-            <div class="card">
-              <div class="card-header">
-                <h3 class="card-title">Figurines décoratives</h3>
-                <span class="badge badge-info">Nouveau</span>
-              </div>
-              <div class="card-body">
-                <p class="text-secondary mb-2">Série de 10 figurines personnages</p>
-                <div class="mb-2">
-                  <span class="badge badge-info">Résine</span>
-                  <span class="badge badge-warning">Quantité: 10</span>
-                </div>
-                <div class="flex-between mb-2">
-                  <span><strong>Budget:</strong> 80-120 €</span>
-                  <span><strong>Délai:</strong> 5 jours</span>
-                </div>
-                <button class="btn btn-primary btn-full" onclick="window.location.href='/submit-quote.html'">Soumettre un devis</button>
-              </div>
-            </div>
-
-            <!-- Projet 3 -->
-            <div class="card">
-              <div class="card-header">
-                <h3 class="card-title">Boîtier électronique</h3>
-                <span class="badge badge-info">Nouveau</span>
-              </div>
-              <div class="card-body">
-                <p class="text-secondary mb-2">Protection pour carte électronique custom</p>
-                <div class="mb-2">
-                  <span class="badge badge-info">ABS</span>
-                  <span class="badge badge-warning">Quantité: 50</span>
-                </div>
-                <div class="flex-between mb-2">
-                  <span><strong>Budget:</strong> 300-400 €</span>
-                  <span><strong>Délai:</strong> 10 jours</span>
-                </div>
-                <button class="btn btn-primary btn-full" onclick="window.location.href='/submit-quote.html'">Soumettre un devis</button>
-              </div>
-            </div>
-
-            <!-- Projet 4 -->
-            <div class="card">
-              <div class="card-header">
-                <h3 class="card-title">Accessoires cosplay</h3>
-                <span class="badge badge-info">Nouveau</span>
-              </div>
-              <div class="card-body">
-                <p class="text-secondary mb-2">Épée et bouclier pour costume</p>
-                <div class="mb-2">
-                  <span class="badge badge-info">PLA</span>
-                  <span class="badge badge-warning">Quantité: 1</span>
-                </div>
-                <div class="flex-between mb-2">
-                  <span><strong>Budget:</strong> 60-90 €</span>
-                  <span><strong>Délai:</strong> 4 jours</span>
-                </div>
-                <button class="btn btn-primary btn-full" onclick="window.location.href='/submit-quote.html'">Soumettre un devis</button>
-              </div>
-            </div>
+          <div id="loading-available-projects" class="text-center">
+            <p>Chargement des projets...</p>
+          </div>
+          <div id="available-projects-grid" class="grid grid-2 hidden">
+            <!-- Projects will be loaded dynamically -->
+          </div>
+          <div id="no-available-projects" class="text-center text-secondary hidden">
+            <p>Aucun projet disponible pour le moment.</p>
           </div>
         </div>
       </div>
@@ -173,44 +100,29 @@
           <h2 class="card-title">Mes devis en attente</h2>
         </div>
         <div class="card-body">
-          <table class="table">
-            <thead>
-              <tr>
-                <th>Projet</th>
-                <th>Client</th>
-                <th>Mon prix</th>
-                <th>Délai proposé</th>
-                <th>Statut</th>
-                <th>Date</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td><strong>Support tablette</strong></td>
-                <td>Jean Dupont</td>
-                <td><strong>35,00 €</strong></td>
-                <td>3 jours</td>
-                <td><span class="badge badge-warning">En attente</span></td>
-                <td>14/10/2025</td>
-              </tr>
-              <tr>
-                <td><strong>Pièces détachées</strong></td>
-                <td>Marie Martin</td>
-                <td><strong>85,00 €</strong></td>
-                <td>5 jours</td>
-                <td><span class="badge badge-warning">En attente</span></td>
-                <td>13/10/2025</td>
-              </tr>
-              <tr>
-                <td><strong>Décoration murale</strong></td>
-                <td>Pierre Durand</td>
-                <td><strong>125,00 €</strong></td>
-                <td>7 jours</td>
-                <td><span class="badge badge-success">Accepté ✓</span></td>
-                <td>12/10/2025</td>
-              </tr>
-            </tbody>
-          </table>
+          <div id="loading-my-quotes" class="text-center">
+            <p>Chargement des devis...</p>
+          </div>
+          <div id="my-quotes-table" class="hidden">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Projet</th>
+                  <th>Client</th>
+                  <th>Mon prix</th>
+                  <th>Délai proposé</th>
+                  <th>Statut</th>
+                  <th>Date</th>
+                </tr>
+              </thead>
+              <tbody id="my-quotes-body">
+                <!-- Quotes will be loaded dynamically -->
+              </tbody>
+            </table>
+          </div>
+          <div id="no-my-quotes" class="text-center text-secondary hidden">
+            <p>Aucun devis envoyé pour le moment.</p>
+          </div>
         </div>
       </div>
 
@@ -220,46 +132,14 @@
           <h2 class="card-title">Projets en cours d'impression</h2>
         </div>
         <div class="card-body">
-          <div class="grid grid-2">
-            <div class="card">
-              <div class="card-header">
-                <h3 class="card-title">Décoration murale</h3>
-                <span class="badge badge-warning">En cours</span>
-              </div>
-              <div class="card-body">
-                <p class="text-secondary mb-2">Logo entreprise 30x30cm</p>
-                <div class="mb-2">
-                  <strong>Client:</strong> Pierre Durand<br>
-                  <strong>Votre paiement:</strong> 112,50 €
-                </div>
-                <div class="progress-bar mb-2" style="background: #e5e7eb; height: 20px; border-radius: 10px;">
-                  <div style="width: 60%; background: var(--secondary-color); height: 100%; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.875rem;">
-                    60% terminé
-                  </div>
-                </div>
-                <button class="btn btn-secondary btn-full" onclick="alert('Mode test : Marquer comme terminé\n\nCela déclencherait :\n- Notification au client\n- Traitement du paiement\n- Transfert de 90% du montant vers votre compte Stripe')">Marquer comme terminé</button>
-              </div>
-            </div>
-
-            <div class="card">
-              <div class="card-header">
-                <h3 class="card-title">Prototype technique</h3>
-                <span class="badge badge-warning">En cours</span>
-              </div>
-              <div class="card-body">
-                <p class="text-secondary mb-2">Pièce mécanique de précision</p>
-                <div class="mb-2">
-                  <strong>Client:</strong> Sophie Laurent<br>
-                  <strong>Votre paiement:</strong> 85,50 €
-                </div>
-                <div class="progress-bar mb-2" style="background: #e5e7eb; height: 20px; border-radius: 10px;">
-                  <div style="width: 30%; background: var(--secondary-color); height: 100%; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.875rem;">
-                    30% terminé
-                  </div>
-                </div>
-                <button class="btn btn-secondary btn-full" onclick="alert('Mode test : Marquer comme terminé')">Marquer comme terminé</button>
-              </div>
-            </div>
+          <div id="loading-progress-projects" class="text-center">
+            <p>Chargement des projets...</p>
+          </div>
+          <div id="progress-projects-grid" class="grid grid-2 hidden">
+            <!-- Projects in progress will be loaded dynamically -->
+          </div>
+          <div id="no-progress-projects" class="text-center text-secondary hidden">
+            <p>Aucun projet en cours d'impression.</p>
           </div>
         </div>
       </div>
@@ -270,22 +150,27 @@
           <h2 class="card-title">Aperçu des revenus</h2>
         </div>
         <div class="card-body">
-          <div class="grid grid-3">
-            <div class="text-center">
-              <div class="stat-value text-success">1,845 €</div>
-              <div class="stat-label">Ce mois-ci</div>
-            </div>
-            <div class="text-center">
-              <div class="stat-value text-primary">4,280 €</div>
-              <div class="stat-label">Total année</div>
-            </div>
-            <div class="text-center">
-              <div class="stat-value text-secondary">27</div>
-              <div class="stat-label">Projets terminés</div>
-            </div>
+          <div id="loading-revenue" class="text-center">
+            <p>Chargement des revenus...</p>
           </div>
-          <div class="mt-3 text-center">
-            <p class="text-secondary">Les montants affichés sont après déduction de la commission plateforme (10%)</p>
+          <div id="revenue-stats" class="hidden">
+            <div class="grid grid-3">
+              <div class="text-center">
+                <div id="revenue-month" class="stat-value text-success">0 €</div>
+                <div class="stat-label">Ce mois-ci</div>
+              </div>
+              <div class="text-center">
+                <div id="revenue-year" class="stat-value text-primary">0 €</div>
+                <div class="stat-label">Total année</div>
+              </div>
+              <div class="text-center">
+                <div id="completed-count" class="stat-value text-secondary">0</div>
+                <div class="stat-label">Projets terminés</div>
+              </div>
+            </div>
+            <div class="mt-3 text-center">
+              <p class="text-secondary">Les montants affichés sont après déduction de la commission plateforme (10%)</p>
+            </div>
           </div>
         </div>
       </div>
@@ -293,5 +178,293 @@
   </div>
 
   <script src="/js/app.js"></script>
+  <script src="/js/auth.js"></script>
+  <script>
+    // Check authentication
+    if (!requireAuth('printer')) {
+      // Will redirect if not authenticated or wrong role
+    }
+
+    // Load user info
+    const user = JSON.parse(localStorage.getItem('user'));
+    document.getElementById('user-name').textContent = user.name || user.email;
+
+    // Logout function
+    function logout() {
+      localStorage.removeItem('token');
+      localStorage.removeItem('refreshToken');
+      localStorage.removeItem('user');
+      window.location.href = '/login.html';
+    }
+
+    // Get auth token
+    function getAuthToken() {
+      return localStorage.getItem('token');
+    }
+
+    // API call with authentication
+    async function apiCall(endpoint, options = {}) {
+      const token = getAuthToken();
+      const defaultOptions = {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      };
+
+      const response = await fetch(endpoint, { ...defaultOptions, ...options });
+
+      if (response.status === 401) {
+        const refreshed = await refreshToken();
+        if (refreshed) {
+          const newToken = getAuthToken();
+          defaultOptions.headers.Authorization = `Bearer ${newToken}`;
+          return fetch(endpoint, { ...defaultOptions, ...options });
+        } else {
+          logout();
+          return null;
+        }
+      }
+
+      return response;
+    }
+
+    // Load dashboard data
+    async function loadDashboard() {
+      await Promise.all([
+        loadStats(),
+        loadAvailableProjects(),
+        loadMyQuotes(),
+        loadProgressProjects(),
+        loadRevenue()
+      ]);
+    }
+
+    // Load stats
+    async function loadStats() {
+      try {
+        // Load available projects count
+        const availableResponse = await apiCall('/api/projects?status=active');
+        const availableData = await availableResponse.json();
+        const availableCount = availableData.projects?.length || 0;
+
+        // Load my quotes count
+        const quotesResponse = await apiCall('/api/quotes/printer');
+        const quotesData = await quotesResponse.json();
+        const quotesCount = quotesData.quotes?.length || 0;
+
+        // Load active projects (accepted quotes)
+        const activeQuotes = quotesData.quotes?.filter(q => q.status === 'accepted') || [];
+        const activeCount = activeQuotes.length;
+
+        // Calculate revenue (simplified - should come from backend)
+        const monthRevenue = activeQuotes
+          .filter(q => new Date(q.createdAt).getMonth() === new Date().getMonth())
+          .reduce((sum, q) => sum + (q.price * 0.9), 0);
+
+        document.getElementById('stat-available').textContent = availableCount;
+        document.getElementById('stat-quotes').textContent = quotesCount;
+        document.getElementById('stat-active').textContent = activeCount;
+        document.getElementById('stat-revenue').textContent = monthRevenue.toFixed(2) + ' €';
+
+        document.getElementById('loading-stats').classList.add('hidden');
+        document.getElementById('stats-grid').classList.remove('hidden');
+      } catch (error) {
+        console.error('Error loading stats:', error);
+        document.getElementById('loading-stats').innerHTML = '<p class="text-danger">Erreur de chargement</p>';
+      }
+    }
+
+    // Load available projects
+    async function loadAvailableProjects() {
+      try {
+        const response = await apiCall('/api/projects?status=active&limit=4');
+        if (response && response.ok) {
+          const data = await response.json();
+          const projects = data.projects || [];
+
+          document.getElementById('loading-available-projects').classList.add('hidden');
+
+          if (projects.length === 0) {
+            document.getElementById('no-available-projects').classList.remove('hidden');
+          } else {
+            const grid = document.getElementById('available-projects-grid');
+            grid.innerHTML = projects.map(project => {
+              return `
+                <div class="card">
+                  <div class="card-header">
+                    <h3 class="card-title">${project.title}</h3>
+                    <span class="badge badge-info">Nouveau</span>
+                  </div>
+                  <div class="card-body">
+                    <p class="text-secondary mb-2">${project.description.substring(0, 60)}${project.description.length > 60 ? '...' : ''}</p>
+                    <div class="mb-2">
+                      <span class="badge badge-info">${project.material}</span>
+                      <span class="badge badge-warning">Quantité: ${project.quantity}</span>
+                    </div>
+                    <div class="flex-between mb-2">
+                      <span><strong>Budget:</strong> ${project.budget.min}-${project.budget.max} €</span>
+                      <span><strong>Délai:</strong> ${project.deadline} jours</span>
+                    </div>
+                    <button class="btn btn-primary btn-full" onclick="submitQuote('${project._id}')">Soumettre un devis</button>
+                  </div>
+                </div>
+              `;
+            }).join('');
+            grid.classList.remove('hidden');
+          }
+        }
+      } catch (error) {
+        console.error('Error loading available projects:', error);
+        document.getElementById('loading-available-projects').innerHTML = '<p class="text-danger">Erreur de chargement</p>';
+      }
+    }
+
+    // Load my quotes
+    async function loadMyQuotes() {
+      try {
+        const response = await apiCall('/api/quotes/printer');
+        if (response && response.ok) {
+          const data = await response.json();
+          const quotes = data.quotes || [];
+
+          document.getElementById('loading-my-quotes').classList.add('hidden');
+
+          if (quotes.length === 0) {
+            document.getElementById('no-my-quotes').classList.remove('hidden');
+          } else {
+            const tbody = document.getElementById('my-quotes-body');
+            tbody.innerHTML = quotes.slice(0, 5).map(quote => {
+              const statusBadges = {
+                'pending': 'badge-warning',
+                'accepted': 'badge-success',
+                'rejected': 'badge-danger',
+                'expired': 'badge-secondary'
+              };
+              const statusLabels = {
+                'pending': 'En attente',
+                'accepted': 'Accepté ✓',
+                'rejected': 'Refusé',
+                'expired': 'Expiré'
+              };
+
+              const createdDate = new Date(quote.createdAt).toLocaleDateString('fr-FR');
+
+              return `
+                <tr>
+                  <td><strong>${quote.project?.title || 'Projet supprimé'}</strong></td>
+                  <td>${quote.project?.client?.name || 'Client'}</td>
+                  <td><strong>${quote.price.toFixed(2)} €</strong></td>
+                  <td>${quote.estimatedDuration.value} ${quote.estimatedDuration.unit === 'days' ? 'jours' : quote.estimatedDuration.unit === 'hours' ? 'heures' : 'semaines'}</td>
+                  <td><span class="badge ${statusBadges[quote.status]}">${statusLabels[quote.status]}</span></td>
+                  <td>${createdDate}</td>
+                </tr>
+              `;
+            }).join('');
+            document.getElementById('my-quotes-table').classList.remove('hidden');
+          }
+        }
+      } catch (error) {
+        console.error('Error loading my quotes:', error);
+        document.getElementById('loading-my-quotes').innerHTML = '<p class="text-danger">Erreur de chargement</p>';
+      }
+    }
+
+    // Load projects in progress
+    async function loadProgressProjects() {
+      try {
+        const response = await apiCall('/api/projects?status=in_progress&limit=4');
+        if (response && response.ok) {
+          const data = await response.json();
+          const projects = data.projects || [];
+
+          document.getElementById('loading-progress-projects').classList.add('hidden');
+
+          if (projects.length === 0) {
+            document.getElementById('no-progress-projects').classList.remove('hidden');
+          } else {
+            const grid = document.getElementById('progress-projects-grid');
+            grid.innerHTML = projects.map(project => {
+              const clientPayment = (project.acceptedQuote?.price * 0.9).toFixed(2);
+              return `
+                <div class="card">
+                  <div class="card-header">
+                    <h3 class="card-title">${project.title}</h3>
+                    <span class="badge badge-warning">En cours</span>
+                  </div>
+                  <div class="card-body">
+                    <p class="text-secondary mb-2">${project.description.substring(0, 60)}${project.description.length > 60 ? '...' : ''}</p>
+                    <div class="mb-2">
+                      <strong>Client:</strong> ${project.client?.name || 'Client'}<br>
+                      <strong>Votre paiement:</strong> ${clientPayment} €
+                    </div>
+                    <button class="btn btn-secondary btn-full" onclick="completeProject('${project._id}')">Marquer comme terminé</button>
+                  </div>
+                </div>
+              `;
+            }).join('');
+            grid.classList.remove('hidden');
+          }
+        }
+      } catch (error) {
+        console.error('Error loading progress projects:', error);
+        document.getElementById('loading-progress-projects').innerHTML = '<p class="text-danger">Erreur de chargement</p>';
+      }
+    }
+
+    // Load revenue
+    async function loadRevenue() {
+      try {
+        const response = await apiCall('/api/payments/earnings');
+        if (response && response.ok) {
+          const data = await response.json();
+
+          document.getElementById('revenue-month').textContent = (data.monthlyEarnings || 0).toFixed(2) + ' €';
+          document.getElementById('revenue-year').textContent = (data.yearlyEarnings || 0).toFixed(2) + ' €';
+          document.getElementById('completed-count').textContent = data.completedProjects || 0;
+
+          document.getElementById('loading-revenue').classList.add('hidden');
+          document.getElementById('revenue-stats').classList.remove('hidden');
+        }
+      } catch (error) {
+        console.error('Error loading revenue:', error);
+        // Use default values on error
+        document.getElementById('loading-revenue').classList.add('hidden');
+        document.getElementById('revenue-stats').classList.remove('hidden');
+      }
+    }
+
+    // Submit quote
+    function submitQuote(projectId) {
+      window.location.href = `/submit-quote.html?project=${projectId}`;
+    }
+
+    // Complete project
+    async function completeProject(projectId) {
+      if (!confirm('Marquer ce projet comme terminé ?')) {
+        return;
+      }
+
+      try {
+        const response = await apiCall(`/api/projects/${projectId}/complete`, {
+          method: 'POST'
+        });
+
+        if (response && response.ok) {
+          alert('Projet marqué comme terminé ! Le paiement sera traité.');
+          window.location.reload();
+        } else {
+          const error = await response.json();
+          alert('Erreur : ' + (error.message || 'Impossible de terminer le projet'));
+        }
+      } catch (error) {
+        console.error('Error completing project:', error);
+        alert('Erreur de connexion au serveur');
+      }
+    }
+
+    // Initialize dashboard
+    loadDashboard();
+  </script>
 </body>
 </html>

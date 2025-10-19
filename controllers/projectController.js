@@ -21,8 +21,9 @@ exports.createProject = async (req, res) => {
       description,
       specifications: typeof specifications === 'string' ? JSON.parse(specifications) : specifications,
       stlFile: {
-        filename: req.file.filename,
-        path: req.file.path,
+        filename: req.file.originalname,
+        path: req.file.url,
+        url: req.file.url,
         size: req.file.size,
         originalName: req.file.originalname
       }

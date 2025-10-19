@@ -11,8 +11,8 @@
     <div class="nav-container">
       <a href="/" class="logo">Marketplace 3D</a>
       <div class="flex gap-2">
-        <span class="badge badge-info">Mode Test - Client</span>
-        <a href="/" class="btn btn-outline">Retour Accueil</a>
+        <span id="user-name" class="badge badge-info">Chargement...</span>
+        <button class="btn btn-outline" onclick="logout()">Déconnexion</button>
       </div>
     </div>
   </nav>
@@ -26,31 +26,30 @@
         <li><a href="#">💬 Messages</a></li>
         <li><a href="#">👤 Mon profil</a></li>
       </ul>
-      <hr class="mt-3 mb-3">
-      <div class="text-center">
-        <a href="/dashboard-printer.html" class="btn btn-secondary btn-full">Voir Dashboard Imprimeur</a>
-      </div>
     </aside>
 
     <main class="dashboard-content">
       <h1 class="mb-3">Dashboard Client</h1>
 
       <!-- Stats -->
-      <div class="stats-grid">
+      <div id="loading-stats" class="text-center mb-3">
+        <p>Chargement des statistiques...</p>
+      </div>
+      <div id="stats-grid" class="stats-grid hidden">
         <div class="stat-card">
-          <div class="stat-value">5</div>
+          <div id="stat-active" class="stat-value">0</div>
           <div class="stat-label">Projets actifs</div>
         </div>
         <div class="stat-card">
-          <div class="stat-value">12</div>
+          <div id="stat-quotes" class="stat-value">0</div>
           <div class="stat-label">Devis reçus</div>
         </div>
         <div class="stat-card">
-          <div class="stat-value">3</div>
+          <div id="stat-progress" class="stat-value">0</div>
           <div class="stat-label">En cours</div>
         </div>
         <div class="stat-card">
-          <div class="stat-value">8</div>
+          <div id="stat-completed" class="stat-value">0</div>
           <div class="stat-label">Terminés</div>
         </div>
       </div>
@@ -65,8 +64,8 @@
             <button class="btn btn-primary" onclick="window.location.href='/create-project.html'">
               ➕ Nouveau projet
             </button>
-            <button class="btn btn-secondary" onclick="alert('Messagerie en développement\n\nCette fonctionnalité permettra de communiquer en temps réel avec les imprimeurs via Socket.IO')">
-              💬 Voir messages
+            <button class="btn btn-secondary" onclick="alert('Messagerie disponible prochainement')">
+              💬 Messages
             </button>
           </div>
         </div>
@@ -78,82 +77,17 @@
           <h2 class="card-title">Mes projets récents</h2>
         </div>
         <div class="card-body">
-          <div class="grid grid-2">
-            <!-- Projet 1 -->
-            <div class="card">
-              <div class="card-header">
-                <h3 class="card-title">Figurine Star Wars</h3>
-                <span class="badge badge-warning">En cours</span>
-              </div>
-              <div class="card-body">
-                <p class="text-secondary mb-2">Figurine Yoda 15cm de hauteur</p>
-                <div class="flex-between mb-2">
-                  <span><strong>Matériau:</strong> PLA</span>
-                  <span><strong>Quantité:</strong> 5</span>
-                </div>
-                <div class="flex-between">
-                  <span class="text-primary"><strong>3 devis reçus</strong></span>
-                  <button class="btn btn-primary" onclick="alert('Mode test : Détails du projet\n\nVous pourriez voir :\n- Fichier STL 3D\n- Tous les devis reçus\n- Historique des messages')">Voir détails</button>
-                </div>
-              </div>
-            </div>
-
-            <!-- Projet 2 -->
-            <div class="card">
-              <div class="card-header">
-                <h3 class="card-title">Pièce mécanique</h3>
-                <span class="badge badge-info">Ouvert</span>
-              </div>
-              <div class="card-body">
-                <p class="text-secondary mb-2">Support de téléphone pour voiture</p>
-                <div class="flex-between mb-2">
-                  <span><strong>Matériau:</strong> PETG</span>
-                  <span><strong>Quantité:</strong> 10</span>
-                </div>
-                <div class="flex-between">
-                  <span class="text-primary"><strong>2 devis reçus</strong></span>
-                  <button class="btn btn-primary" onclick="alert('Mode test : Détails du projet')">Voir détails</button>
-                </div>
-              </div>
-            </div>
-
-            <!-- Projet 3 -->
-            <div class="card">
-              <div class="card-header">
-                <h3 class="card-title">Prototype boîtier</h3>
-                <span class="badge badge-success">Terminé</span>
-              </div>
-              <div class="card-body">
-                <p class="text-secondary mb-2">Boîtier pour Raspberry Pi 4</p>
-                <div class="flex-between mb-2">
-                  <span><strong>Matériau:</strong> ABS</span>
-                  <span><strong>Quantité:</strong> 1</span>
-                </div>
-                <div class="flex-between">
-                  <span class="text-success"><strong>Livré le 10/10/2025</strong></span>
-                  <button class="btn btn-secondary" onclick="alert('Mode test : Laisser un avis\n\nVous pourriez noter l\'imprimeur et laisser un commentaire')">Laisser un avis</button>
-                </div>
-              </div>
-            </div>
-
-            <!-- Projet 4 -->
-            <div class="card">
-              <div class="card-header">
-                <h3 class="card-title">Décoration murale</h3>
-                <span class="badge badge-warning">En cours</span>
-              </div>
-              <div class="card-body">
-                <p class="text-secondary mb-2">Logo entreprise en relief 30x30cm</p>
-                <div class="flex-between mb-2">
-                  <span><strong>Matériau:</strong> PLA</span>
-                  <span><strong>Quantité:</strong> 3</span>
-                </div>
-                <div class="flex-between">
-                  <span class="text-warning"><strong>En impression...</strong></span>
-                  <button class="btn btn-primary" onclick="alert('Mode test : Suivi en temps réel\n\nVous pourriez voir la progression de l\'impression')">Suivre</button>
-                </div>
-              </div>
-            </div>
+          <div id="loading-projects" class="text-center">
+            <p>Chargement des projets...</p>
+          </div>
+          <div id="projects-grid" class="grid grid-2 hidden">
+            <!-- Projects will be loaded dynamically -->
+          </div>
+          <div id="no-projects" class="text-center text-secondary hidden">
+            <p>Aucun projet pour le moment. Créez votre premier projet !</p>
+            <button class="btn btn-primary mt-2" onclick="window.location.href='/create-project.html'">
+              ➕ Nouveau projet
+            </button>
           </div>
         </div>
       </div>
@@ -164,55 +98,266 @@
           <h2 class="card-title">Derniers devis reçus</h2>
         </div>
         <div class="card-body">
-          <table class="table">
-            <thead>
-              <tr>
-                <th>Projet</th>
-                <th>Imprimeur</th>
-                <th>Prix</th>
-                <th>Délai</th>
-                <th>Note</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>Figurine Star Wars</td>
-                <td>Print3D Pro</td>
-                <td><strong>45,00 €</strong></td>
-                <td>5 jours</td>
-                <td>⭐⭐⭐⭐⭐ 4.8</td>
-                <td>
-                  <button class="btn btn-secondary" onclick="alert('Mode test : Accepter le devis\n\nCela déclencherait :\n- Paiement Stripe\n- Notification à l\'imprimeur\n- Début du projet')">Accepter</button>
-                </td>
-              </tr>
-              <tr>
-                <td>Pièce mécanique</td>
-                <td>ImprimTech</td>
-                <td><strong>120,00 €</strong></td>
-                <td>3 jours</td>
-                <td>⭐⭐⭐⭐ 4.2</td>
-                <td>
-                  <button class="btn btn-secondary" onclick="alert('Mode test : Accepter le devis')">Accepter</button>
-                </td>
-              </tr>
-              <tr>
-                <td>Pièce mécanique</td>
-                <td>3D Factory</td>
-                <td><strong>98,00 €</strong></td>
-                <td>4 jours</td>
-                <td>⭐⭐⭐⭐⭐ 4.9</td>
-                <td>
-                  <button class="btn btn-secondary" onclick="alert('Mode test : Accepter le devis')">Accepter</button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+          <div id="loading-quotes" class="text-center">
+            <p>Chargement des devis...</p>
+          </div>
+          <div id="quotes-table" class="hidden">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Projet</th>
+                  <th>Imprimeur</th>
+                  <th>Prix</th>
+                  <th>Délai</th>
+                  <th>Note</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="quotes-body">
+                <!-- Quotes will be loaded dynamically -->
+              </tbody>
+            </table>
+          </div>
+          <div id="no-quotes" class="text-center text-secondary hidden">
+            <p>Aucun devis reçu pour le moment.</p>
+          </div>
         </div>
       </div>
     </main>
   </div>
 
   <script src="/js/app.js"></script>
+  <script src="/js/auth.js"></script>
+  <script>
+    // Check authentication
+    if (!requireAuth('client')) {
+      // Will redirect if not authenticated or wrong role
+    }
+
+    // Load user info
+    const user = JSON.parse(localStorage.getItem('user'));
+    document.getElementById('user-name').textContent = user.name || user.email;
+
+    // Logout function
+    function logout() {
+      localStorage.removeItem('token');
+      localStorage.removeItem('refreshToken');
+      localStorage.removeItem('user');
+      window.location.href = '/login.html';
+    }
+
+    // Get auth token
+    function getAuthToken() {
+      return localStorage.getItem('token');
+    }
+
+    // API call with authentication
+    async function apiCall(endpoint, options = {}) {
+      const token = getAuthToken();
+      const defaultOptions = {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      };
+
+      const response = await fetch(endpoint, { ...defaultOptions, ...options });
+
+      if (response.status === 401) {
+        // Token expired, try to refresh
+        const refreshed = await refreshToken();
+        if (refreshed) {
+          // Retry request
+          const newToken = getAuthToken();
+          defaultOptions.headers.Authorization = `Bearer ${newToken}`;
+          return fetch(endpoint, { ...defaultOptions, ...options });
+        } else {
+          // Refresh failed, redirect to login
+          logout();
+          return null;
+        }
+      }
+
+      return response;
+    }
+
+    // Load dashboard data
+    async function loadDashboard() {
+      await Promise.all([
+        loadStats(),
+        loadProjects(),
+        loadQuotes()
+      ]);
+    }
+
+    // Load stats
+    async function loadStats() {
+      try {
+        const response = await apiCall('/api/projects?status=active,in_progress,completed');
+        if (response && response.ok) {
+          const data = await response.json();
+          const projects = data.projects || [];
+
+          const active = projects.filter(p => p.status === 'active').length;
+          const inProgress = projects.filter(p => p.status === 'in_progress').length;
+          const completed = projects.filter(p => p.status === 'completed').length;
+
+          document.getElementById('stat-active').textContent = active;
+          document.getElementById('stat-progress').textContent = inProgress;
+          document.getElementById('stat-completed').textContent = completed;
+
+          // Count quotes (will be loaded separately)
+          const quotesResponse = await apiCall('/api/quotes');
+          if (quotesResponse && quotesResponse.ok) {
+            const quotesData = await quotesResponse.json();
+            document.getElementById('stat-quotes').textContent = quotesData.quotes?.length || 0;
+          }
+
+          document.getElementById('loading-stats').classList.add('hidden');
+          document.getElementById('stats-grid').classList.remove('hidden');
+        }
+      } catch (error) {
+        console.error('Error loading stats:', error);
+        document.getElementById('loading-stats').innerHTML = '<p class="text-danger">Erreur de chargement</p>';
+      }
+    }
+
+    // Load projects
+    async function loadProjects() {
+      try {
+        const response = await apiCall('/api/projects?limit=4');
+        if (response && response.ok) {
+          const data = await response.json();
+          const projects = data.projects || [];
+
+          document.getElementById('loading-projects').classList.add('hidden');
+
+          if (projects.length === 0) {
+            document.getElementById('no-projects').classList.remove('hidden');
+          } else {
+            const grid = document.getElementById('projects-grid');
+            grid.innerHTML = projects.map(project => {
+              const statusBadges = {
+                'draft': 'badge-secondary',
+                'active': 'badge-info',
+                'in_progress': 'badge-warning',
+                'completed': 'badge-success',
+                'cancelled': 'badge-danger'
+              };
+              const statusLabels = {
+                'draft': 'Brouillon',
+                'active': 'Ouvert',
+                'in_progress': 'En cours',
+                'completed': 'Terminé',
+                'cancelled': 'Annulé'
+              };
+
+              return `
+                <div class="card">
+                  <div class="card-header">
+                    <h3 class="card-title">${project.title}</h3>
+                    <span class="badge ${statusBadges[project.status]}">${statusLabels[project.status]}</span>
+                  </div>
+                  <div class="card-body">
+                    <p class="text-secondary mb-2">${project.description.substring(0, 60)}${project.description.length > 60 ? '...' : ''}</p>
+                    <div class="flex-between mb-2">
+                      <span><strong>Matériau:</strong> ${project.material}</span>
+                      <span><strong>Quantité:</strong> ${project.quantity}</span>
+                    </div>
+                    <div class="flex-between">
+                      <span class="text-primary"><strong>${project.quotesCount || 0} devis</strong></span>
+                      <button class="btn btn-primary" onclick="viewProject('${project._id}')">Voir détails</button>
+                    </div>
+                  </div>
+                </div>
+              `;
+            }).join('');
+            grid.classList.remove('hidden');
+          }
+        }
+      } catch (error) {
+        console.error('Error loading projects:', error);
+        document.getElementById('loading-projects').innerHTML = '<p class="text-danger">Erreur de chargement</p>';
+      }
+    }
+
+    // Load quotes
+    async function loadQuotes() {
+      try {
+        const response = await apiCall('/api/quotes?limit=5');
+        if (response && response.ok) {
+          const data = await response.json();
+          const quotes = data.quotes || [];
+
+          document.getElementById('loading-quotes').classList.add('hidden');
+
+          if (quotes.length === 0) {
+            document.getElementById('no-quotes').classList.remove('hidden');
+          } else {
+            const tbody = document.getElementById('quotes-body');
+            tbody.innerHTML = quotes.map(quote => {
+              const printerRating = quote.printer?.rating || 0;
+              const stars = '⭐'.repeat(Math.round(printerRating));
+
+              return `
+                <tr>
+                  <td>${quote.project?.title || 'Projet supprimé'}</td>
+                  <td>${quote.printer?.name || 'Imprimeur'}</td>
+                  <td><strong>${quote.price.toFixed(2)} €</strong></td>
+                  <td>${quote.estimatedDuration.value} ${quote.estimatedDuration.unit === 'days' ? 'jours' : quote.estimatedDuration.unit === 'hours' ? 'heures' : 'semaines'}</td>
+                  <td>${stars} ${printerRating.toFixed(1)}</td>
+                  <td>
+                    ${quote.status === 'pending' ? `
+                      <button class="btn btn-secondary" onclick="acceptQuote('${quote._id}')">Accepter</button>
+                    ` : `
+                      <span class="badge ${quote.status === 'accepted' ? 'badge-success' : 'badge-danger'}">${quote.status === 'accepted' ? 'Accepté' : 'Refusé'}</span>
+                    `}
+                  </td>
+                </tr>
+              `;
+            }).join('');
+            document.getElementById('quotes-table').classList.remove('hidden');
+          }
+        }
+      } catch (error) {
+        console.error('Error loading quotes:', error);
+        document.getElementById('loading-quotes').innerHTML = '<p class="text-danger">Erreur de chargement</p>';
+      }
+    }
+
+    // View project details
+    function viewProject(projectId) {
+      alert('Fonctionnalité disponible prochainement\\n\\nVous pourrez voir :\\n- Fichier STL 3D\\n- Tous les devis\\n- Messages');
+    }
+
+    // Accept quote
+    async function acceptQuote(quoteId) {
+      if (!confirm('Accepter ce devis ? Un paiement sera requis.')) {
+        return;
+      }
+
+      try {
+        const response = await apiCall(`/api/quotes/${quoteId}/accept`, {
+          method: 'POST'
+        });
+
+        if (response && response.ok) {
+          const data = await response.json();
+          alert('Devis accepté ! Vous allez être redirigé vers le paiement.');
+          // Redirect to payment page (to be created)
+          window.location.reload();
+        } else {
+          const error = await response.json();
+          alert('Erreur : ' + (error.message || 'Impossible d\\'accepter le devis'));
+        }
+      } catch (error) {
+        console.error('Error accepting quote:', error);
+        alert('Erreur de connexion au serveur');
+      }
+    }
+
+    // Initialize dashboard
+    loadDashboard();
+  </script>
 </body>
 </html>

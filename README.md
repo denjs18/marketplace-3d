@@ -40,6 +40,7 @@ Plateforme marketplace complète pour l'impression 3D, connectant clients et imp
 - **Stripe** pour les paiements
 - **Socket.IO** pour la messagerie temps réel
 - **Multer** pour l'upload de fichiers
+- **Vercel Blob** pour le stockage cloud des fichiers
 - **Nodemailer** pour les emails
 - **Bcrypt** pour le hashing de mots de passe
 
@@ -116,10 +117,15 @@ brew services start mongodb-community
 sudo systemctl start mongod
 ```
 
-5. **Créer les dossiers nécessaires**
-```bash
-mkdir -p uploads/stl uploads/images uploads/attachments
-```
+5. **Configuration du stockage de fichiers**
+
+**Pour le développement local (optionnel):**
+Les fichiers sont maintenant stockés sur Vercel Blob. Pour le développement local, vous pouvez:
+- Utiliser Vercel Blob en local en configurant `BLOB_READ_WRITE_TOKEN`
+- Ou ignorer cette étape si vous n'avez pas besoin de tester l'upload de fichiers
+
+**Pour le déploiement sur Vercel:**
+Le stockage Vercel Blob est configuré automatiquement. Voir la section Déploiement ci-dessous.
 
 6. **Démarrer le serveur**
 
@@ -203,10 +209,6 @@ marketplace-3d/
 │   ├── project-details.html
 │   ├── messages.html
 │   └── profile.html
-├── uploads/                # Fichiers uploadés
-│   ├── stl/
-│   ├── images/
-│   └── attachments/
 ├── server.js               # Point d'entrée
 ├── package.json
 ├── .env.example
@@ -329,14 +331,50 @@ npm run dev    # Démarrer en développement (nodemon)
 
 ## Déploiement
 
-### Prérequis Production
+### Déploiement sur Vercel (Recommandé)
+
+Pour un guide complet et détaillé du déploiement sur Vercel, consultez **[DEPLOYMENT.md](./DEPLOYMENT.md)**.
+
+Ce guide inclut:
+- Configuration de MongoDB Atlas (gratuit)
+- Configuration de Stripe (mode test et live)
+- Configuration SMTP (Gmail, SendGrid, etc.)
+- Déploiement pas à pas sur Vercel
+- Configuration des variables d'environnement
+- Vérification post-déploiement
+- Dépannage des problèmes courants
+
+#### Configuration de Vercel Blob Storage
+
+L'application utilise Vercel Blob pour le stockage des fichiers uploadés (STL, images). Configuration:
+
+1. **Créer un Blob Store sur Vercel:**
+   - Aller sur votre [Dashboard Vercel](https://vercel.com/dashboard)
+   - Sélectionner votre projet
+   - Aller dans **Storage** > **Create Database** > **Blob**
+   - Nommer votre store (ex: "marketplace-3d-files")
+   - Cliquer sur **Create**
+
+2. **Configuration automatique:**
+   - Vercel configure automatiquement la variable `BLOB_READ_WRITE_TOKEN`
+   - Cette variable est injectée dans votre environnement de production
+
+3. **Pour le développement local:**
+   - Copier le token depuis votre dashboard Vercel
+   - Ajouter `BLOB_READ_WRITE_TOKEN=votre_token` dans votre fichier `.env`
+
+**Note:** Les fichiers uploadés sont maintenant stockés dans le cloud Vercel Blob au lieu du système de fichiers local, ce qui permet une meilleure scalabilité et compatibilité avec les serverless functions.
+
+### Déploiement sur d'autres plateformes
+
+#### Prérequis Production
 
 1. MongoDB Atlas ou serveur MongoDB
 2. Serveur Node.js (Heroku, DigitalOcean, AWS, etc.)
 3. Compte Stripe en mode live
 4. Nom de domaine et certificat SSL
 
-### Étapes
+#### Étapes Générales
 
 1. Configurer les variables d'environnement de production
 2. Utiliser une base MongoDB sécurisée (MongoDB Atlas recommandé)
@@ -367,6 +405,15 @@ Error: connect ECONNREFUSED 127.0.0.1:27017
 Error: File size too large
 ```
 **Solution**: Vérifier les limites dans `middleware/upload.js`
+
+### Erreur Vercel Blob
+```
+Error: Failed to upload file to storage
+```
+**Solution**:
+- Vérifier que `BLOB_READ_WRITE_TOKEN` est défini dans les variables d'environnement
+- Vérifier que le Blob store est créé sur Vercel
+- S'assurer que le token a les permissions de lecture/écriture
 
 ### Erreur Stripe
 ```

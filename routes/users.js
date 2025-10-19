@@ -89,7 +89,7 @@ router.post('/profile-image', authenticate, uploadImage, handleUploadError, asyn
       });
     }
 
-    user.profileImage = `/uploads/images/${req.file.filename}`;
+    user.profileImage = req.file.url;
     await user.save();
 
     res.json({
