@@ -4,8 +4,6 @@ const cors = require('cors');
 const helmet = require('helmet');
 const dotenv = require('dotenv');
 const path = require('path');
-const socketIO = require('socket.io');
-const http = require('http');
 
 // Load environment variables
 dotenv.config();
@@ -21,13 +19,6 @@ const uploadRoutes = require('./routes/uploads');
 
 // Initialize Express app
 const app = express();
-const server = http.createServer(app);
-const io = socketIO(server, {
-  cors: {
-    origin: process.env.FRONTEND_URL || '*',
-    methods: ['GET', 'POST']
-  }
-});
 
 // Middleware
 app.use(helmet());
@@ -37,36 +28,35 @@ app.use(express.urlencoded({ extended: true }));
 
 // Serve static files
 app.use(express.static(path.join(__dirname, 'public')));
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// Database connection
-mongoose.connect(process.env.MONGODB_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
-.then(() => console.log('✓ MongoDB connected successfully'))
-.catch(err => console.error('✗ MongoDB connection error:', err));
+// Database connection (remove deprecated options)
+let cachedDb = null;
 
-// Socket.IO connection for real-time messaging
-io.on('connection', (socket) => {
-  console.log('New client connected:', socket.id);
+async function connectToDatabase() {
+  if (cachedDb) {
+    return cachedDb;
+  }
 
-  socket.on('join-room', (userId) => {
-    socket.join(userId);
-    console.log(`User ${userId} joined their room`);
-  });
+  try {
+    const connection = await mongoose.connect(process.env.MONGODB_URI);
+    cachedDb = connection;
+    console.log('✓ MongoDB connected successfully');
+    return connection;
+  } catch (err) {
+    console.error('✗ MongoDB connection error:', err);
+    throw err;
+  }
+}
 
-  socket.on('send-message', (data) => {
-    io.to(data.recipientId).emit('receive-message', data);
-  });
+// Connect to database
+connectToDatabase();
 
-  socket.on('disconnect', () => {
-    console.log('Client disconnected:', socket.id);
-  });
-});
-
-// Make io accessible to routes
-app.set('io', io);
+// NOTE: Socket.IO is disabled for Vercel serverless compatibility
+// For real-time messaging, consider using:
+// - Pusher (https://pusher.com)
+// - Ably (https://ably.com)
+// - Vercel's Edge Config + polling
+// - WebSockets with a separate Node.js server
 
 // API Routes
 app.use('/api/auth', authRoutes);
@@ -98,12 +88,15 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Start server
-const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
-  console.log(`\n🚀 Server running on port ${PORT}`);
-  console.log(`📱 Frontend: http://localhost:${PORT}`);
-  console.log(`🔌 API: http://localhost:${PORT}/api`);
-});
+// Export the Express app for Vercel
+module.exports = app;
 
-module.exports = { app, io };
+// Start server only in local development (not on Vercel)
+if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, () => {
+    console.log(`\n🚀 Server running on port ${PORT}`);
+    console.log(`📱 Frontend: http://localhost:${PORT}`);
+    console.log(`🔌 API: http://localhost:${PORT}/api`);
+  });
+}

@@ -32,14 +32,19 @@ exports.sendMessage = async (req, res) => {
     // Populate sender info
     await message.populate('sender', 'firstName lastName profileImage');
 
-    // Emit socket event for real-time messaging
-    const io = req.app.get('io');
-    if (io) {
-      io.to(recipient).emit('receive-message', {
-        message,
-        recipientId: recipient
-      });
-    }
+    // NOTE: Real-time messaging via Socket.IO is disabled for Vercel serverless compatibility
+    // For real-time updates, consider:
+    // - Implementing polling from the frontend
+    // - Using a third-party service like Pusher or Ably
+    // - Setting up a separate WebSocket server
+
+    // const io = req.app.get('io');
+    // if (io) {
+    //   io.to(recipient).emit('receive-message', {
+    //     message,
+    //     recipientId: recipient
+    //   });
+    // }
 
     // Send email notification
     const sender = await User.findById(req.userId);
