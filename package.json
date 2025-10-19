@@ -1,7 +1,7 @@
 {
-  "name": "marketplace-3d",
+  "name": "strivex",
   "version": "1.0.0",
-  "description": "Marketplace pour impression 3D - Connecte clients et imprimeurs",
+  "description": "Strivex - Plateforme pour impression 3D connectant clients et imprimeurs",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

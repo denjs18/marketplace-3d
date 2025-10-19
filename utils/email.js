@@ -25,13 +25,13 @@ transporter.verify((error, success) => {
  */
 const sendWelcomeEmail = async (user) => {
   const mailOptions = {
-    from: `"${process.env.APP_NAME || 'Marketplace 3D'}" <${process.env.SMTP_USER}>`,
+    from: `"${process.env.APP_NAME || 'Strivex'}" <${process.env.SMTP_USER}>`,
     to: user.email,
-    subject: 'Bienvenue sur Marketplace 3D!',
+    subject: 'Bienvenue sur Strivex!',
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h2 style="color: #2563eb;">Bienvenue ${user.firstName}!</h2>
-        <p>Merci de vous être inscrit sur Marketplace 3D.</p>
+        <p>Merci de vous être inscrit sur Strivex.</p>
         ${user.role === 'client' ? `
           <p>Vous pouvez maintenant:</p>
           <ul>
@@ -76,7 +76,7 @@ const sendWelcomeEmail = async (user) => {
  */
 const sendNewQuoteEmail = async (client, project, quote, printer) => {
   const mailOptions = {
-    from: `"${process.env.APP_NAME || 'Marketplace 3D'}" <${process.env.SMTP_USER}>`,
+    from: `"${process.env.APP_NAME || 'Strivex'}" <${process.env.SMTP_USER}>`,
     to: client.email,
     subject: `Nouveau devis pour votre projet: ${project.title}`,
     html: `
@@ -115,7 +115,7 @@ const sendNewQuoteEmail = async (client, project, quote, printer) => {
  */
 const sendQuoteAcceptedEmail = async (printer, project, quote) => {
   const mailOptions = {
-    from: `"${process.env.APP_NAME || 'Marketplace 3D'}" <${process.env.SMTP_USER}>`,
+    from: `"${process.env.APP_NAME || 'Strivex'}" <${process.env.SMTP_USER}>`,
     to: printer.email,
     subject: `Votre devis a été accepté: ${project.title}`,
     html: `
@@ -154,7 +154,7 @@ const sendQuoteAcceptedEmail = async (printer, project, quote) => {
  */
 const sendProjectCompletedEmail = async (client, project, printer) => {
   const mailOptions = {
-    from: `"${process.env.APP_NAME || 'Marketplace 3D'}" <${process.env.SMTP_USER}>`,
+    from: `"${process.env.APP_NAME || 'Strivex'}" <${process.env.SMTP_USER}>`,
     to: client.email,
     subject: `Projet terminé: ${project.title}`,
     html: `
@@ -191,7 +191,7 @@ const sendProjectCompletedEmail = async (client, project, printer) => {
  */
 const sendPaymentConfirmationEmail = async (client, project, transaction) => {
   const mailOptions = {
-    from: `"${process.env.APP_NAME || 'Marketplace 3D'}" <${process.env.SMTP_USER}>`,
+    from: `"${process.env.APP_NAME || 'Strivex'}" <${process.env.SMTP_USER}>`,
     to: client.email,
     subject: `Confirmation de paiement - ${project.title}`,
     html: `
@@ -225,7 +225,7 @@ const sendPaymentConfirmationEmail = async (client, project, transaction) => {
  */
 const sendNewMessageEmail = async (recipient, sender, message) => {
   const mailOptions = {
-    from: `"${process.env.APP_NAME || 'Marketplace 3D'}" <${process.env.SMTP_USER}>`,
+    from: `"${process.env.APP_NAME || 'Strivex'}" <${process.env.SMTP_USER}>`,
     to: recipient.email,
     subject: `Nouveau message de ${sender.firstName} ${sender.lastName}`,
     html: `

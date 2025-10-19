@@ -1,9 +1,9 @@
 /* === Variables CSS === */
 :root {
-  --primary-color: #2563eb;
-  --primary-dark: #1e40af;
-  --secondary-color: #10b981;
-  --secondary-dark: #059669;
+  --primary-color: #40826D;
+  --primary-dark: #2f6152;
+  --secondary-color: #A4514C;
+  --secondary-dark: #853f3b;
   --background: #f9fafb;
   --surface: #ffffff;
   --error: #ef4444;
@@ -25,7 +25,7 @@
 }
 
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: 'Garamond', 'EB Garamond', 'Cormorant Garamond', Georgia, serif;
   background-color: var(--background);
   color: var(--text-primary);
   line-height: 1.6;
