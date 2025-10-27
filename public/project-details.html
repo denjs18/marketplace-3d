@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Détails du Projet - Marketplace 3D</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .page-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 30px 20px;
+    }
+
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+
+    .header-left {
+      flex: 1;
+    }
+
+    .page-title {
+      font-size: 28px;
+      font-weight: 700;
+      color: #2d3436;
+      margin-bottom: 10px;
+    }
+
+    .page-subtitle {
+      color: #636e72;
+      font-size: 14px;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .project-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 30px;
+      margin-bottom: 30px;
+    }
+
+    .project-main {
+      display: flex;
+      flex-direction: column;
+      gap: 30px;
+    }
+
+    .project-sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .card {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    .card-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: #2d3436;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .project-images {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .project-image {
+      width: 100%;
+      height: 150px;
+      object-fit: cover;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .project-image:hover {
+      transform: scale(1.05);
+    }
+
+    .project-image-main {
+      width: 100%;
+      height: 400px;
+      object-fit: contain;
+      border-radius: 8px;
+      background: #f8f9fa;
+      margin-bottom: 15px;
+    }
+
+    .project-description {
+      color: #2d3436;
+      line-height: 1.6;
+      white-space: pre-wrap;
+    }
+
+    .specs-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+
+    .spec-item {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .spec-label {
+      font-size: 12px;
+      color: #636e72;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .spec-value {
+      font-size: 16px;
+      color: #2d3436;
+      font-weight: 600;
+    }
+
+    .status-badge {
+      padding: 6px 14px;
+      border-radius: 16px;
+      font-size: 12px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .badge-draft { background: #dfe6e9; color: #636e72; }
+    .badge-published { background: #74b9ff; color: #0984e3; }
+    .badge-in_negotiation { background: #a29bfe; color: #6c5ce7; }
+    .badge-quote_received { background: #fd79a8; color: #e84393; }
+    .badge-quote_accepted { background: #55efc4; color: #00b894; }
+    .badge-contracted { background: #00b894; color: white; }
+    .badge-in_production { background: #fdcb6e; color: #2d3436; }
+    .badge-completed { background: #00b894; color: white; }
+    .badge-cancelled { background: #d63031; color: white; }
+    .badge-paused { background: #fab1a0; color: #e17055; }
+
+    .btn {
+      padding: 12px 20px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      text-align: center;
+      justify-content: center;
+    }
+
+    .btn-primary {
+      background: #0984e3;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #0770c7;
+    }
+
+    .btn-secondary {
+      background: #636e72;
+      color: white;
+    }
+
+    .btn-secondary:hover {
+      background: #4a545a;
+    }
+
+    .btn-success {
+      background: #00b894;
+      color: white;
+    }
+
+    .btn-success:hover {
+      background: #00916f;
+    }
+
+    .btn-danger {
+      background: #d63031;
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background: #c0211f;
+    }
+
+    .btn-info {
+      background: #6c5ce7;
+      color: white;
+    }
+
+    .btn-info:hover {
+      background: #5a4cc9;
+    }
+
+    .conversations-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .conversation-item {
+      display: flex;
+      align-items: center;
+      padding: 15px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .conversation-item:hover {
+      background: #e9ecef;
+    }
+
+    .conversation-avatar {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-right: 12px;
+    }
+
+    .conversation-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .conversation-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: #2d3436;
+      margin-bottom: 4px;
+    }
+
+    .conversation-status {
+      font-size: 12px;
+      color: #636e72;
+    }
+
+    .conversation-badge {
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: #636e72;
+    }
+
+    .empty-icon {
+      font-size: 48px;
+      margin-bottom: 15px;
+    }
+
+    .empty-text {
+      font-size: 14px;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: #636e72;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .stl-viewer {
+      width: 100%;
+      height: 400px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 15px;
+    }
+
+    .file-download {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 15px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      margin-top: 15px;
+    }
+
+    .file-icon {
+      font-size: 32px;
+    }
+
+    .file-info {
+      flex: 1;
+    }
+
+    .file-name {
+      font-weight: 600;
+      color: #2d3436;
+      margin-bottom: 4px;
+    }
+
+    .file-size {
+      font-size: 12px;
+      color: #636e72;
+    }
+
+    @media (max-width: 968px) {
+      .project-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .specs-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .header-actions {
+        width: 100%;
+      }
+
+      .btn {
+        flex: 1;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="/" class="nav-logo">Marketplace 3D</a>
+      <div class="nav-menu">
+        <span>Chargement...</span>
+      </div>
+    </div>
+  </nav>
+
+  <div class="page-container">
+    <div id="loading" class="loading">
+      <p>Chargement du projet...</p>
+    </div>
+
+    <div id="projectContent" class="hidden">
+      <div class="page-header">
+        <div class="header-left">
+          <h1 class="page-title" id="projectTitle">-</h1>
+          <div class="page-subtitle">
+            <span id="projectCreatedAt">-</span>
+          </div>
+        </div>
+        <div class="header-actions">
+          <span id="projectStatus"></span>
+          <a href="/my-projects.html" class="btn btn-secondary">← Retour</a>
+          <button id="editBtn" class="btn btn-primary hidden">✏️ Modifier</button>
+          <button id="publishBtn" class="btn btn-success hidden">📤 Publier</button>
+          <button id="inviteBtn" class="btn btn-info hidden">📧 Inviter imprimeurs</button>
+          <button id="deleteBtn" class="btn btn-danger hidden">🗑️ Supprimer</button>
+        </div>
+      </div>
+
+      <div class="project-grid">
+        <!-- Main Content -->
+        <div class="project-main">
+          <!-- Images -->
+          <div class="card">
+            <h2 class="card-title">🖼️ Images</h2>
+            <img id="mainImage" src="" alt="Projet" class="project-image-main">
+            <div id="projectImages" class="project-images"></div>
+          </div>
+
+          <!-- Description -->
+          <div class="card">
+            <h2 class="card-title">📝 Description</h2>
+            <p id="projectDescription" class="project-description">-</p>
+          </div>
+
+          <!-- Fichier 3D -->
+          <div class="card">
+            <h2 class="card-title">📦 Fichier 3D</h2>
+            <div id="stlViewer" class="stl-viewer">
+              <p style="color: #636e72;">Aperçu 3D non disponible</p>
+            </div>
+            <div id="stlDownload" class="file-download hidden">
+              <div class="file-icon">📄</div>
+              <div class="file-info">
+                <div class="file-name" id="stlFileName">fichier.stl</div>
+                <div class="file-size" id="stlFileSize">-</div>
+              </div>
+              <a id="downloadBtn" class="btn btn-primary" download>⬇️ Télécharger</a>
+            </div>
+          </div>
+
+          <!-- Conversations -->
+          <div class="card">
+            <h2 class="card-title">💬 Conversations</h2>
+            <div id="conversationsList" class="conversations-list"></div>
+            <div id="conversationsEmpty" class="empty-state hidden">
+              <div class="empty-icon">💬</div>
+              <div class="empty-text">Aucune conversation pour ce projet</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="project-sidebar">
+          <!-- Spécifications -->
+          <div class="card">
+            <h2 class="card-title">⚙️ Spécifications</h2>
+            <div class="specs-grid">
+              <div class="spec-item">
+                <div class="spec-label">Matériau</div>
+                <div class="spec-value" id="specMaterial">-</div>
+              </div>
+              <div class="spec-item">
+                <div class="spec-label">Couleur</div>
+                <div class="spec-value" id="specColor">-</div>
+              </div>
+              <div class="spec-item">
+                <div class="spec-label">Quantité</div>
+                <div class="spec-value" id="specQuantity">-</div>
+              </div>
+              <div class="spec-item">
+                <div class="spec-label">Remplissage</div>
+                <div class="spec-value" id="specInfill">-</div>
+              </div>
+              <div class="spec-item">
+                <div class="spec-label">Finition</div>
+                <div class="spec-value" id="specFinish">-</div>
+              </div>
+              <div class="spec-item">
+                <div class="spec-label">Hauteur de couche</div>
+                <div class="spec-value" id="specLayerHeight">-</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Budget et délai -->
+          <div class="card">
+            <h2 class="card-title">💰 Budget & Délai</h2>
+            <div class="specs-grid">
+              <div class="spec-item">
+                <div class="spec-label">Budget estimé</div>
+                <div class="spec-value" id="specBudget">-</div>
+              </div>
+              <div class="spec-item">
+                <div class="spec-label">Date limite</div>
+                <div class="spec-value" id="specDeadline">-</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Imprimeurs invités -->
+          <div class="card">
+            <h2 class="card-title">👥 Imprimeurs invités</h2>
+            <div class="spec-item">
+              <div class="spec-label">Invités</div>
+              <div class="spec-value" id="specInvited">0 / 5</div>
+            </div>
+            <button id="invitePrintersBtn" class="btn btn-info hidden" style="margin-top: 15px; width: 100%;">
+              📧 Inviter des imprimeurs
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/auth.js"></script>
+  <script src="/js/project-details.js"></script>
+</body>
+</html>

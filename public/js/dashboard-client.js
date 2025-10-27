@@ -385,8 +385,8 @@ async function publishProject(projectId) {
 }
 
 function invitePrinters(projectId) {
-  // Rediriger vers page de comparaison de devis ou modal d'invitation
-  window.location.href = `/compare-quotes.html?projectId=${projectId}`;
+  // Ouvrir le modal d'invitation
+  showInvitePrintersModal(projectId);
 }
 
 // Actions sur les devis
@@ -421,35 +421,11 @@ async function acceptQuote(conversationId) {
 }
 
 function negotiateQuote(conversationId) {
-  window.location.href = `/conversation.html?id=${conversationId}`;
+  showNegotiateModal(conversationId);
 }
 
 async function refuseQuote(conversationId) {
-  const reason = prompt('Raison du refus (optionnel):');
-
-  if (reason === null) return; // Annulé
-
-  try {
-    const token = getToken();
-    const response = await fetch(`/api/conversations/${conversationId}/refuse`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ reason: reason || 'Aucune raison fournie' })
-    });
-
-    if (response.ok) {
-      showToast('Devis refusé', 'success');
-      await loadRecentQuotes();
-    } else {
-      showToast('Erreur lors du refus', 'error');
-    }
-  } catch (error) {
-    console.error('Erreur:', error);
-    showToast('Erreur de connexion', 'error');
-  }
+  showRefuseModal(conversationId);
 }
 
 // Modals
@@ -460,4 +436,476 @@ function showAllProjectsModal() {
 
 function showMessagesModal() {
   window.location.href = '/messages.html';
+}
+
+// Modal 1: Inviter des imprimeurs
+async function showInvitePrintersModal(projectId) {
+  const token = getToken();
+
+  try {
+    // Charger le projet
+    const projectResponse = await fetch(`/api/projects/${projectId}`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+
+    if (!projectResponse.ok) {
+      throw new Error('Erreur lors du chargement du projet');
+    }
+
+    const projectData = await projectResponse.json();
+    const project = projectData.project;
+
+    // Charger les imprimeurs
+    const printersResponse = await fetch('/api/printers', {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+
+    if (!printersResponse.ok) {
+      throw new Error('Erreur lors du chargement des imprimeurs');
+    }
+
+    const printersData = await printersResponse.json();
+    const allPrinters = printersData.printers || [];
+
+    // Filtrer les imprimeurs déjà invités
+    const invitedIds = project.invitedPrinters || [];
+    const availablePrinters = allPrinters.filter(p => !invitedIds.includes(p._id));
+
+    const maxInvited = project.maxPrintersInvited || 5;
+    const remainingSlots = maxInvited - invitedIds.length;
+
+    if (remainingSlots <= 0) {
+      showToast('Vous avez déjà invité le nombre maximum d\'imprimeurs', 'warning');
+      return;
+    }
+
+    // Créer le modal
+    const modalHTML = `
+      <div id="invitePrintersModal" class="modal-overlay" onclick="closeModal('invitePrintersModal')">
+        <div class="modal-content" onclick="event.stopPropagation()">
+          <div class="modal-header">
+            <h2>📧 Inviter des imprimeurs</h2>
+            <button class="modal-close" onclick="closeModal('invitePrintersModal')">✕</button>
+          </div>
+          <div class="modal-body">
+            <p class="modal-subtitle">Projet: <strong>${project.title}</strong></p>
+            <p class="modal-subtitle">Places disponibles: <strong>${remainingSlots}</strong></p>
+
+            <div class="search-bar">
+              <input type="text" id="printerSearch" placeholder="🔍 Rechercher un imprimeur..." class="search-input">
+            </div>
+
+            <div id="printersList" class="printers-list">
+              ${availablePrinters.map(printer => `
+                <div class="printer-item" data-printer-id="${printer._id}">
+                  <input type="checkbox" id="printer-${printer._id}" class="printer-checkbox"
+                         ${remainingSlots <= 0 ? 'disabled' : ''}>
+                  <label for="printer-${printer._id}" class="printer-label">
+                    <img src="${printer.profileImage || '/images/avatar-default.png'}" class="printer-avatar">
+                    <div class="printer-info">
+                      <div class="printer-name">${printer.firstName} ${printer.lastName}</div>
+                      ${printer.companyName ? `<div class="printer-company">${printer.companyName}</div>` : ''}
+                      <div class="printer-meta">
+                        <span>⭐ ${(printer.rating?.average || 0).toFixed(1)} (${printer.rating?.count || 0})</span>
+                        ${printer.badges && printer.badges.length > 0 ? printer.badges.map(b => `<span class="badge-mini">${b}</span>`).join('') : ''}
+                      </div>
+                    </div>
+                  </label>
+                </div>
+              `).join('')}
+            </div>
+
+            ${availablePrinters.length === 0 ? '<p class="text-center text-secondary">Aucun imprimeur disponible</p>' : ''}
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeModal('invitePrintersModal')">Annuler</button>
+            <button class="btn btn-primary" onclick="sendInvitations('${projectId}')">
+              Envoyer les invitations
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+
+    // Injecter le modal dans le DOM
+    const existingModal = document.getElementById('invitePrintersModal');
+    if (existingModal) {
+      existingModal.remove();
+    }
+
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+    // Event listener pour la recherche
+    document.getElementById('printerSearch').addEventListener('input', (e) => {
+      filterPrinters(e.target.value);
+    });
+
+    // Event listener pour limiter la sélection
+    const checkboxes = document.querySelectorAll('.printer-checkbox');
+    checkboxes.forEach(checkbox => {
+      checkbox.addEventListener('change', () => {
+        const checkedCount = document.querySelectorAll('.printer-checkbox:checked').length;
+        if (checkedCount >= remainingSlots) {
+          checkboxes.forEach(cb => {
+            if (!cb.checked) cb.disabled = true;
+          });
+        } else {
+          checkboxes.forEach(cb => cb.disabled = false);
+        }
+      });
+    });
+
+  } catch (error) {
+    console.error('Erreur:', error);
+    showToast('Erreur lors du chargement des imprimeurs', 'error');
+  }
+}
+
+// Filtrer les imprimeurs dans le modal
+function filterPrinters(searchTerm) {
+  const term = searchTerm.toLowerCase();
+  const printerItems = document.querySelectorAll('.printer-item');
+
+  printerItems.forEach(item => {
+    const name = item.querySelector('.printer-name').textContent.toLowerCase();
+    const company = item.querySelector('.printer-company')?.textContent.toLowerCase() || '';
+
+    if (name.includes(term) || company.includes(term)) {
+      item.style.display = 'flex';
+    } else {
+      item.style.display = 'none';
+    }
+  });
+}
+
+// Envoyer les invitations
+async function sendInvitations(projectId) {
+  const selectedPrinters = Array.from(document.querySelectorAll('.printer-checkbox:checked'))
+    .map(checkbox => checkbox.id.replace('printer-', ''));
+
+  if (selectedPrinters.length === 0) {
+    showToast('Veuillez sélectionner au moins un imprimeur', 'warning');
+    return;
+  }
+
+  const token = getToken();
+
+  try {
+    const response = await fetch(`/api/projects/${projectId}/invite-printers`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ printerIds: selectedPrinters })
+    });
+
+    if (!response.ok) {
+      throw new Error('Erreur lors de l\'envoi des invitations');
+    }
+
+    showToast(`${selectedPrinters.length} imprimeur${selectedPrinters.length > 1 ? 's' : ''} invité${selectedPrinters.length > 1 ? 's' : ''} avec succès !`, 'success');
+    closeModal('invitePrintersModal');
+    await loadRecentProjects();
+
+  } catch (error) {
+    console.error('Erreur:', error);
+    showToast('Erreur lors de l\'envoi des invitations', 'error');
+  }
+}
+
+// Modal 2: Négocier un devis
+async function showNegotiateModal(conversationId) {
+  const token = getToken();
+
+  try {
+    // Charger la conversation
+    const response = await fetch(`/api/conversations/${conversationId}`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+
+    if (!response.ok) {
+      throw new Error('Erreur lors du chargement de la conversation');
+    }
+
+    const data = await response.json();
+    const conversation = data.conversation;
+    const currentQuote = conversation.currentQuote;
+
+    if (!currentQuote) {
+      showToast('Aucun devis disponible', 'error');
+      return;
+    }
+
+    // Compter les contre-offres
+    const counterOffers = conversation.quoteHistory?.filter(q => q.type === 'counter_offer') || [];
+    const remainingOffers = 3 - counterOffers.length;
+
+    if (remainingOffers <= 0) {
+      showToast('Vous avez atteint le nombre maximum de contre-propositions (3)', 'warning');
+      return;
+    }
+
+    // Créer le modal
+    const modalHTML = `
+      <div id="negotiateModal" class="modal-overlay" onclick="closeModal('negotiateModal')">
+        <div class="modal-content" onclick="event.stopPropagation()">
+          <div class="modal-header">
+            <h2>💬 Négocier le devis</h2>
+            <button class="modal-close" onclick="closeModal('negotiateModal')">✕</button>
+          </div>
+          <div class="modal-body">
+            <div class="quote-summary">
+              <h3>Devis actuel</h3>
+              <div class="quote-details">
+                <div class="quote-detail-item">
+                  <span class="label">Prix total:</span>
+                  <span class="value">${formatPrice(currentQuote.totalPrice)}</span>
+                </div>
+                <div class="quote-detail-item">
+                  <span class="label">Délai de livraison:</span>
+                  <span class="value">${currentQuote.deliveryDays} jour${currentQuote.deliveryDays > 1 ? 's' : ''}</span>
+                </div>
+                <div class="quote-detail-item">
+                  <span class="label">Matériaux:</span>
+                  <span class="value">${currentQuote.materials.join(', ')}</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="negotiation-info">
+              <p>⚠️ Contre-propositions restantes: <strong>${remainingOffers}/3</strong></p>
+            </div>
+
+            <form id="negotiateForm">
+              <div class="form-group">
+                <label class="form-label">Prix proposé (€) *</label>
+                <input type="number" id="counterPrice" class="form-input"
+                       value="${currentQuote.totalPrice}"
+                       min="1" step="0.01" required>
+                <small class="form-help">Prix actuel: ${formatPrice(currentQuote.totalPrice)}</small>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Délai de livraison souhaité (jours) *</label>
+                <input type="number" id="counterDelivery" class="form-input"
+                       value="${currentQuote.deliveryDays}"
+                       min="1" required>
+                <small class="form-help">Délai actuel: ${currentQuote.deliveryDays} jour${currentQuote.deliveryDays > 1 ? 's' : ''}</small>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Message à l'imprimeur</label>
+                <textarea id="counterMessage" class="form-textarea"
+                          placeholder="Expliquez votre contre-proposition..." rows="4"></textarea>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeModal('negotiateModal')">Annuler</button>
+            <button class="btn btn-primary" onclick="submitNegotiation('${conversationId}')">
+              Envoyer la contre-proposition
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+
+    // Injecter le modal dans le DOM
+    const existingModal = document.getElementById('negotiateModal');
+    if (existingModal) {
+      existingModal.remove();
+    }
+
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+  } catch (error) {
+    console.error('Erreur:', error);
+    showToast('Erreur lors du chargement du devis', 'error');
+  }
+}
+
+// Envoyer la négociation
+async function submitNegotiation(conversationId) {
+  const counterPrice = parseFloat(document.getElementById('counterPrice').value);
+  const counterDelivery = parseInt(document.getElementById('counterDelivery').value);
+  const counterMessage = document.getElementById('counterMessage').value;
+
+  if (!counterPrice || counterPrice <= 0) {
+    showToast('Veuillez entrer un prix valide', 'error');
+    return;
+  }
+
+  if (!counterDelivery || counterDelivery <= 0) {
+    showToast('Veuillez entrer un délai valide', 'error');
+    return;
+  }
+
+  const token = getToken();
+
+  try {
+    const response = await fetch(`/api/conversations/${conversationId}/counter-offer`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        price: counterPrice,
+        deliveryDays: counterDelivery,
+        message: counterMessage || 'Nouvelle proposition'
+      })
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Erreur lors de l\'envoi de la contre-proposition');
+    }
+
+    showToast('Contre-proposition envoyée avec succès !', 'success');
+    closeModal('negotiateModal');
+    await loadRecentQuotes();
+
+  } catch (error) {
+    console.error('Erreur:', error);
+    showToast(error.message || 'Erreur lors de l\'envoi', 'error');
+  }
+}
+
+// Modal 3: Refuser un devis
+async function showRefuseModal(conversationId) {
+  const token = getToken();
+
+  try {
+    // Charger la conversation
+    const response = await fetch(`/api/conversations/${conversationId}`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+
+    if (!response.ok) {
+      throw new Error('Erreur lors du chargement de la conversation');
+    }
+
+    const data = await response.json();
+    const conversation = data.conversation;
+    const currentQuote = conversation.currentQuote;
+
+    if (!currentQuote) {
+      showToast('Aucun devis disponible', 'error');
+      return;
+    }
+
+    // Créer le modal
+    const modalHTML = `
+      <div id="refuseModal" class="modal-overlay" onclick="closeModal('refuseModal')">
+        <div class="modal-content" onclick="event.stopPropagation()">
+          <div class="modal-header">
+            <h2>❌ Refuser le devis</h2>
+            <button class="modal-close" onclick="closeModal('refuseModal')">✕</button>
+          </div>
+          <div class="modal-body">
+            <div class="quote-summary">
+              <h3>Devis à refuser</h3>
+              <div class="quote-details">
+                <div class="quote-detail-item">
+                  <span class="label">Imprimeur:</span>
+                  <span class="value">${conversation.printer.firstName} ${conversation.printer.lastName}</span>
+                </div>
+                <div class="quote-detail-item">
+                  <span class="label">Prix total:</span>
+                  <span class="value">${formatPrice(currentQuote.totalPrice)}</span>
+                </div>
+                <div class="quote-detail-item">
+                  <span class="label">Délai:</span>
+                  <span class="value">${currentQuote.deliveryDays} jour${currentQuote.deliveryDays > 1 ? 's' : ''}</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="warning-box">
+              <p>⚠️ Cette action est irréversible. L'imprimeur sera notifié du refus.</p>
+            </div>
+
+            <form id="refuseForm">
+              <div class="form-group">
+                <label class="form-label">Raison du refus (optionnel)</label>
+                <textarea id="refuseReason" class="form-textarea"
+                          placeholder="Expliquez pourquoi vous refusez ce devis..." rows="4"></textarea>
+                <small class="form-help">Ce message sera envoyé à l'imprimeur</small>
+              </div>
+
+              <div class="form-group">
+                <label class="checkbox-label">
+                  <input type="checkbox" id="confirmRefuse" required>
+                  Je confirme vouloir refuser ce devis
+                </label>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeModal('refuseModal')">Annuler</button>
+            <button class="btn btn-danger" onclick="submitRefusal('${conversationId}')">
+              Refuser définitivement
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+
+    // Injecter le modal dans le DOM
+    const existingModal = document.getElementById('refuseModal');
+    if (existingModal) {
+      existingModal.remove();
+    }
+
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+  } catch (error) {
+    console.error('Erreur:', error);
+    showToast('Erreur lors du chargement du devis', 'error');
+  }
+}
+
+// Envoyer le refus
+async function submitRefusal(conversationId) {
+  const confirmCheckbox = document.getElementById('confirmRefuse');
+  if (!confirmCheckbox.checked) {
+    showToast('Veuillez confirmer le refus', 'warning');
+    return;
+  }
+
+  const reason = document.getElementById('refuseReason').value;
+
+  const token = getToken();
+
+  try {
+    const response = await fetch(`/api/conversations/${conversationId}/refuse`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ reason: reason || 'Aucune raison fournie' })
+    });
+
+    if (!response.ok) {
+      throw new Error('Erreur lors du refus du devis');
+    }
+
+    showToast('Devis refusé', 'success');
+    closeModal('refuseModal');
+    await loadRecentQuotes();
+
+  } catch (error) {
+    console.error('Erreur:', error);
+    showToast('Erreur lors du refus', 'error');
+  }
+}
+
+// Fermer un modal
+function closeModal(modalId) {
+  const modal = document.getElementById(modalId);
+  if (modal) {
+    modal.remove();
+  }
 }

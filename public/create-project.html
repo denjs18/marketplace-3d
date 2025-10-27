@@ -9,9 +9,9 @@
 <body>
   <nav class="navbar">
     <div class="nav-container">
-      <a href="/" class="logo">Strivex</a>
-      <div class="flex gap-2">
-        <a href="/dashboard-client.html" class="btn btn-outline">Retour Dashboard</a>
+      <a href="/" class="nav-logo">Marketplace 3D</a>
+      <div class="nav-menu">
+        <span>Chargement...</span>
       </div>
     </div>
   </nav>
@@ -196,9 +196,74 @@
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="/js/auth.js"></script>
   <script src="/js/app.js"></script>
   <script src="/js/stl-viewer.js"></script>
   <script>
+    let currentUser = null;
+
+    // Initialisation avec authentification
+    document.addEventListener('DOMContentLoaded', async () => {
+      currentUser = await requireAuth('client');
+      if (!currentUser) {
+        return;
+      }
+
+      createAuthNavbar(currentUser);
+
+      // Check if editing existing project
+      const urlParams = new URLSearchParams(window.location.search);
+      const projectId = urlParams.get('id');
+      if (projectId) {
+        await loadProject(projectId);
+        document.querySelector('h1').textContent = 'Modifier le projet';
+        document.getElementById('submit-text').textContent = 'Sauvegarder les modifications';
+      }
+    });
+
+    // Charger un projet existant pour modification
+    async function loadProject(projectId) {
+      const token = getToken();
+
+      try {
+        const response = await fetch(`/api/projects/${projectId}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (!response.ok) {
+          throw new Error('Erreur lors du chargement du projet');
+        }
+
+        const data = await response.json();
+        const project = data.project;
+
+        // Remplir le formulaire
+        document.getElementById('title').value = project.title;
+        document.getElementById('description').value = project.description;
+        document.getElementById('material').value = project.material || '';
+        document.getElementById('color').value = project.color || '';
+        document.getElementById('quantity').value = project.quantity || 1;
+        document.getElementById('infill').value = project.infill || 20;
+        document.getElementById('postProcessing').value = project.finish || 'None';
+        document.getElementById('layerHeight').value = project.layerHeight || 0.2;
+
+        if (project.estimatedBudget) {
+          document.getElementById('budgetMax').value = project.estimatedBudget;
+        }
+
+        if (project.deadline) {
+          document.getElementById('deadline').value = project.deadline.split('T')[0];
+        }
+
+        // Le fichier STL ne peut pas être pré-rempli pour des raisons de sécurité
+        fileInput.removeAttribute('required');
+      } catch (error) {
+        console.error('Erreur:', error);
+        showToast('Erreur lors du chargement du projet', 'error');
+      }
+    }
+
+
     const uploadArea = document.getElementById('upload-area');
     const fileInput = document.getElementById('stlFile');
     const uploadPrompt = document.getElementById('upload-prompt');
@@ -328,8 +393,12 @@
     document.getElementById('project-form').addEventListener('submit', async (e) => {
       e.preventDefault();
 
-      if (!selectedFile) {
-        alert('Veuillez sélectionner un fichier 3D');
+      const urlParams = new URLSearchParams(window.location.search);
+      const projectId = urlParams.get('id');
+
+      // Pour la modification, le fichier STL est optionnel
+      if (!projectId && !selectedFile) {
+        showToast('Veuillez sélectionner un fichier 3D', 'error');
         return;
       }
 
@@ -341,46 +410,80 @@
       submitLoading.classList.remove('hidden');
       alertContainer.innerHTML = '';
 
-      // Create FormData
-      const formData = new FormData();
-      formData.append('stlFile', selectedFile);
-      formData.append('title', document.getElementById('title').value);
-      formData.append('description', document.getElementById('description').value);
+      try {
+        const token = getToken();
 
-      const specifications = {
-        material: document.getElementById('material').value,
-        color: document.getElementById('color').value || 'Natural',
-        quantity: parseInt(document.getElementById('quantity').value),
-        infill: parseInt(document.getElementById('infill').value),
-        layerHeight: parseFloat(document.getElementById('layerHeight').value),
-        postProcessing: document.getElementById('postProcessing').value
-      };
-      formData.append('specifications', JSON.stringify(specifications));
+        // Étape 1: Upload du fichier STL si présent
+        let stlFileUrl = null;
+        if (selectedFile) {
+          const stlFormData = new FormData();
+          stlFormData.append('stlFile', selectedFile);
 
-      const budgetMin = document.getElementById('budgetMin').value;
-      const budgetMax = document.getElementById('budgetMax').value;
-      if (budgetMin || budgetMax) {
-        formData.append('budget', JSON.stringify({
-          min: parseFloat(budgetMin) || 0,
-          max: parseFloat(budgetMax) || 0
-        }));
-      }
+          const uploadResponse = await fetch('/api/uploads/stl', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${token}` },
+            body: stlFormData
+          });
 
-      const deadline = document.getElementById('deadline').value;
-      if (deadline) {
-        formData.append('deadline', deadline);
-      }
+          if (!uploadResponse.ok) {
+            throw new Error('Erreur lors de l\'upload du fichier STL');
+          }
 
-      // For demo mode, just show success
-      setTimeout(() => {
-        alertContainer.innerHTML = '<div class="alert alert-success">✓ Projet créé avec succès! Redirection...</div>';
+          const uploadData = await uploadResponse.json();
+          stlFileUrl = uploadData.stlFile;
+        }
+
+        // Étape 2: Créer ou mettre à jour le projet
+        const projectData = {
+          title: document.getElementById('title').value,
+          description: document.getElementById('description').value,
+          material: document.getElementById('material').value,
+          color: document.getElementById('color').value || 'Natural',
+          quantity: parseInt(document.getElementById('quantity').value),
+          infill: parseInt(document.getElementById('infill').value) || 20,
+          finish: document.getElementById('postProcessing').value,
+          layerHeight: parseFloat(document.getElementById('layerHeight').value) || 0.2,
+          estimatedBudget: parseFloat(document.getElementById('budgetMax').value) || 0,
+          deadline: document.getElementById('deadline').value || null,
+          projectStatus: 'draft' // Commence en brouillon
+        };
+
+        if (stlFileUrl) {
+          projectData.stlFile = stlFileUrl;
+        }
+
+        const method = projectId ? 'PUT' : 'POST';
+        const endpoint = projectId ? `/api/projects/${projectId}` : '/api/projects';
+
+        const response = await fetch(endpoint, {
+          method: method,
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(projectData)
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Erreur lors de la sauvegarde du projet');
+        }
+
+        const data = await response.json();
+
+        showToast(projectId ? 'Projet modifié avec succès!' : 'Projet créé avec succès!', 'success');
+
         setTimeout(() => {
           window.location.href = '/dashboard-client.html';
         }, 1500);
-      }, 1000);
 
-      submitText.classList.remove('hidden');
-      submitLoading.classList.add('hidden');
+      } catch (error) {
+        console.error('Erreur:', error);
+        showToast(error.message || 'Erreur lors de la sauvegarde du projet', 'error');
+
+        submitText.classList.remove('hidden');
+        submitLoading.classList.add('hidden');
+      }
     });
   </script>
 </body>
