@@ -27,7 +27,7 @@ async function loadProfile() {
   const token = getToken();
 
   try {
-    const response = await fetch('/api/users/profile', {
+    const response = await fetch('/api/auth/profile', {
       headers: { 'Authorization': `Bearer ${token}` }
     });
 
@@ -35,7 +35,9 @@ async function loadProfile() {
       throw new Error('Erreur lors du chargement du profil');
     }
 
-    const userData = await response.json();
+    const data = await response.json();
+    // L'API retourne { user: {...} }
+    const userData = data.user || data;
     currentUser = userData;
 
     // Remplir les données

@@ -40,7 +40,7 @@ async function verifyAndLoadUser() {
   }
 
   try {
-    const response = await fetch('/api/users/profile', {
+    const response = await fetch('/api/auth/profile', {
       headers: {
         'Authorization': `Bearer ${token}`
       }
@@ -48,11 +48,14 @@ async function verifyAndLoadUser() {
 
     if (!response.ok) {
       // Token invalide ou expiré
+      console.error('Token invalide ou expiré, déconnexion...');
       logout();
       return null;
     }
 
-    const userData = await response.json();
+    const data = await response.json();
+    // L'API retourne { user: {...} }
+    const userData = data.user || data;
     saveUser(userData);
     return userData;
   } catch (error) {
