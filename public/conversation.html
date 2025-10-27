@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Conversation - Marketplace 3D</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .conversation-container {
+      display: grid;
+      grid-template-columns: 300px 1fr 350px;
+      gap: 20px;
+      height: calc(100vh - 120px);
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    /* Panel latéral projet */
+    .project-sidebar {
+      background: white;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      overflow-y: auto;
+    }
+
+    .project-image {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      border-radius: 8px;
+      margin-bottom: 15px;
+    }
+
+    .project-info h3 {
+      font-size: 18px;
+      margin-bottom: 10px;
+      color: #333;
+    }
+
+    .project-detail {
+      margin-bottom: 8px;
+      font-size: 14px;
+      color: #666;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-top: 10px;
+    }
+
+    .status-pending { background: #ffeaa7; color: #fdcb6e; }
+    .status-active { background: #74b9ff; color: #0984e3; }
+    .status-quote_sent { background: #a29bfe; color: #6c5ce7; }
+    .status-negotiating { background: #fd79a8; color: #e84393; }
+    .status-quote_accepted { background: #55efc4; color: #00b894; }
+    .status-signed { background: #00b894; color: white; }
+    .status-in_production { background: #fdcb6e; color: #e17055; }
+    .status-ready { background: #00cec9; color: white; }
+    .status-completed { background: #00b894; color: white; }
+    .status-cancelled { background: #dfe6e9; color: #636e72; }
+    .status-paused { background: #fab1a0; color: #e17055; }
+
+    /* Zone centrale messages */
+    .messages-center {
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .messages-header {
+      padding: 20px;
+      border-bottom: 1px solid #eee;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .other-user-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .other-user-avatar {
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    .messages-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .message {
+      max-width: 70%;
+      padding: 12px 16px;
+      border-radius: 12px;
+      word-wrap: break-word;
+    }
+
+    .message-sent {
+      align-self: flex-end;
+      background: #0984e3;
+      color: white;
+    }
+
+    .message-received {
+      align-self: flex-start;
+      background: #f5f6fa;
+      color: #333;
+    }
+
+    .message-system {
+      align-self: center;
+      background: #dfe6e9;
+      color: #636e72;
+      font-size: 13px;
+      font-style: italic;
+      max-width: 90%;
+      text-align: center;
+    }
+
+    .message-quote {
+      background: #fff3cd;
+      border-left: 4px solid #ffc107;
+      max-width: 85%;
+    }
+
+    .message-file {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .message-timestamp {
+      font-size: 11px;
+      opacity: 0.7;
+      margin-top: 5px;
+    }
+
+    .message-blocked-warning {
+      background: #ffe5e5;
+      border-left: 4px solid #ff4757;
+      color: #d63031;
+      padding: 8px 12px;
+      margin-top: 5px;
+      font-size: 12px;
+      border-radius: 6px;
+    }
+
+    .messages-input-area {
+      padding: 20px;
+      border-top: 1px solid #eee;
+      display: flex;
+      gap: 10px;
+      align-items: flex-end;
+    }
+
+    .messages-input-area textarea {
+      flex: 1;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      resize: none;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    .file-upload-btn {
+      background: #74b9ff;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 20px;
+      transition: background 0.2s;
+    }
+
+    .file-upload-btn:hover {
+      background: #0984e3;
+    }
+
+    .send-btn {
+      background: #0984e3;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background 0.2s;
+    }
+
+    .send-btn:hover {
+      background: #0652a1;
+    }
+
+    /* Panel latéral devis */
+    .quote-sidebar {
+      background: white;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      overflow-y: auto;
+    }
+
+    .quote-sidebar h3 {
+      font-size: 18px;
+      margin-bottom: 15px;
+      color: #333;
+    }
+
+    .quote-card {
+      background: #f8f9fa;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+    }
+
+    .quote-price {
+      font-size: 24px;
+      font-weight: 700;
+      color: #0984e3;
+      margin-bottom: 10px;
+    }
+
+    .quote-detail {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 6px;
+    }
+
+    .quote-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    .action-btn {
+      padding: 10px 16px;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+    }
+
+    .btn-accept {
+      background: #00b894;
+      color: white;
+    }
+
+    .btn-accept:hover {
+      background: #00966d;
+    }
+
+    .btn-counter {
+      background: #fdcb6e;
+      color: #2d3436;
+    }
+
+    .btn-counter:hover {
+      background: #fab1a0;
+    }
+
+    .btn-sign {
+      background: #6c5ce7;
+      color: white;
+    }
+
+    .btn-sign:hover {
+      background: #5f3dc4;
+    }
+
+    .btn-cancel {
+      background: #d63031;
+      color: white;
+    }
+
+    .btn-cancel:hover {
+      background: #b71c1c;
+    }
+
+    .btn-pause {
+      background: #636e72;
+      color: white;
+    }
+
+    .btn-pause:hover {
+      background: #2d3436;
+    }
+
+    .anti-fraud-banner {
+      background: #fff3cd;
+      border-left: 4px solid #ffc107;
+      padding: 12px 16px;
+      margin-bottom: 20px;
+      border-radius: 6px;
+      font-size: 13px;
+      color: #856404;
+    }
+
+    .anti-fraud-banner strong {
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    /* Loading spinner */
+    .loading-spinner {
+      text-align: center;
+      padding: 20px;
+      color: #999;
+    }
+
+    /* File attachment preview */
+    .file-preview {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      background: #e3f2fd;
+      border-radius: 6px;
+      margin-top: 10px;
+    }
+
+    .file-preview-remove {
+      background: #f44336;
+      color: white;
+      border: none;
+      padding: 4px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+
+    /* Modals */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      max-width: 500px;
+      width: 90%;
+    }
+
+    .modal-content h3 {
+      margin-bottom: 15px;
+    }
+
+    .modal-content label {
+      display: block;
+      margin-top: 12px;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .modal-content input,
+    .modal-content textarea {
+      width: 100%;
+      padding: 10px;
+      margin-top: 6px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-family: inherit;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .modal-actions button {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    @media (max-width: 1024px) {
+      .conversation-container {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 1fr auto;
+      }
+
+      .project-sidebar,
+      .quote-sidebar {
+        max-height: 300px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="/" class="nav-logo">Marketplace 3D</a>
+      <div class="nav-menu">
+        <a href="/dashboard-client.html" class="nav-link">Tableau de bord</a>
+        <a href="#" id="logoutBtn" class="nav-link">Déconnexion</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="conversation-container">
+    <!-- Panel latéral projet -->
+    <div class="project-sidebar">
+      <div class="anti-fraud-banner">
+        <strong>⚠️ Protection anti-fraude</strong>
+        Ne partagez jamais vos coordonnées (téléphone, email) dans les messages. Tous les échanges doivent rester sur la plateforme.
+      </div>
+
+      <img id="projectImage" class="project-image" src="/images/placeholder.jpg" alt="Projet">
+      <div class="project-info">
+        <h3 id="projectTitle">Chargement...</h3>
+        <div class="project-detail"><strong>Statut:</strong> <span id="conversationStatus" class="status-badge">-</span></div>
+        <div class="project-detail"><strong>Quantité:</strong> <span id="projectQuantity">-</span></div>
+        <div class="project-detail"><strong>Matériau:</strong> <span id="projectMaterial">-</span></div>
+        <div class="project-detail"><strong>Couleur:</strong> <span id="projectColor">-</span></div>
+        <div class="project-detail"><strong>Finition:</strong> <span id="projectFinish">-</span></div>
+      </div>
+    </div>
+
+    <!-- Zone centrale messages -->
+    <div class="messages-center">
+      <div class="messages-header">
+        <div class="other-user-info">
+          <img id="otherUserAvatar" class="other-user-avatar" src="/images/avatar-default.png" alt="Avatar">
+          <div>
+            <div id="otherUserName" style="font-weight: 600;">Chargement...</div>
+            <div id="otherUserRole" style="font-size: 13px; color: #999;">-</div>
+          </div>
+        </div>
+        <div>
+          <button class="action-btn btn-pause" id="pauseBtn">⏸ Pause</button>
+        </div>
+      </div>
+
+      <div class="messages-list" id="messagesList">
+        <div class="loading-spinner">Chargement des messages...</div>
+      </div>
+
+      <div class="messages-input-area">
+        <input type="file" id="fileInput" style="display: none;" accept="image/*,.pdf,.stl">
+        <button class="file-upload-btn" id="fileUploadBtn" title="Joindre un fichier">📎</button>
+        <textarea id="messageInput" rows="2" placeholder="Tapez votre message..."></textarea>
+        <button class="send-btn" id="sendBtn">Envoyer</button>
+      </div>
+      <div id="filePreviewContainer"></div>
+    </div>
+
+    <!-- Panel latéral devis -->
+    <div class="quote-sidebar">
+      <h3>💰 Devis</h3>
+      <div id="quoteContainer">
+        <p style="color: #999; font-size: 14px;">Aucun devis pour le moment</p>
+      </div>
+
+      <h3 style="margin-top: 25px;">⚙️ Actions</h3>
+      <div class="quote-actions" id="actionsContainer">
+        <!-- Actions dynamiques -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal devis -->
+  <div class="modal" id="quoteModal">
+    <div class="modal-content">
+      <h3>Envoyer un devis</h3>
+      <label>Prix unitaire (€)</label>
+      <input type="number" id="quotePricePerUnit" step="0.01" min="0">
+
+      <label>Quantité</label>
+      <input type="number" id="quoteQuantity" min="1">
+
+      <label>Prix total (€)</label>
+      <input type="number" id="quoteTotalPrice" step="0.01" min="0">
+
+      <label>Délai (jours)</label>
+      <input type="number" id="quoteDeliveryDays" min="1">
+
+      <label>Matériaux</label>
+      <input type="text" id="quoteMaterials" placeholder="PLA, ABS, etc.">
+
+      <label>Frais de port (€)</label>
+      <input type="number" id="quoteShipping" step="0.01" min="0" value="0">
+
+      <div class="modal-actions">
+        <button class="action-btn" style="background: #ddd; color: #333;" id="cancelQuoteBtn">Annuler</button>
+        <button class="action-btn btn-accept" id="submitQuoteBtn">Envoyer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal annulation -->
+  <div class="modal" id="cancelModal">
+    <div class="modal-content">
+      <h3>Annuler la conversation</h3>
+      <label>Raison de l'annulation</label>
+      <textarea id="cancelReason" rows="4" placeholder="Expliquez pourquoi vous annulez..."></textarea>
+
+      <div class="modal-actions">
+        <button class="action-btn" style="background: #ddd; color: #333;" id="closeCancelModal">Annuler</button>
+        <button class="action-btn btn-cancel" id="confirmCancelBtn">Confirmer</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/conversation.js"></script>
+</body>
+</html>

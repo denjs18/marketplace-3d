@@ -17,6 +17,8 @@ const messageRoutes = require('./routes/messages');
 const paymentRoutes = require('./routes/payments');
 const uploadRoutes = require('./routes/uploads');
 const adminRoutes = require('./routes/admin');
+const conversationRoutes = require('./routes/conversations');
+const conversationActionRoutes = require('./routes/conversationActions');
 
 // Initialize Express app
 const app = express();
@@ -80,6 +82,8 @@ app.use('/api/messages', messageRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/uploads', uploadRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/conversations', conversationRoutes);
+app.use('/api/conversations', conversationActionRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

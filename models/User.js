@@ -55,6 +55,62 @@ const userSchema = new mongoose.Schema({
     technologies: [String], // FDM, SLA, SLS, etc.
     colors: [String]
   },
+  // Profil imprimeur étendu
+  printerProfile: {
+    bio: {
+      type: String,
+      maxlength: 500
+    },
+    specialties: [String],
+    maxDifficulty: {
+      type: Number,
+      min: 1,
+      max: 5,
+      default: 3
+    },
+    availabilityStatus: {
+      type: String,
+      enum: ['available', 'busy', 'unavailable'],
+      default: 'available'
+    },
+    averageResponseTime: {
+      type: Number,
+      default: 0
+    },
+    responseRate: {
+      type: Number,
+      default: 100,
+      min: 0,
+      max: 100
+    },
+    completionRate: {
+      type: Number,
+      default: 100,
+      min: 0,
+      max: 100
+    },
+    cancellationRate: {
+      type: Number,
+      default: 0,
+      min: 0,
+      max: 100
+    },
+    reliabilityScore: {
+      type: Number,
+      default: 100,
+      min: 0,
+      max: 100
+    },
+    activeProjects: {
+      type: Number,
+      default: 0
+    },
+    favoriteClients: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+    }],
+    badges: [String]
+  },
   hourlyRate: {
     type: Number,
     min: 0
@@ -72,6 +128,27 @@ const userSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
   }],
+  // Profil client
+  clientProfile: {
+    refusalRate: {
+      type: Number,
+      default: 0,
+      min: 0,
+      max: 100
+    },
+    cancellationRate: {
+      type: Number,
+      default: 0,
+      min: 0,
+      max: 100
+    },
+    reliabilityScore: {
+      type: Number,
+      default: 100,
+      min: 0,
+      max: 100
+    }
+  },
   // Common fields
   profileImage: {
     type: String,
@@ -171,7 +248,11 @@ const userSchema = new mongoose.Schema({
   iban: {
     type: String,
     trim: true
-  }
+  },
+  // Alertes et sanctions
+  warningFlags: [String],
+  suspendedUntil: Date,
+  suspensionReason: String
 }, {
   timestamps: true
 });

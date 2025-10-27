@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Comparer les devis - Marketplace 3D</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .compare-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 30px 20px;
+    }
+
+    .compare-header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .compare-header h1 {
+      font-size: 32px;
+      color: #2d3436;
+      margin-bottom: 10px;
+    }
+
+    .project-summary {
+      background: white;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      margin-bottom: 30px;
+    }
+
+    .project-summary h3 {
+      font-size: 20px;
+      margin-bottom: 15px;
+      color: #333;
+    }
+
+    .project-details {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+    }
+
+    .project-detail-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .project-detail-item strong {
+      color: #636e72;
+      font-size: 14px;
+    }
+
+    .comparison-table-container {
+      overflow-x: auto;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      padding: 20px;
+    }
+
+    .comparison-table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 800px;
+    }
+
+    .comparison-table thead {
+      background: #f8f9fa;
+    }
+
+    .comparison-table th {
+      padding: 20px 15px;
+      text-align: left;
+      font-weight: 600;
+      color: #2d3436;
+      border-bottom: 2px solid #dfe6e9;
+    }
+
+    .comparison-table td {
+      padding: 18px 15px;
+      border-bottom: 1px solid #f1f3f5;
+      vertical-align: top;
+    }
+
+    .comparison-table tbody tr:hover {
+      background: #f8f9fa;
+    }
+
+    .printer-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .printer-avatar {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    .printer-name {
+      font-weight: 600;
+      color: #2d3436;
+      margin-bottom: 4px;
+    }
+
+    .printer-rating {
+      font-size: 13px;
+      color: #fdcb6e;
+    }
+
+    .printer-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 6px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .badge-confiance {
+      background: #00b894;
+      color: white;
+    }
+
+    .badge-reactif {
+      background: #74b9ff;
+      color: white;
+    }
+
+    .badge-top {
+      background: #ffeaa7;
+      color: #fdcb6e;
+    }
+
+    .price-cell {
+      font-size: 24px;
+      font-weight: 700;
+      color: #0984e3;
+    }
+
+    .price-detail {
+      font-size: 13px;
+      color: #636e72;
+      margin-top: 4px;
+    }
+
+    .best-badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 15px;
+      font-size: 11px;
+      font-weight: 700;
+      margin-top: 8px;
+    }
+
+    .best-price {
+      background: #00b894;
+      color: white;
+    }
+
+    .fastest {
+      background: #fdcb6e;
+      color: #2d3436;
+    }
+
+    .best-rated {
+      background: #ffeaa7;
+      color: #fdcb6e;
+    }
+
+    .delivery-days {
+      font-size: 16px;
+      font-weight: 600;
+      color: #2d3436;
+    }
+
+    .materials-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .materials-list li {
+      padding: 4px 0;
+      font-size: 14px;
+      color: #636e72;
+    }
+
+    .materials-list li:before {
+      content: "• ";
+      color: #0984e3;
+      font-weight: bold;
+      margin-right: 6px;
+    }
+
+    .action-cell {
+      text-align: center;
+    }
+
+    .select-btn {
+      background: #0984e3;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      width: 100%;
+      max-width: 180px;
+    }
+
+    .select-btn:hover {
+      background: #0652a1;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(9, 132, 227, 0.3);
+    }
+
+    .view-conversation-btn {
+      background: #636e72;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+      margin-top: 8px;
+      width: 100%;
+      max-width: 180px;
+    }
+
+    .view-conversation-btn:hover {
+      background: #2d3436;
+    }
+
+    .no-quotes {
+      text-align: center;
+      padding: 60px 20px;
+      color: #999;
+    }
+
+    .no-quotes-icon {
+      font-size: 64px;
+      margin-bottom: 20px;
+    }
+
+    .reliability-score {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 8px;
+      font-size: 13px;
+    }
+
+    .score-bar {
+      width: 80px;
+      height: 6px;
+      background: #dfe6e9;
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .score-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #00b894, #00cec9);
+      transition: width 0.3s;
+    }
+
+    .response-time {
+      font-size: 12px;
+      color: #636e72;
+      margin-top: 4px;
+    }
+
+    @media (max-width: 768px) {
+      .compare-container {
+        padding: 20px 10px;
+      }
+
+      .comparison-table {
+        font-size: 13px;
+      }
+
+      .printer-avatar {
+        width: 40px;
+        height: 40px;
+      }
+
+      .price-cell {
+        font-size: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="/" class="nav-logo">Marketplace 3D</a>
+      <div class="nav-menu">
+        <a href="/dashboard-client.html" class="nav-link">Tableau de bord</a>
+        <a href="#" id="logoutBtn" class="nav-link">Déconnexion</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="compare-container">
+    <div class="compare-header">
+      <h1>📊 Comparer les devis</h1>
+      <p style="color: #636e72;">Sélectionnez le meilleur imprimeur pour votre projet</p>
+    </div>
+
+    <div class="project-summary">
+      <h3 id="projectTitle">Chargement...</h3>
+      <div class="project-details" id="projectDetails">
+        <!-- Détails dynamiques -->
+      </div>
+    </div>
+
+    <div class="comparison-table-container">
+      <table class="comparison-table" id="quotesTable">
+        <thead>
+          <tr>
+            <th>Imprimeur</th>
+            <th>Prix total</th>
+            <th>Délai</th>
+            <th>Matériaux</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="quotesTableBody">
+          <tr>
+            <td colspan="5" class="no-quotes">
+              <div class="no-quotes-icon">📭</div>
+              <div>Chargement des devis...</div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    let projectId = null;
+    let conversations = [];
+
+    // Initialisation
+    document.addEventListener('DOMContentLoaded', async () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      projectId = urlParams.get('projectId');
+
+      if (!projectId) {
+        alert('ID de projet manquant');
+        window.location.href = '/dashboard-client.html';
+        return;
+      }
+
+      const token = localStorage.getItem('token');
+      if (!token) {
+        window.location.href = '/login.html';
+        return;
+      }
+
+      await loadProjectAndQuotes();
+
+      document.getElementById('logoutBtn').addEventListener('click', () => {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = '/login.html';
+      });
+    });
+
+    // Charger le projet et les devis
+    async function loadProjectAndQuotes() {
+      const token = localStorage.getItem('token');
+
+      // Charger le projet
+      const projectResponse = await fetch(`/api/projects/${projectId}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      if (!projectResponse.ok) {
+        alert('Erreur lors du chargement du projet');
+        return;
+      }
+
+      const projectData = await projectResponse.json();
+      const project = projectData.project;
+
+      displayProjectInfo(project);
+
+      // Charger les conversations avec devis
+      const conversationsResponse = await fetch('/api/conversations/my-conversations', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      if (!conversationsResponse.ok) {
+        alert('Erreur lors du chargement des conversations');
+        return;
+      }
+
+      const conversationsData = await conversationsResponse.json();
+
+      // Filtrer les conversations pour ce projet avec un devis
+      conversations = conversationsData.conversations.filter(conv =>
+        conv.project._id === projectId && conv.currentQuote
+      );
+
+      displayQuotes();
+    }
+
+    // Afficher les infos du projet
+    function displayProjectInfo(project) {
+      document.getElementById('projectTitle').textContent = project.title;
+
+      const detailsContainer = document.getElementById('projectDetails');
+      detailsContainer.innerHTML = `
+        <div class="project-detail-item">
+          <strong>Quantité:</strong> ${project.quantity || '-'}
+        </div>
+        <div class="project-detail-item">
+          <strong>Matériau:</strong> ${project.material || '-'}
+        </div>
+        <div class="project-detail-item">
+          <strong>Couleur:</strong> ${project.color || '-'}
+        </div>
+        <div class="project-detail-item">
+          <strong>Finition:</strong> ${project.finish || '-'}
+        </div>
+        <div class="project-detail-item">
+          <strong>Statut:</strong> ${project.status}
+        </div>
+      `;
+    }
+
+    // Afficher les devis
+    function displayQuotes() {
+      const tbody = document.getElementById('quotesTableBody');
+
+      if (conversations.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="5" class="no-quotes">
+              <div class="no-quotes-icon">📭</div>
+              <div>Aucun devis disponible pour le moment</div>
+              <p style="font-size: 14px; margin-top: 10px;">Les imprimeurs invités peuvent envoyer leurs devis via la conversation.</p>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      // Trouver le meilleur prix, le plus rapide, le mieux noté
+      const prices = conversations.map(c => c.currentQuote.totalPrice);
+      const bestPrice = Math.min(...prices);
+
+      const deliveryDays = conversations.map(c => c.currentQuote.deliveryDays);
+      const fastestDelivery = Math.min(...deliveryDays);
+
+      const ratings = conversations.map(c => c.printer.rating?.average || 0);
+      const bestRating = Math.max(...ratings);
+
+      // Générer les lignes
+      tbody.innerHTML = conversations.map(conv => {
+        const quote = conv.currentQuote;
+        const printer = conv.printer;
+        const rating = printer.rating?.average || 0;
+        const reliabilityScore = printer.printerProfile?.reliabilityScore || 100;
+        const responseTime = printer.printerProfile?.averageResponseTime || 0;
+
+        // Badges
+        let badges = [];
+        if (quote.totalPrice === bestPrice) badges.push('<span class="best-badge best-price">🏆 Meilleur prix</span>');
+        if (quote.deliveryDays === fastestDelivery) badges.push('<span class="best-badge fastest">⚡ Plus rapide</span>');
+        if (rating === bestRating && rating > 0) badges.push('<span class="best-badge best-rated">⭐ Mieux noté</span>');
+
+        // Badges imprimeur
+        const printerBadges = printer.printerProfile?.badges || [];
+        const badgeHTML = printerBadges.map(badge => {
+          const badgeLabels = {
+            'imprimeur_confiance': 'Confiance',
+            'top_imprimeur': 'TOP',
+            'reactif': 'Réactif'
+          };
+          const badgeClass = badge.includes('confiance') ? 'badge-confiance' :
+                             badge.includes('top') ? 'badge-top' : 'badge-reactif';
+          return `<span class="badge ${badgeClass}">${badgeLabels[badge] || badge}</span>`;
+        }).join('');
+
+        return `
+          <tr>
+            <td>
+              <div class="printer-info">
+                <img src="${printer.profileImage || '/images/avatar-default.png'}"
+                     alt="${printer.firstName} ${printer.lastName}"
+                     class="printer-avatar">
+                <div>
+                  <div class="printer-name">${printer.firstName} ${printer.lastName}</div>
+                  ${printer.companyName ? `<div style="font-size: 13px; color: #999;">${printer.companyName}</div>` : ''}
+                  <div class="printer-rating">⭐ ${rating.toFixed(1)} (${printer.rating?.count || 0} avis)</div>
+                  <div class="reliability-score">
+                    <span>Fiabilité:</span>
+                    <div class="score-bar">
+                      <div class="score-fill" style="width: ${reliabilityScore}%"></div>
+                    </div>
+                    <span>${reliabilityScore}%</span>
+                  </div>
+                  ${responseTime > 0 ? `<div class="response-time">⏱️ Répond en ${Math.round(responseTime / 60)}h en moyenne</div>` : ''}
+                  <div class="printer-badges">${badgeHTML}</div>
+                </div>
+              </div>
+            </td>
+            <td>
+              <div class="price-cell">${quote.totalPrice}€</div>
+              <div class="price-detail">${quote.pricePerUnit}€ / pièce</div>
+              ${quote.shippingCost ? `<div class="price-detail">+ ${quote.shippingCost}€ port</div>` : ''}
+              ${badges.join('')}
+            </td>
+            <td>
+              <div class="delivery-days">${quote.deliveryDays} jour${quote.deliveryDays > 1 ? 's' : ''}</div>
+            </td>
+            <td>
+              <ul class="materials-list">
+                ${quote.materials.map(m => `<li>${m}</li>`).join('')}
+              </ul>
+            </td>
+            <td class="action-cell">
+              <button class="select-btn" onclick="selectPrinter('${conv._id}')">
+                ✅ Sélectionner
+              </button>
+              <button class="view-conversation-btn" onclick="viewConversation('${conv._id}')">
+                💬 Voir la conversation
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // Sélectionner un imprimeur
+    async function selectPrinter(conversationId) {
+      if (!confirm('Êtes-vous sûr de vouloir sélectionner cet imprimeur ? Les autres conversations seront refusées.')) {
+        return;
+      }
+
+      const token = localStorage.getItem('token');
+
+      // Accepter le devis
+      const response = await fetch(`/api/conversations/${conversationId}/accept-quote`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      if (response.ok) {
+        alert('Devis accepté ! Vous allez être redirigé vers la conversation pour signer le contrat.');
+        window.location.href = `/conversation.html?id=${conversationId}`;
+      } else {
+        alert('Erreur lors de l\'acceptation du devis');
+      }
+    }
+
+    // Voir la conversation
+    function viewConversation(conversationId) {
+      window.location.href = `/conversation.html?id=${conversationId}`;
+    }
+  </script>
+</body>
+</html>
