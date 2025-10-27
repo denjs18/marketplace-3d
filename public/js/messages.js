@@ -1,225 +1,224 @@
 /**
- * Real-time messaging with Socket.IO
+ * Page Messages - Liste complète des conversations
  */
 
-let socket;
-let currentConversation = null;
+let currentUser = null;
+let allConversations = [];
+let filteredConversations = [];
+let currentPage = 1;
+const conversationsPerPage = 20;
 
-// Initialize Socket.IO connection
-function initSocket() {
-  const token = getToken();
-  if (!token) return;
+// Initialisation
+document.addEventListener('DOMContentLoaded', async () => {
+  currentUser = await requireAuth('client');
+  if (!currentUser) {
+    return;
+  }
 
-  socket = io({
-    auth: {
-      token: token
-    }
-  });
+  createAuthNavbar(currentUser);
+  await loadConversations();
 
-  const user = getUser();
+  // Event listeners
+  document.getElementById('statusFilter').addEventListener('change', applyFilters);
+  document.getElementById('sortFilter').addEventListener('change', applyFilters);
 
-  socket.on('connect', () => {
-    console.log('Socket connected');
-    socket.emit('join-room', user._id);
-  });
+  // Polling pour mettre à jour les conversations toutes les 10 secondes
+  setInterval(loadConversations, 10000);
+});
 
-  socket.on('receive-message', (data) => {
-    handleNewMessage(data.message);
-    updateUnreadCount();
-  });
-
-  socket.on('disconnect', () => {
-    console.log('Socket disconnected');
-  });
-}
-
-// Load conversations list
+// Charger toutes les conversations
 async function loadConversations() {
+  const token = getToken();
+
   try {
-    const response = await apiRequest('/messages/conversations');
-    const data = await response.json();
+    const response = await fetch('/api/conversations/my-conversations', {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
 
-    const container = document.getElementById('conversations-list');
-    if (!container) return;
-
-    if (data.conversations.length === 0) {
-      container.innerHTML = '<p class="text-center text-secondary">Aucune conversation</p>';
-      return;
+    if (!response.ok) {
+      throw new Error('Erreur lors du chargement des conversations');
     }
 
-    container.innerHTML = data.conversations.map(conv => `
-      <div class="card conversation-item" data-user-id="${conv.user._id}" style="cursor: pointer;">
-        <div class="flex gap-2">
-          <img src="${conv.user.profileImage}" alt="${conv.user.firstName}" class="message-avatar">
-          <div style="flex: 1;">
-            <div class="flex-between">
-              <strong>${conv.user.firstName} ${conv.user.lastName}</strong>
-              ${conv.unreadCount > 0 ? `<span class="badge badge-error">${conv.unreadCount}</span>` : ''}
-            </div>
-            <p class="text-secondary" style="font-size: 0.875rem;">
-              ${conv.lastMessage.content.substring(0, 50)}${conv.lastMessage.content.length > 50 ? '...' : ''}
-            </p>
-          </div>
-        </div>
-      </div>
-    `).join('');
-
-    // Add click handlers
-    document.querySelectorAll('.conversation-item').forEach(item => {
-      item.addEventListener('click', () => {
-        const userId = item.dataset.userId;
-        loadConversation(userId);
-      });
-    });
-  } catch (error) {
-    console.error('Error loading conversations:', error);
-  }
-}
-
-// Load specific conversation
-async function loadConversation(userId) {
-  try {
-    currentConversation = userId;
-
-    const response = await apiRequest(`/messages/conversation/${userId}`);
     const data = await response.json();
+    allConversations = data.conversations || [];
+    filteredConversations = [...allConversations];
 
-    const container = document.getElementById('messages-container');
-    if (!container) return;
+    applyFilters();
 
-    const currentUser = getUser();
+    document.getElementById('loading').style.display = 'none';
 
-    container.innerHTML = data.messages.reverse().map(msg => {
-      const isSent = msg.sender._id === currentUser._id;
-      return `
-        <div class="message ${isSent ? 'sent' : ''}">
-          <img src="${msg.sender.profileImage}" alt="${msg.sender.firstName}" class="message-avatar">
-          <div class="message-content">
-            <div class="message-header">
-              <span class="message-sender">${msg.sender.firstName} ${msg.sender.lastName}</span>
-              <span class="message-time">${formatDate(msg.createdAt)}</span>
-            </div>
-            <p>${msg.content}</p>
-          </div>
-        </div>
-      `;
-    }).join('');
-
-    // Scroll to bottom
-    container.scrollTop = container.scrollHeight;
-
-    // Mark as read
-    await apiRequest(`/messages/conversation/${userId}/read`, {
-      method: 'POST'
-    });
-
-    updateUnreadCount();
   } catch (error) {
-    console.error('Error loading conversation:', error);
+    console.error('Erreur:', error);
+    document.getElementById('loading').innerHTML = '<p style="color: #d63031;">Erreur lors du chargement</p>';
   }
 }
 
-// Send message
-async function sendMessage(recipientId, content) {
-  try {
-    const response = await apiRequest('/messages', {
-      method: 'POST',
-      body: JSON.stringify({
-        recipient: recipientId,
-        content: content
-      })
-    });
+// Appliquer les filtres
+function applyFilters() {
+  const statusFilter = document.getElementById('statusFilter').value;
+  const sortFilter = document.getElementById('sortFilter').value;
 
-    if (response.ok) {
-      const data = await response.json();
+  // Filtrer
+  filteredConversations = allConversations.filter(conv => {
+    const matchesStatus = !statusFilter || conv.status === statusFilter;
+    return matchesStatus;
+  });
 
-      // Emit socket event
-      if (socket) {
-        socket.emit('send-message', {
-          recipientId: recipientId,
-          message: data.data
-        });
-      }
+  // Trier
+  filteredConversations.sort((a, b) => {
+    const isDescending = sortFilter.startsWith('-');
+    const field = isDescending ? sortFilter.substring(1) : sortFilter;
 
-      // Add to current conversation
-      if (currentConversation === recipientId) {
-        appendMessage(data.data, true);
-      }
+    let aValue = a[field];
+    let bValue = b[field];
 
-      return true;
+    if (field === 'lastMessageAt' || field === 'createdAt') {
+      aValue = new Date(aValue);
+      bValue = new Date(bValue);
     }
 
-    return false;
-  } catch (error) {
-    console.error('Error sending message:', error);
-    return false;
+    if (aValue < bValue) return isDescending ? 1 : -1;
+    if (aValue > bValue) return isDescending ? -1 : 1;
+    return 0;
+  });
+
+  currentPage = 1;
+  renderConversations();
+}
+
+// Afficher les conversations
+function renderConversations() {
+  const list = document.getElementById('conversationsList');
+  const emptyState = document.getElementById('emptyState');
+  const pagination = document.getElementById('pagination');
+
+  if (filteredConversations.length === 0) {
+    list.style.display = 'none';
+    pagination.style.display = 'none';
+    emptyState.style.display = 'block';
+    return;
+  }
+
+  emptyState.style.display = 'none';
+  list.style.display = 'block';
+
+  // Calculer la pagination
+  const totalPages = Math.ceil(filteredConversations.length / conversationsPerPage);
+  const startIndex = (currentPage - 1) * conversationsPerPage;
+  const endIndex = startIndex + conversationsPerPage;
+  const conversationsToShow = filteredConversations.slice(startIndex, endIndex);
+
+  // Render les conversations
+  list.innerHTML = conversationsToShow.map(conv => renderConversationItem(conv)).join('');
+
+  // Render la pagination
+  if (totalPages > 1) {
+    pagination.style.display = 'flex';
+    pagination.innerHTML = renderPagination(totalPages);
+  } else {
+    pagination.style.display = 'none';
   }
 }
 
-// Append message to conversation
-function appendMessage(message, isSent) {
-  const container = document.getElementById('messages-container');
-  if (!container) return;
+// Render un item de conversation
+function renderConversationItem(conv) {
+  const otherUser = currentUser.role === 'client' ? conv.printer : conv.client;
+  const project = conv.project;
 
-  const messageHtml = `
-    <div class="message ${isSent ? 'sent' : ''}">
-      <img src="${message.sender.profileImage}" alt="${message.sender.firstName}" class="message-avatar">
-      <div class="message-content">
-        <div class="message-header">
-          <span class="message-sender">${message.sender.firstName} ${message.sender.lastName}</span>
-          <span class="message-time">${formatDate(message.createdAt)}</span>
+  const avatarUrl = otherUser.profileImage || '/images/avatar-default.png';
+  const userName = `${otherUser.firstName} ${otherUser.lastName}`;
+  const companyName = otherUser.companyName ? `<br><span style="font-size: 12px; color: #999;">${otherUser.companyName}</span>` : '';
+
+  const statusLabels = {
+    'pending': 'En attente',
+    'active': 'Active',
+    'quote_sent': 'Devis envoyé',
+    'negotiating': 'Négociation',
+    'quote_accepted': 'Devis accepté',
+    'signed': 'Signé',
+    'in_production': 'En production',
+    'ready': 'Prêt',
+    'completed': 'Terminé',
+    'cancelled_by_client': 'Annulé',
+    'cancelled_by_printer': 'Annulé',
+    'cancelled_mutual': 'Annulé',
+    'cancelled_mediation': 'Annulé',
+    'paused': 'En pause'
+  };
+
+  const unreadCount = currentUser.role === 'client' ? conv.unreadCountClient : conv.unreadCountPrinter;
+
+  // Déterminer le dernier message (à améliorer avec vraies données)
+  const lastMessageText = conv.lastMessageAt
+    ? `Dernière activité: ${formatDate(conv.lastMessageAt)}`
+    : 'Aucun message';
+
+  return `
+    <div class="conversation-item" onclick="openConversation('${conv._id}')">
+      <img src="${avatarUrl}" alt="${userName}" class="conversation-avatar">
+      <div class="conversation-content">
+        <div class="conversation-header">
+          <div>
+            <div class="conversation-name">${userName}${companyName}</div>
+            <div class="conversation-project">📦 ${project.title}</div>
+          </div>
+          <div class="conversation-time">${formatDate(conv.lastMessageAt || conv.createdAt)}</div>
         </div>
-        <p>${message.content}</p>
+        <div class="conversation-last-message">${lastMessageText}</div>
+        <div class="conversation-meta">
+          <span class="status-badge badge-${conv.status}">${statusLabels[conv.status] || conv.status}</span>
+          ${conv.currentQuote ? `<span class="status-badge badge-quote_sent">💰 ${formatPrice(conv.currentQuote.totalPrice)}</span>` : ''}
+          ${unreadCount > 0 ? `<span class="unread-badge">${unreadCount} nouveau${unreadCount > 1 ? 'x' : ''}</span>` : ''}
+          ${conv.isFavoriteForClient && currentUser.role === 'client' ? '<span style="font-size: 18px;">⭐</span>' : ''}
+        </div>
       </div>
     </div>
   `;
-
-  container.insertAdjacentHTML('beforeend', messageHtml);
-  container.scrollTop = container.scrollHeight;
 }
 
-// Handle new incoming message
-function handleNewMessage(message) {
-  if (currentConversation === message.sender._id) {
-    appendMessage(message, false);
+// Render la pagination
+function renderPagination(totalPages) {
+  let html = '';
 
-    // Mark as read
-    apiRequest(`/messages/${message._id}/read`, {
-      method: 'POST'
-    }).catch(err => console.error('Error marking message as read:', err));
-  } else {
-    // Show notification
-    showToast(`Nouveau message de ${message.sender.firstName}`, 'info');
-    loadConversations(); // Reload conversations list
-  }
-}
+  html += `<button class="page-btn" onclick="changePage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>
+    ← Précédent
+  </button>`;
 
-// Update unread count
-async function updateUnreadCount() {
-  try {
-    const response = await apiRequest('/messages/unread-count');
-    const data = await response.json();
-
-    const badge = document.getElementById('unread-badge');
-    if (badge) {
-      if (data.unreadCount > 0) {
-        badge.textContent = data.unreadCount;
-        badge.classList.remove('hidden');
-      } else {
-        badge.classList.add('hidden');
-      }
+  for (let i = 1; i <= totalPages; i++) {
+    if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) {
+      html += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="changePage(${i})">
+        ${i}
+      </button>`;
+    } else if (i === currentPage - 3 || i === currentPage + 3) {
+      html += `<span class="page-btn" disabled>...</span>`;
     }
-  } catch (error) {
-    console.error('Error updating unread count:', error);
   }
+
+  html += `<button class="page-btn" onclick="changePage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>
+    Suivant →
+  </button>`;
+
+  return html;
 }
 
-// Initialize messaging
-if (typeof io !== 'undefined') {
-  document.addEventListener('DOMContentLoaded', () => {
-    if (isAuthenticated()) {
-      initSocket();
-      updateUnreadCount();
-    }
-  });
+// Changer de page
+function changePage(page) {
+  const totalPages = Math.ceil(filteredConversations.length / conversationsPerPage);
+  if (page < 1 || page > totalPages) return;
+
+  currentPage = page;
+  renderConversations();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Réinitialiser les filtres
+function resetFilters() {
+  document.getElementById('statusFilter').value = '';
+  document.getElementById('sortFilter').value = '-lastMessageAt';
+  applyFilters();
+}
+
+// Ouvrir une conversation
+function openConversation(conversationId) {
+  window.location.href = `/conversation.html?id=${conversationId}`;
 }
