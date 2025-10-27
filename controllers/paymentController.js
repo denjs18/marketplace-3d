@@ -5,6 +5,7 @@ const User = require('../models/User');
 const { createPaymentIntent, createTransfer, calculatePrinterPayout } = require('../config/stripe');
 const { calculateCommission } = require('../utils/calculateCommission');
 const { sendPaymentConfirmationEmail } = require('../utils/email');
+const { sendThresholdWarning, sendAccountBlockedEmail } = require('../utils/notificationService');
 
 /**
  * Create payment intent for a quote
@@ -41,6 +42,54 @@ exports.createPaymentIntent = async (req, res) => {
       return res.status(400).json({
         error: 'Quote must be accepted before payment'
       });
+    }
+
+    // Check seller threshold compliance
+    const printer = await User.findById(quote.printer._id);
+
+    if (printer.accountBlocked) {
+      return res.status(403).json({
+        error: 'Seller account is blocked',
+        reason: printer.blockReason,
+        message: 'The seller cannot accept new orders at this time'
+      });
+    }
+
+    // Check if seller would exceed threshold with this transaction
+    if (printer.businessStatus === 'particulier') {
+      const currentYear = new Date().getFullYear();
+
+      // Reset if year changed
+      if (!printer.revenueYear || printer.revenueYear < currentYear) {
+        printer.yearlyRevenue = 0;
+        printer.yearlyTransactionCount = 0;
+        printer.revenueYear = currentYear;
+      }
+
+      const potentialRevenue = (printer.yearlyRevenue || 0) + quote.price;
+      const potentialTransactions = (printer.yearlyTransactionCount || 0) + 1;
+
+      if (potentialRevenue > 3000 || potentialTransactions > 20) {
+        printer.accountBlocked = true;
+        printer.blockReason = 'Seuil légal dépassé - création micro-entreprise obligatoire';
+        await printer.save();
+
+        // Send blocked notification
+        sendAccountBlockedEmail(printer).catch(err =>
+          console.error('Failed to send account blocked email:', err)
+        );
+
+        return res.status(403).json({
+          error: 'Legal threshold would be exceeded',
+          message: 'This transaction would exceed legal thresholds for individual sellers. The seller must upgrade to micro-entrepreneur status.',
+          thresholds: {
+            currentRevenue: printer.yearlyRevenue,
+            currentTransactions: printer.yearlyTransactionCount,
+            maxRevenue: 3000,
+            maxTransactions: 20
+          }
+        });
+      }
     }
 
     // Check if transaction already exists
@@ -204,10 +253,44 @@ exports.processPayout = async (req, res) => {
     transaction.complete(transfer.id);
     await transaction.save();
 
-    // Update printer earnings
+    // Update printer earnings and sales statistics
     const printer = await User.findById(transaction.printer);
     printer.totalEarnings = (printer.totalEarnings || 0) + transaction.printerPayout;
     printer.totalProjects = (printer.totalProjects || 0) + 1;
+
+    // Update yearly sales statistics for legal threshold tracking
+    const currentYear = new Date().getFullYear();
+
+    // Reset counters if year has changed
+    if (!printer.revenueYear || printer.revenueYear < currentYear) {
+      printer.yearlyRevenue = 0;
+      printer.yearlyTransactionCount = 0;
+      printer.revenueYear = currentYear;
+    }
+
+    // Increment yearly statistics
+    printer.yearlyRevenue = (printer.yearlyRevenue || 0) + transaction.amount;
+    printer.yearlyTransactionCount = (printer.yearlyTransactionCount || 0) + 1;
+
+    // Check if threshold warning should be sent (at 80%)
+    const REVENUE_THRESHOLD = 3000;
+    const TRANSACTION_THRESHOLD = 20;
+
+    const revenueUsage = (printer.yearlyRevenue / REVENUE_THRESHOLD) * 100;
+    const transactionUsage = (printer.yearlyTransactionCount / TRANSACTION_THRESHOLD) * 100;
+
+    // Send warning if approaching threshold (>= 80%) and status is still 'particulier'
+    if (printer.businessStatus === 'particulier' &&
+        (revenueUsage >= 80 || transactionUsage >= 80) &&
+        !printer.accountBlocked) {
+      sendThresholdWarning(printer, {
+        yearlyRevenue: printer.yearlyRevenue,
+        yearlyTransactionCount: printer.yearlyTransactionCount,
+        revenueUsage,
+        transactionUsage
+      }).catch(err => console.error('Failed to send threshold warning:', err));
+    }
+
     await printer.save();
 
     res.json({

@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CGU - Marketplace 3D</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: white;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        header p {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 2rem;
+        }
+
+        .intro {
+            background-color: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .article {
+            margin-bottom: 2.5rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .article:last-child {
+            border-bottom: none;
+        }
+
+        .article h2 {
+            color: #667eea;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .article h3 {
+            color: #764ba2;
+            font-size: 1.2rem;
+            margin-top: 1.5rem;
+            margin-bottom: 0.8rem;
+        }
+
+        .article p, .article li {
+            margin-bottom: 0.8rem;
+            text-align: justify;
+        }
+
+        .article ul, .article ol {
+            margin-left: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .highlight {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+
+        .warning {
+            background-color: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+
+        .btn-container {
+            text-align: center;
+            margin: 2rem 0;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem 2rem;
+            text-decoration: none;
+            border-radius: 5px;
+            display: inline-block;
+            font-weight: bold;
+            transition: transform 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        footer {
+            background-color: #2c3e50;
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        footer a {
+            color: #667eea;
+            text-decoration: none;
+            margin: 0 1rem;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        .last-updated {
+            text-align: center;
+            color: #666;
+            font-size: 0.9rem;
+            padding: 1rem;
+            background-color: #f8f9fa;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Conditions Générales d'Utilisation</h1>
+            <p>Marketplace 3D - Plateforme de mise en relation</p>
+        </header>
+
+        <div class="last-updated">
+            Dernière mise à jour : Janvier 2025
+        </div>
+
+        <div class="content">
+            <div class="intro">
+                <p><strong>Bienvenue sur Marketplace 3D.</strong> En utilisant notre plateforme, vous acceptez les présentes Conditions Générales d'Utilisation. Nous vous invitons à les lire attentivement avant de créer un compte ou d'utiliser nos services.</p>
+            </div>
+
+            <!-- ARTICLE 1 -->
+            <div class="article">
+                <h2>ARTICLE 1 - OBJET</h2>
+                <p>La plateforme Marketplace 3D (ci-après "la Plateforme") est un service de mise en relation entre :</p>
+                <ul>
+                    <li><strong>Les clients</strong> : personnes physiques ou morales souhaitant faire réaliser des impressions 3D</li>
+                    <li><strong>Les imprimeurs 3D</strong> (ci-après "les Vendeurs") : personnes physiques ou morales proposant des services d'impression 3D</li>
+                </ul>
+                <p class="highlight">
+                    <strong>Important :</strong> La Plateforme n'est pas vendeur. Nous agissons uniquement en tant qu'intermédiaire technique facilitant les transactions entre clients et vendeurs. Nous ne sommes pas partie aux contrats conclus entre clients et vendeurs.
+                </p>
+            </div>
+
+            <!-- ARTICLE 2 -->
+            <div class="article">
+                <h2>ARTICLE 2 - ACCEPTATION DES CGU</h2>
+                <p>L'acceptation des présentes CGU est obligatoire lors de l'inscription sur la Plateforme.</p>
+                <ul>
+                    <li>Lors de la création de votre compte, vous devez cocher la case "J'ai lu et j'accepte les Conditions Générales d'Utilisation"</li>
+                    <li>Cette acceptation vaut engagement contractuel</li>
+                    <li>En cas de modification des CGU, les utilisateurs seront informés et devront accepter les nouvelles conditions pour continuer à utiliser la Plateforme</li>
+                </ul>
+            </div>
+
+            <!-- ARTICLE 3 -->
+            <div class="article">
+                <h2>ARTICLE 3 - STATUT DES VENDEURS</h2>
+                <p>La Plateforme distingue trois statuts de vendeurs conformément à la législation française :</p>
+
+                <h3>3.1 Vendeurs Particuliers</h3>
+                <div class="highlight">
+                    <p><strong>Seuils légaux applicables :</strong></p>
+                    <ul>
+                        <li><strong>3 000 € de chiffre d'affaires annuel</strong> OU</li>
+                        <li><strong>20 transactions par an</strong></li>
+                    </ul>
+                </div>
+                <p>Les vendeurs particuliers sont autorisés à vendre sur la Plateforme tant qu'ils ne dépassent pas l'un de ces deux seuils.</p>
+                <div class="warning">
+                    <p><strong>Au-delà de ces seuils :</strong></p>
+                    <ul>
+                        <li>La création d'une micro-entreprise devient OBLIGATOIRE</li>
+                        <li>Le compte vendeur sera <strong>automatiquement bloqué</strong> si le seuil est dépassé sans régularisation</li>
+                        <li>Aucune nouvelle transaction ne sera autorisée jusqu'à la mise à jour du statut professionnel</li>
+                    </ul>
+                </div>
+
+                <h3>3.2 Micro-Entrepreneurs</h3>
+                <ul>
+                    <li>Numéro SIRET obligatoire (14 chiffres)</li>
+                    <li>Inscription auprès de l'URSSAF en tant qu'auto-entrepreneur</li>
+                    <li>Respect des obligations fiscales et sociales du régime micro-entrepreneur</li>
+                    <li>Aucune limite de chiffre d'affaires sur la Plateforme (sous réserve des plafonds légaux du régime)</li>
+                </ul>
+
+                <h3>3.3 Professionnels</h3>
+                <ul>
+                    <li>Entreprises immatriculées (SARL, SAS, etc.)</li>
+                    <li>Numéro SIRET obligatoire</li>
+                    <li>Numéro de TVA intracommunautaire si applicable</li>
+                    <li>Respect de toutes les obligations fiscales, sociales et comptables</li>
+                </ul>
+            </div>
+
+            <!-- ARTICLE 4 -->
+            <div class="article">
+                <h2>ARTICLE 4 - OBLIGATIONS FISCALES DES VENDEURS</h2>
+                <p>Chaque vendeur est personnellement responsable de ses déclarations fiscales et sociales.</p>
+
+                <h3>4.1 Déclaration des revenus</h3>
+                <ul>
+                    <li>Tous les revenus générés sur la Plateforme doivent être déclarés aux autorités fiscales</li>
+                    <li>Les vendeurs particuliers doivent déclarer leurs revenus dans la catégorie "Bénéfices Non Commerciaux" ou "Bénéfices Industriels et Commerciaux"</li>
+                    <li>Les micro-entrepreneurs et professionnels suivent leur régime fiscal respectif</li>
+                </ul>
+
+                <h3>4.2 Directive DAC7 (Digital Platform Reporting)</h3>
+                <div class="highlight">
+                    <p><strong>Conformément à la directive européenne DAC7 :</strong></p>
+                    <ul>
+                        <li>La Plateforme collecte et conserve les données d'identité et de revenus de tous les vendeurs</li>
+                        <li>Ces données sont <strong>automatiquement transmises aux autorités fiscales françaises</strong> chaque année</li>
+                        <li>Un récapitulatif annuel est fourni à chaque vendeur avant le <strong>31 janvier</strong> de l'année suivante</li>
+                    </ul>
+                </div>
+
+                <h3>4.3 TVA</h3>
+                <ul>
+                    <li>Les micro-entrepreneurs sous franchise de TVA n'ont pas à facturer la TVA</li>
+                    <li>Les professionnels assujettis à la TVA doivent la collecter et la reverser selon leur régime</li>
+                </ul>
+            </div>
+
+            <!-- ARTICLE 5 -->
+            <div class="article">
+                <h2>ARTICLE 5 - PROPRIÉTÉ INTELLECTUELLE</h2>
+
+                <h3>5.1 Responsabilité du vendeur</h3>
+                <p>Le vendeur certifie détenir tous les droits nécessaires sur les objets qu'il vend ou imprime :</p>
+                <ul>
+                    <li>Droits d'auteur sur les modèles 3D</li>
+                    <li>Droits de reproduction et de commercialisation</li>
+                    <li>Licences appropriées pour les modèles sous licence libre</li>
+                </ul>
+
+                <h3>5.2 Impression sur fichier client</h3>
+                <div class="highlight">
+                    <p><strong>Cas particulier :</strong> Lorsqu'un client fournit son propre fichier 3D pour impression, <strong>le CLIENT est seul responsable</strong> des droits de propriété intellectuelle sur ce fichier.</p>
+                    <p>Le vendeur/imprimeur n'est qu'un prestataire technique et n'est pas responsable du contenu du fichier, sauf s'il a connaissance manifeste de son caractère contrefaisant.</p>
+                </div>
+
+                <h3>5.3 Objets contrefaisants</h3>
+                <div class="warning">
+                    <p><strong>Interdiction formelle :</strong></p>
+                    <ul>
+                        <li>Il est strictement interdit de vendre, proposer ou imprimer des objets contrefaisants (marques déposées, personnages protégés, etc.)</li>
+                        <li>La Plateforme se réserve le droit de retirer immédiatement tout contenu contrefaisant</li>
+                        <li>Le compte du vendeur peut être suspendu ou résilié en cas de contrefaçon avérée</li>
+                    </ul>
+                </div>
+
+                <h3>5.4 Indemnisation</h3>
+                <p>Le vendeur s'engage à indemniser et garantir la Plateforme contre toute réclamation, action en justice ou condamnation résultant d'une violation de droits de propriété intellectuelle.</p>
+            </div>
+
+            <!-- ARTICLE 6 -->
+            <div class="article">
+                <h2>ARTICLE 6 - RESPONSABILITÉ</h2>
+
+                <h3>6.1 Statut d'hébergeur</h3>
+                <p>La Plateforme agit en tant que simple intermédiaire technique (hébergeur au sens de la LCEN). À ce titre :</p>
+                <ul>
+                    <li>Nous ne sélectionnons pas les vendeurs (au-delà d'une vérification d'identité basique)</li>
+                    <li>Nous ne contrôlons pas a priori le contenu des annonces</li>
+                    <li>Nous ne garantissons pas la qualité, la conformité ou la légalité des services proposés</li>
+                </ul>
+
+                <h3>6.2 Qualité des impressions</h3>
+                <p>La Plateforme ne fournit <strong>aucune garantie</strong> concernant :</p>
+                <ul>
+                    <li>La qualité technique des impressions</li>
+                    <li>Le respect des délais annoncés par les vendeurs</li>
+                    <li>La conformité des objets imprimés aux attentes du client</li>
+                </ul>
+
+                <h3>6.3 Litiges</h3>
+                <p>Les litiges concernant la qualité, les délais ou la conformité des impressions doivent être gérés <strong>directement entre le client et le vendeur</strong>.</p>
+                <p>La Plateforme peut proposer un service de médiation facultatif, mais n'est en aucun cas partie au litige.</p>
+
+                <h3>6.4 Limitation de responsabilité</h3>
+                <p>La responsabilité de la Plateforme est limitée :</p>
+                <ul>
+                    <li>Aux dommages directs prouvés</li>
+                    <li>Au montant de la commission perçue sur la transaction concernée</li>
+                    <li>Sous réserve des dispositions légales d'ordre public</li>
+                </ul>
+            </div>
+
+            <!-- ARTICLE 7 -->
+            <div class="article">
+                <h2>ARTICLE 7 - COMMISSION DE LA PLATEFORME</h2>
+                <p>La Plateforme prélève une commission sur chaque transaction réalisée :</p>
+                <div class="highlight">
+                    <ul>
+                        <li><strong>Taux de commission : 10% HT</strong> sur le montant de chaque transaction</li>
+                        <li>Cette commission est <strong>prélevée automatiquement</strong> lors du paiement par le client</li>
+                        <li>Le vendeur reçoit 90% du montant TTC de la transaction (hors TVA applicable)</li>
+                    </ul>
+                </div>
+                <p>Exemple : Pour une impression vendue 100 €, le vendeur reçoit 90 € et la Plateforme perçoit 10 €.</p>
+            </div>
+
+            <!-- ARTICLE 8 -->
+            <div class="article">
+                <h2>ARTICLE 8 - DONNÉES PERSONNELLES</h2>
+
+                <h3>8.1 Collecte conforme RGPD</h3>
+                <p>La Plateforme collecte et traite des données personnelles conformément au Règlement Général sur la Protection des Données (RGPD) :</p>
+                <ul>
+                    <li>Identité (nom, prénom, date et lieu de naissance)</li>
+                    <li>Coordonnées (adresse, email, téléphone)</li>
+                    <li>Informations professionnelles (SIRET, statut juridique)</li>
+                    <li>Données bancaires (IBAN pour les paiements)</li>
+                    <li>Historique des transactions</li>
+                </ul>
+
+                <h3>8.2 Transmission aux autorités fiscales (DAC7)</h3>
+                <div class="warning">
+                    <p><strong>Information importante :</strong> Dans le cadre de la directive DAC7, vos données de revenus et d'identité sont automatiquement transmises aux autorités fiscales françaises chaque année.</p>
+                </div>
+
+                <h3>8.3 Vos droits</h3>
+                <p>Conformément au RGPD, vous disposez des droits suivants :</p>
+                <ul>
+                    <li><strong>Droit d'accès :</strong> consulter les données vous concernant</li>
+                    <li><strong>Droit de rectification :</strong> corriger des données inexactes</li>
+                    <li><strong>Droit de suppression :</strong> demander l'effacement de vos données (sous réserve des obligations légales de conservation)</li>
+                    <li><strong>Droit d'opposition :</strong> vous opposer à certains traitements</li>
+                    <li><strong>Droit à la portabilité :</strong> récupérer vos données dans un format structuré</li>
+                </ul>
+                <p>Pour exercer ces droits, contactez-nous à : <strong>privacy@marketplace3d.com</strong></p>
+            </div>
+
+            <!-- ARTICLE 9 -->
+            <div class="article">
+                <h2>ARTICLE 9 - SUSPENSION ET RÉSILIATION</h2>
+
+                <h3>9.1 Suspension automatique</h3>
+                <p>Le compte d'un vendeur peut être <strong>automatiquement suspendu</strong> dans les cas suivants :</p>
+                <ul>
+                    <li>Dépassement des seuils légaux (3 000 € ou 20 transactions/an) pour un vendeur particulier sans régularisation</li>
+                    <li>Non-respect des délais de livraison de manière répétée</li>
+                    <li>Note moyenne inférieure à 2/5 étoiles</li>
+                </ul>
+
+                <h3>9.2 Résiliation pour manquement grave</h3>
+                <p>La Plateforme se réserve le droit de <strong>résilier immédiatement</strong> le compte d'un utilisateur en cas de :</p>
+                <div class="warning">
+                    <ul>
+                        <li>Contrefaçon avérée</li>
+                        <li>Fraude ou tentative de fraude</li>
+                        <li>Non-respect des présentes CGU</li>
+                        <li>Comportement abusif ou harcèlement</li>
+                        <li>Utilisation de faux documents (SIRET, identité, etc.)</li>
+                    </ul>
+                </div>
+
+                <h3>9.3 Conséquences de la résiliation</h3>
+                <ul>
+                    <li>Suppression du compte utilisateur</li>
+                    <li>Interdiction de créer un nouveau compte</li>
+                    <li>Paiement des transactions en cours selon les conditions contractuelles</li>
+                    <li>Conservation des données pendant 5 ans pour obligations légales</li>
+                </ul>
+            </div>
+
+            <!-- ARTICLE 10 -->
+            <div class="article">
+                <h2>ARTICLE 10 - LOI APPLICABLE ET JURIDICTION</h2>
+
+                <h3>10.1 Loi applicable</h3>
+                <p>Les présentes CGU sont régies par le <strong>droit français</strong>.</p>
+
+                <h3>10.2 Résolution amiable des litiges</h3>
+                <p>En cas de litige, les parties s'engagent à rechercher une solution amiable avant toute action judiciaire.</p>
+                <p>Vous pouvez également recourir à la médiation de la consommation :</p>
+                <ul>
+                    <li><strong>Médiateur de la consommation :</strong> [Nom du médiateur]</li>
+                    <li><strong>Site web :</strong> [URL]</li>
+                </ul>
+
+                <h3>10.3 Juridiction compétente</h3>
+                <p>À défaut de résolution amiable, les litiges relèvent de la compétence exclusive des <strong>tribunaux français</strong>.</p>
+                <p>Pour les consommateurs (non-professionnels), le tribunal compétent est celui du lieu de résidence du consommateur ou du siège social de la Plateforme.</p>
+            </div>
+
+            <div class="btn-container">
+                <a href="/" class="btn">Retour à l'accueil</a>
+            </div>
+        </div>
+
+        <footer>
+            <p>&copy; 2025 Marketplace 3D - Tous droits réservés</p>
+            <div style="margin-top: 1rem;">
+                <a href="/cgu.html">CGU</a>
+                <a href="/mentions-legales.html">Mentions Légales</a>
+                <a href="/politique-confidentialite.html">Politique de Confidentialité</a>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>

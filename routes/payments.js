@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const paymentController = require('../controllers/paymentController');
 const { authenticate, isClient, isPrinter } = require('../middleware/auth');
+const { checkSalesThreshold } = require('../middleware/checkSalesThreshold');
 
 /**
  * @route   POST /api/payments/create-intent

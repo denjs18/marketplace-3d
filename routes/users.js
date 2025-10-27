@@ -4,6 +4,7 @@ const User = require('../models/User');
 const { authenticate } = require('../middleware/auth');
 const { validateProfileUpdate, validateObjectId } = require('../middleware/validation');
 const { uploadImage, handleUploadError } = require('../middleware/upload');
+const { getThresholdStatus } = require('../middleware/checkSalesThreshold');
 
 /**
  * @route   GET /api/users/:id
@@ -145,6 +146,119 @@ router.get('/printers/search', authenticate, async (req, res) => {
   } catch (error) {
     res.status(500).json({
       error: 'Failed to search printers',
+      details: error.message
+    });
+  }
+});
+
+/**
+ * @route   GET /api/users/sales-statistics
+ * @desc    Get sales statistics for authenticated seller
+ * @access  Private (Printer only)
+ */
+router.get('/sales-statistics', authenticate, async (req, res) => {
+  try {
+    const user = await User.findById(req.userId);
+
+    if (!user) {
+      return res.status(404).json({
+        error: 'User not found'
+      });
+    }
+
+    if (user.role !== 'printer') {
+      return res.status(403).json({
+        error: 'Only printers can access sales statistics'
+      });
+    }
+
+    const statistics = await getThresholdStatus(req.userId);
+
+    res.json({
+      statistics,
+      message: user.accountBlocked ? 'Your account is blocked. Please upgrade to continue selling.' : null
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      error: 'Failed to get sales statistics',
+      details: error.message
+    });
+  }
+});
+
+/**
+ * @route   PUT /api/users/upgrade-to-business
+ * @desc    Upgrade seller status to micro-entrepreneur or professionnel
+ * @access  Private (Printer only)
+ */
+router.put('/upgrade-to-business', authenticate, async (req, res) => {
+  try {
+    const { siret, businessStatus, tva } = req.body;
+
+    // Validation
+    if (!siret || !businessStatus) {
+      return res.status(400).json({
+        error: 'SIRET and business status are required'
+      });
+    }
+
+    if (!['micro-entrepreneur', 'professionnel'].includes(businessStatus)) {
+      return res.status(400).json({
+        error: 'Business status must be either "micro-entrepreneur" or "professionnel"'
+      });
+    }
+
+    // Validate SIRET format (14 digits)
+    if (!/^\d{14}$/.test(siret)) {
+      return res.status(400).json({
+        error: 'SIRET must be 14 digits'
+      });
+    }
+
+    const user = await User.findById(req.userId);
+
+    if (!user) {
+      return res.status(404).json({
+        error: 'User not found'
+      });
+    }
+
+    if (user.role !== 'printer') {
+      return res.status(403).json({
+        error: 'Only printers can upgrade to business status'
+      });
+    }
+
+    // Update user business information
+    user.businessStatus = businessStatus;
+    user.siret = siret;
+
+    if (tva) {
+      user.tva = tva;
+    }
+
+    // Unblock account if it was blocked
+    if (user.accountBlocked) {
+      user.accountBlocked = false;
+      user.blockReason = null;
+    }
+
+    await user.save();
+
+    res.json({
+      message: 'Business status updated successfully',
+      user: {
+        businessStatus: user.businessStatus,
+        siret: user.siret,
+        tva: user.tva,
+        accountBlocked: user.accountBlocked
+      }
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      error: 'Failed to upgrade business status',
       details: error.message
     });
   }

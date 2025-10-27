@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guide Création Micro-Entreprise - Marketplace 3D</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem 1rem;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        header p {
+            font-size: 1.1rem;
+            opacity: 0.95;
+        }
+
+        .content {
+            padding: 2rem;
+        }
+
+        .intro {
+            background-color: #f0f7ff;
+            border-left: 5px solid #667eea;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border-radius: 5px;
+        }
+
+        .intro h2 {
+            color: #667eea;
+            margin-bottom: 1rem;
+        }
+
+        .steps {
+            margin: 2rem 0;
+        }
+
+        .step {
+            background-color: #fff;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .step:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.2);
+        }
+
+        .step-number {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 50px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+
+        .step h3 {
+            color: #667eea;
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+        }
+
+        .step ul {
+            margin-left: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .step li {
+            margin-bottom: 0.8rem;
+            line-height: 1.8;
+        }
+
+        .external-link {
+            display: inline-block;
+            background-color: #667eea;
+            color: white;
+            padding: 0.8rem 1.5rem;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 1rem;
+            transition: background-color 0.3s;
+        }
+
+        .external-link:hover {
+            background-color: #764ba2;
+        }
+
+        .external-link::after {
+            content: " →";
+        }
+
+        .faq {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 2rem;
+            margin-top: 3rem;
+        }
+
+        .faq h2 {
+            color: #667eea;
+            margin-bottom: 1.5rem;
+            font-size: 2rem;
+        }
+
+        .faq-item {
+            margin-bottom: 1.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .faq-item:last-child {
+            border-bottom: none;
+        }
+
+        .faq-question {
+            color: #764ba2;
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .faq-answer {
+            color: #555;
+            line-height: 1.8;
+        }
+
+        .important-box {
+            background-color: #fff3cd;
+            border-left: 5px solid #ffc107;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 5px;
+        }
+
+        .important-box strong {
+            color: #856404;
+        }
+
+        .success-box {
+            background-color: #d4edda;
+            border-left: 5px solid #28a745;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 5px;
+        }
+
+        .btn-container {
+            text-align: center;
+            margin: 2rem 0;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem 2.5rem;
+            text-decoration: none;
+            border-radius: 50px;
+            display: inline-block;
+            font-weight: bold;
+            font-size: 1.1rem;
+            transition: transform 0.2s;
+        }
+
+        .btn:hover {
+            transform: scale(1.05);
+        }
+
+        .timeline {
+            margin: 2rem 0;
+            padding: 1rem;
+        }
+
+        .timeline-item {
+            display: flex;
+            margin-bottom: 1rem;
+        }
+
+        .timeline-icon {
+            flex-shrink: 0;
+            width: 40px;
+            height: 40px;
+            background-color: #667eea;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-weight: bold;
+        }
+
+        .timeline-content {
+            flex-grow: 1;
+        }
+
+        footer {
+            background-color: #2c3e50;
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        footer a {
+            color: #667eea;
+            text-decoration: none;
+            margin: 0 1rem;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Comment créer votre micro-entreprise</h1>
+            <p>Guide complet en 3 étapes pour continuer à vendre sur Marketplace 3D</p>
+        </header>
+
+        <div class="content">
+            <div class="intro">
+                <h2>Pourquoi créer une micro-entreprise ?</h2>
+                <p>Vous avez dépassé ou vous approchez des seuils légaux de vente pour un particulier :</p>
+                <ul style="margin-left: 2rem; margin-top: 1rem;">
+                    <li><strong>3 000 € de chiffre d'affaires annuel</strong>, ou</li>
+                    <li><strong>20 transactions par an</strong></li>
+                </ul>
+                <p style="margin-top: 1rem;">Au-delà de ces seuils, la loi française impose la création d'une activité professionnelle. La micro-entreprise (auto-entrepreneur) est le statut le plus simple et le plus adapté pour les petits vendeurs.</p>
+            </div>
+
+            <div class="success-box">
+                <strong>Bonne nouvelle !</strong> La création d'une micro-entreprise est <strong>gratuite, rapide (environ 15 minutes)</strong> et peut se faire entièrement en ligne.
+            </div>
+
+            <div class="steps">
+                <!-- ÉTAPE 1 -->
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <h3>Inscription sur le portail officiel</h3>
+                    <p><strong>Durée : 15 minutes</strong></p>
+
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <div class="timeline-icon">1</div>
+                            <div class="timeline-content">
+                                <p>Rendez-vous sur le site officiel de l'URSSAF :</p>
+                                <a href="https://www.autoentrepreneur.urssaf.fr/" target="_blank" class="external-link">
+                                    autoentrepreneur.urssaf.fr
+                                </a>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-icon">2</div>
+                            <div class="timeline-content">
+                                <p>Cliquez sur <strong>"Créer mon auto-entreprise"</strong></p>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-icon">3</div>
+                            <div class="timeline-content">
+                                <p>Remplissez le formulaire avec vos informations personnelles</p>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-icon">4</div>
+                            <div class="timeline-content">
+                                <p>Choisissez votre activité : <strong>"Fabrication d'objets divers"</strong> ou <strong>"Services de fabrication"</strong></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="important-box">
+                        <strong>Documents nécessaires :</strong>
+                        <ul style="margin-left: 1.5rem; margin-top: 0.5rem;">
+                            <li>Pièce d'identité (carte d'identité ou passeport)</li>
+                            <li>Justificatif de domicile récent (moins de 3 mois)</li>
+                            <li>Déclaration sur l'honneur de non-condamnation</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- ÉTAPE 2 -->
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <h3>Choix du régime fiscal</h3>
+                    <p><strong>Régime micro-fiscal et micro-social simplifié</strong></p>
+
+                    <p style="margin-top: 1rem;">En tant que micro-entrepreneur dans la fabrication d'objets, vous bénéficiez :</p>
+
+                    <ul>
+                        <li><strong>Plafond de chiffre d'affaires : 77 700 €/an</strong> (largement suffisant pour débuter)</li>
+                        <li><strong>Cotisations sociales : environ 12,3%</strong> de votre CA (prélevées trimestriellement)</li>
+                        <li><strong>Versement libératoire de l'impôt :</strong> option possible (1% ou 1,7% du CA selon l'activité)</li>
+                        <li><strong>Franchise de TVA :</strong> pas de TVA à facturer ni à reverser (en dessous de 36 800 € de CA)</li>
+                    </ul>
+
+                    <div class="important-box">
+                        <strong>Important :</strong> Vous devrez déclarer votre chiffre d'affaires chaque mois ou chaque trimestre sur le site de l'URSSAF, même s'il est nul.
+                    </div>
+
+                    <h4 style="margin-top: 1.5rem; color: #764ba2;">Exemple de calcul :</h4>
+                    <div style="background-color: #f8f9fa; padding: 1rem; border-radius: 5px; margin-top: 0.5rem;">
+                        <p>Pour <strong>1 000 €</strong> de ventes sur Marketplace 3D :</p>
+                        <ul style="margin-left: 1.5rem;">
+                            <li>Commission Marketplace (10%) : -100 €</li>
+                            <li>Vous recevez : 900 €</li>
+                            <li>Cotisations sociales (12,3% de 900 €) : -110,70 €</li>
+                            <li><strong>Reste net : environ 790 €</strong></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- ÉTAPE 3 -->
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <h3>Obtention du SIRET et activation sur Marketplace 3D</h3>
+                    <p><strong>Délai : 1 à 15 jours</strong></p>
+
+                    <h4 style="color: #764ba2; margin-top: 1rem;">Réception du SIRET</h4>
+                    <p>Après validation de votre dossier par l'URSSAF, vous recevrez :</p>
+                    <ul>
+                        <li><strong>Par email :</strong> certificat d'inscription avec votre numéro SIRET (sous 1 à 3 jours)</li>
+                        <li><strong>Par courrier :</strong> notification d'affiliation définitive (sous 1 à 2 semaines)</li>
+                    </ul>
+
+                    <div class="success-box">
+                        <p><strong>Votre numéro SIRET est composé de 14 chiffres</strong></p>
+                        <p style="margin-top: 0.5rem;">Exemple : 123 456 789 00012</p>
+                    </div>
+
+                    <h4 style="color: #764ba2; margin-top: 1.5rem;">Activation sur Marketplace 3D</h4>
+                    <p>Une fois votre SIRET reçu :</p>
+
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <div class="timeline-icon">1</div>
+                            <div class="timeline-content">
+                                <p>Connectez-vous à votre compte Marketplace 3D</p>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-icon">2</div>
+                            <div class="timeline-content">
+                                <p>Allez dans <strong>"Mon profil" > "Statut professionnel"</strong></p>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-icon">3</div>
+                            <div class="timeline-content">
+                                <p>Cliquez sur <strong>"Passer en micro-entrepreneur"</strong></p>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-icon">4</div>
+                            <div class="timeline-content">
+                                <p>Renseignez votre numéro SIRET (14 chiffres)</p>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-icon">5</div>
+                            <div class="timeline-content">
+                                <p>Validez : <strong>votre compte est immédiatement débloqué !</strong></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FAQ -->
+            <div class="faq">
+                <h2>Questions fréquentes</h2>
+
+                <div class="faq-item">
+                    <div class="faq-question">Est-ce que la création est vraiment gratuite ?</div>
+                    <div class="faq-answer">
+                        Oui, l'inscription en tant que micro-entrepreneur est totalement gratuite. Vous ne payez des cotisations sociales que si vous générez du chiffre d'affaires.
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">Puis-je cumuler avec un emploi salarié ?</div>
+                    <div class="faq-answer">
+                        Oui, le statut de micro-entrepreneur est cumulable avec un emploi salarié, la retraite, ou les allocations chômage (sous conditions pour le chômage).
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">Quelles sont mes obligations administratives ?</div>
+                    <div class="faq-answer">
+                        <ul style="margin-left: 1.5rem; margin-top: 0.5rem;">
+                            <li>Déclarer votre CA chaque mois ou trimestre sur urssaf.fr</li>
+                            <li>Tenir un livre de recettes (fourni automatiquement par Marketplace 3D)</li>
+                            <li>Ouvrir un compte bancaire dédié si votre CA dépasse 10 000 €/an pendant 2 années consécutives</li>
+                            <li>Souscrire une assurance RC professionnelle (recommandé)</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">Que se passe-t-il si je ne génère pas de CA certains mois ?</div>
+                    <div class="faq-answer">
+                        Vous devez quand même faire votre déclaration en indiquant "0 €" de chiffre d'affaires. Dans ce cas, vous ne payez aucune cotisation.
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">Puis-je arrêter mon activité facilement ?</div>
+                    <div class="faq-answer">
+                        Oui, la cessation d'activité est gratuite et se fait en ligne sur autoentrepreneur.urssaf.fr. Il n'y a aucun engagement de durée.
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">Dois-je facturer la TVA ?</div>
+                    <div class="faq-answer">
+                        Non, tant que votre CA annuel reste en dessous de 36 800 €, vous bénéficiez de la franchise de TVA. Vous ne facturez pas la TVA et vous ne la récupérez pas non plus.
+                    </div>
+                </div>
+            </div>
+
+            <div class="important-box" style="margin-top: 2rem;">
+                <strong>Besoin d'aide ?</strong><br>
+                <p style="margin-top: 0.5rem;">
+                    Pour toute question sur la création de votre micro-entreprise, contactez-nous à :
+                    <strong>support@marketplace3d.com</strong>
+                </p>
+            </div>
+
+            <div class="btn-container">
+                <a href="/dashboard-printer.html" class="btn">Accéder à mon dashboard</a>
+            </div>
+        </div>
+
+        <footer>
+            <p>&copy; 2025 Marketplace 3D - Tous droits réservés</p>
+            <div style="margin-top: 1rem;">
+                <a href="/cgu.html">CGU</a>
+                <a href="/">Accueil</a>
+                <a href="/contact.html">Contact</a>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>

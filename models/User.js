@@ -110,6 +110,67 @@ const userSchema = new mongoose.Schema({
   },
   refreshToken: {
     type: String
+  },
+  // Business status and legal compliance fields
+  businessStatus: {
+    type: String,
+    enum: ['particulier', 'micro-entrepreneur', 'professionnel'],
+    default: 'particulier'
+  },
+  siret: {
+    type: String,
+    trim: true,
+    validate: {
+      validator: function(v) {
+        // SIRET must be 14 digits if provided
+        if (!v) return true;
+        return /^\d{14}$/.test(v);
+      },
+      message: 'SIRET must be 14 digits'
+    }
+  },
+  tva: {
+    type: String,
+    trim: true
+  },
+  yearlyRevenue: {
+    type: Number,
+    default: 0,
+    min: 0
+  },
+  yearlyTransactionCount: {
+    type: Number,
+    default: 0,
+    min: 0
+  },
+  revenueYear: {
+    type: Number
+  },
+  accountBlocked: {
+    type: Boolean,
+    default: false
+  },
+  blockReason: {
+    type: String
+  },
+  cguAccepted: {
+    type: Boolean,
+    default: false
+  },
+  cguAcceptedDate: {
+    type: Date
+  },
+  // DAC7 compliance fields
+  birthDate: {
+    type: Date
+  },
+  birthPlace: {
+    city: String,
+    country: String
+  },
+  iban: {
+    type: String,
+    trim: true
   }
 }, {
   timestamps: true
