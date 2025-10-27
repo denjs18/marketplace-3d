@@ -14,7 +14,13 @@ function initSTLViewer(containerId, stlData) {
   viewerContainer = document.getElementById(containerId);
   if (!viewerContainer) {
     console.error('Viewer container not found');
-    return;
+    throw new Error('Container not found');
+  }
+
+  // Vérifier que Three.js est disponible
+  if (typeof THREE === 'undefined') {
+    console.error('Three.js is not loaded');
+    throw new Error('Three.js not loaded');
   }
 
   // Clear previous content
@@ -22,6 +28,11 @@ function initSTLViewer(containerId, stlData) {
 
   const width = viewerContainer.clientWidth;
   const height = viewerContainer.clientHeight || 400;
+
+  if (width === 0 || height === 0) {
+    console.error('Container has no dimensions');
+    throw new Error('Container has no dimensions');
+  }
 
   // Scene
   scene = new THREE.Scene();
@@ -225,8 +236,12 @@ function updateModelInfo(dimensions, geometry) {
   const volElement = document.getElementById('volume');
   const weightElement = document.getElementById('weight');
 
+  console.log('Updating model info:', dimensions);
+
   if (dimElement) {
     dimElement.textContent = `${dimensions.x} × ${dimensions.y} × ${dimensions.z} mm`;
+    dimElement.style.fontSize = '1.1rem';
+    dimElement.style.fontWeight = '600';
   }
 
   if (volElement && geometry.boundingBox) {
@@ -235,6 +250,8 @@ function updateModelInfo(dimensions, geometry) {
                     (bbox.max.y - bbox.min.y) *
                     (bbox.max.z - bbox.min.z)) / 1000; // mm³ to cm³
     volElement.textContent = `${volume.toFixed(2)} cm³`;
+    volElement.style.fontSize = '1.1rem';
+    volElement.style.fontWeight = '600';
   }
 
   if (weightElement && geometry.boundingBox) {
@@ -245,6 +262,8 @@ function updateModelInfo(dimensions, geometry) {
                     (bbox.max.z - bbox.min.z)) / 1000;
     const weight = volume * 1.24 * 0.20; // volume * density * infill
     weightElement.textContent = `~${weight.toFixed(0)}g (PLA 20%)`;
+    weightElement.style.fontSize = '1.1rem';
+    weightElement.style.fontWeight = '600';
   }
 }
 

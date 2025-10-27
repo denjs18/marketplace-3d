@@ -195,7 +195,7 @@
     </form>
   </div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
   <script src="/js/auth.js"></script>
   <script src="/js/app.js"></script>
   <script src="/js/stl-viewer.js"></script>
@@ -343,16 +343,43 @@
     function loadSTLPreview(file) {
       previewContainer.classList.remove('hidden');
 
+      // Vérifier que Three.js est chargé
+      if (typeof THREE === 'undefined') {
+        console.error('Three.js n\'est pas chargé');
+        showToast('Erreur: Bibliothèque 3D non chargée', 'error');
+        document.getElementById('stl-viewer').innerHTML = '<p style="color: white; text-align: center; padding: 20px;">Impossible de charger le viewer 3D. Veuillez recharger la page.</p>';
+        return;
+      }
+
+      // Afficher un message de chargement
+      const viewer = document.getElementById('stl-viewer');
+      viewer.innerHTML = '<div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; text-align: center;"><p>Chargement du modèle 3D...</p></div>';
+
       const reader = new FileReader();
       reader.onload = function(e) {
         try {
           if (typeof initSTLViewer === 'function') {
             initSTLViewer('stl-viewer', e.target.result);
+            showToast('Modèle 3D chargé avec succès !', 'success');
+          } else {
+            throw new Error('Fonction initSTLViewer non disponible');
           }
         } catch (error) {
           console.error('Error loading STL preview:', error);
+          showToast('Erreur lors du chargement du modèle 3D', 'error');
+          viewer.innerHTML = '<p style="color: white; text-align: center; padding: 20px;">Erreur lors du chargement du modèle 3D.<br>Vérifiez que le fichier est valide.</p>';
+          // Réinitialiser les valeurs
+          document.getElementById('dimensions').textContent = 'Erreur';
+          document.getElementById('volume').textContent = 'Erreur';
+          document.getElementById('weight').textContent = 'Erreur';
         }
       };
+
+      reader.onerror = function() {
+        showToast('Erreur lors de la lecture du fichier', 'error');
+        viewer.innerHTML = '<p style="color: white; text-align: center; padding: 20px;">Erreur lors de la lecture du fichier.</p>';
+      };
+
       reader.readAsArrayBuffer(file);
     }
 
