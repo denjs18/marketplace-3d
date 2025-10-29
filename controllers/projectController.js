@@ -168,11 +168,12 @@ exports.getProjects = async (req, res) => {
       query.client = req.userId;
     }
 
-    // If user is a printer, show open projects or assigned projects
+    // If user is a printer, show published projects or assigned projects
     if (req.userRole === 'printer') {
       query.$or = [
-        { status: 'open' },
-        { status: 'quoted' },
+        { projectStatus: 'published' },
+        { projectStatus: 'in_negotiation' },
+        { projectStatus: 'quote_received' },
         { assignedPrinter: req.userId }
       ];
     }

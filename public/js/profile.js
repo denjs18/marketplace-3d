@@ -76,14 +76,6 @@ function fillProfileData(user) {
   document.getElementById('phone').value = user.phone || '';
   document.getElementById('companyName').value = user.companyName || '';
 
-  // Adresse
-  if (user.address) {
-    document.getElementById('addressStreet').value = user.address.street || '';
-    document.getElementById('addressCity').value = user.address.city || '';
-    document.getElementById('addressPostalCode').value = user.address.postalCode || '';
-    document.getElementById('addressCountry').value = user.address.country || '';
-  }
-
   // Bio
   document.getElementById('bio').value = user.bio || '';
 
@@ -94,7 +86,6 @@ function fillProfileData(user) {
     email: user.email,
     phone: user.phone,
     companyName: user.companyName,
-    address: user.address ? { ...user.address } : {},
     bio: user.bio
   };
 }
@@ -167,10 +158,6 @@ function cancelEdit() {
   document.getElementById('lastName').value = originalData.lastName || '';
   document.getElementById('phone').value = originalData.phone || '';
   document.getElementById('companyName').value = originalData.companyName || '';
-  document.getElementById('addressStreet').value = originalData.address?.street || '';
-  document.getElementById('addressCity').value = originalData.address?.city || '';
-  document.getElementById('addressPostalCode').value = originalData.address?.postalCode || '';
-  document.getElementById('addressCountry').value = originalData.address?.country || '';
   document.getElementById('bio').value = originalData.bio || '';
 
   // Désactiver tous les champs
@@ -201,12 +188,6 @@ async function saveProfile(e) {
       lastName: document.getElementById('lastName').value,
       phone: document.getElementById('phone').value || null,
       companyName: document.getElementById('companyName').value || null,
-      address: {
-        street: document.getElementById('addressStreet').value || null,
-        city: document.getElementById('addressCity').value || null,
-        postalCode: document.getElementById('addressPostalCode').value || null,
-        country: document.getElementById('addressCountry').value || null
-      },
       bio: document.getElementById('bio').value || null
     };
 

@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Projets Disponibles - Marketplace 3D</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .page-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 30px 20px;
+    }
+
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+
+    .page-title {
+      font-size: 28px;
+      font-weight: 700;
+      color: #2d3436;
+    }
+
+    .filters-bar {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      margin-bottom: 20px;
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+      align-items: end;
+    }
+
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-width: 200px;
+    }
+
+    .filter-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: #636e72;
+      text-transform: uppercase;
+    }
+
+    .filter-select, .search-input {
+      padding: 10px 14px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 14px;
+      background: white;
+    }
+
+    .filter-select {
+      cursor: pointer;
+      min-width: 180px;
+    }
+
+    .search-input {
+      min-width: 300px;
+    }
+
+    .projects-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      gap: 24px;
+      margin-bottom: 30px;
+    }
+
+    .project-card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      overflow: hidden;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .project-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+    }
+
+    .project-card-image {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      background: #f8f9fa;
+    }
+
+    .project-card-content {
+      padding: 20px;
+    }
+
+    .project-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      margin-bottom: 12px;
+    }
+
+    .project-card-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #2d3436;
+      margin: 0;
+      flex: 1;
+    }
+
+    .project-card-description {
+      color: #636e72;
+      font-size: 14px;
+      line-height: 1.5;
+      margin-bottom: 16px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .project-specs {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .spec-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .spec-label {
+      font-size: 11px;
+      color: #636e72;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .spec-value {
+      font-size: 14px;
+      color: #2d3436;
+      font-weight: 600;
+    }
+
+    .project-client {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      margin-bottom: 16px;
+    }
+
+    .client-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    .client-info {
+      flex: 1;
+    }
+
+    .client-name {
+      font-weight: 600;
+      color: #2d3436;
+      font-size: 14px;
+    }
+
+    .client-rating {
+      font-size: 12px;
+      color: #636e72;
+    }
+
+    .project-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+    }
+
+    .btn-primary {
+      background: #0984e3;
+      color: white;
+      flex: 1;
+    }
+
+    .btn-primary:hover {
+      background: #0770c7;
+    }
+
+    .btn-secondary {
+      background: #636e72;
+      color: white;
+    }
+
+    .btn-secondary:hover {
+      background: #4a545a;
+    }
+
+    .status-badge {
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .badge-published {
+      background: #74b9ff;
+      color: #0984e3;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 80px 20px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    .empty-icon {
+      font-size: 64px;
+      margin-bottom: 20px;
+    }
+
+    .empty-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: #2d3436;
+      margin-bottom: 10px;
+    }
+
+    .empty-text {
+      color: #636e72;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 60px;
+      color: #636e72;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    @media (max-width: 768px) {
+      .projects-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .filters-bar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .filter-group {
+        width: 100%;
+      }
+
+      .search-input, .filter-select {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="/" class="nav-logo">Marketplace 3D</a>
+      <div class="nav-menu">
+        <span>Chargement...</span>
+      </div>
+    </div>
+  </nav>
+
+  <div class="page-container">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">🔍 Projets Disponibles</h1>
+        <p class="page-subtitle" style="color: #636e72; margin-top: 8px;">Trouvez des projets d'impression 3D à réaliser</p>
+      </div>
+      <a href="/dashboard-printer.html" class="btn btn-secondary">← Retour au dashboard</a>
+    </div>
+
+    <!-- Filtres -->
+    <div class="filters-bar">
+      <div class="filter-group" style="flex: 1;">
+        <label class="filter-label">🔍 Recherche</label>
+        <input type="text" id="searchInput" class="search-input" placeholder="Rechercher par titre...">
+      </div>
+
+      <div class="filter-group">
+        <label class="filter-label">Matériau</label>
+        <select id="materialFilter" class="filter-select">
+          <option value="">Tous les matériaux</option>
+          <option value="PLA">PLA</option>
+          <option value="ABS">ABS</option>
+          <option value="PETG">PETG</option>
+          <option value="Resin">Résine</option>
+          <option value="Nylon">Nylon</option>
+          <option value="TPU">TPU</option>
+          <option value="Other">Autre</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label class="filter-label">Tri</label>
+        <select id="sortFilter" class="filter-select">
+          <option value="-createdAt">Plus récent</option>
+          <option value="createdAt">Plus ancien</option>
+          <option value="-budget">Budget élevé</option>
+          <option value="budget">Budget faible</option>
+        </select>
+      </div>
+
+      <button class="btn btn-secondary" onclick="resetFilters()" style="align-self: flex-end;">
+        🔄 Réinitialiser
+      </button>
+    </div>
+
+    <!-- Loading -->
+    <div id="loading" class="loading">
+      <p>Chargement des projets disponibles...</p>
+    </div>
+
+    <!-- Liste des projets -->
+    <div id="projectsGrid" class="projects-grid hidden"></div>
+
+    <!-- Empty state -->
+    <div id="emptyState" class="empty-state hidden">
+      <div class="empty-icon">📦</div>
+      <h2 class="empty-title">Aucun projet disponible</h2>
+      <p class="empty-text">Il n'y a pas de projets correspondant à vos critères pour le moment</p>
+    </div>
+  </div>
+
+  <script src="/js/auth.js"></script>
+  <script src="/js/available-projects.js"></script>
+</body>
+</html>

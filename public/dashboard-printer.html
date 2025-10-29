@@ -75,14 +75,14 @@
         </div>
         <div class="card-body">
           <div class="flex gap-2">
-            <button class="btn btn-primary" onclick="alert('Fonctionnalité disponible prochainement')">
+            <button class="btn btn-primary" onclick="window.location.href='/available-projects.html'">
               🔍 Voir projets disponibles
             </button>
-            <button class="btn btn-secondary" onclick="alert('Fonctionnalité disponible prochainement')">
-              📝 Gérer mes devis
+            <button class="btn btn-secondary" onclick="window.location.href='/messages.html'">
+              💬 Messages
             </button>
-            <button class="btn btn-secondary" onclick="alert('Fonctionnalité disponible prochainement')">
-              💰 Voir revenus
+            <button class="btn btn-secondary" onclick="window.location.href='/profile.html'">
+              👤 Mon profil
             </button>
           </div>
         </div>
@@ -500,10 +500,13 @@
     // Load available projects
     async function loadAvailableProjects() {
       try {
-        const response = await apiCall('/api/projects?status=active&limit=4');
+        const response = await apiCall('/api/projects?limit=4');
         if (response && response.ok) {
           const data = await response.json();
-          const projects = data.projects || [];
+          let projects = data.projects || [];
+
+          // Filter only published projects
+          projects = projects.filter(p => p.projectStatus === 'published');
 
           document.getElementById('loading-available-projects').classList.add('hidden');
 
@@ -512,6 +515,11 @@
           } else {
             const grid = document.getElementById('available-projects-grid');
             grid.innerHTML = projects.map(project => {
+              const material = project.specifications?.material || 'Non spécifié';
+              const quantity = project.specifications?.quantity || 1;
+              const budget = project.budget?.max || 0;
+              const deadline = project.deadline ? new Date(project.deadline).toLocaleDateString('fr-FR') : 'Non défini';
+
               return `
                 <div class="card">
                   <div class="card-header">
@@ -521,14 +529,14 @@
                   <div class="card-body">
                     <p class="text-secondary mb-2">${project.description.substring(0, 60)}${project.description.length > 60 ? '...' : ''}</p>
                     <div class="mb-2">
-                      <span class="badge badge-info">${project.material}</span>
-                      <span class="badge badge-warning">Quantité: ${project.quantity}</span>
+                      <span class="badge badge-info">${material}</span>
+                      <span class="badge badge-warning">Quantité: ${quantity}</span>
                     </div>
                     <div class="flex-between mb-2">
-                      <span><strong>Budget:</strong> ${project.budget.min}-${project.budget.max} €</span>
-                      <span><strong>Délai:</strong> ${project.deadline} jours</span>
+                      <span><strong>Budget max:</strong> ${budget} €</span>
+                      <span><strong>Délai:</strong> ${deadline}</span>
                     </div>
-                    <button class="btn btn-primary btn-full" onclick="submitQuote('${project._id}')">Soumettre un devis</button>
+                    <button class="btn btn-primary btn-full" onclick="window.location.href='/project-details.html?id=${project._id}'">Voir détails</button>
                   </div>
                 </div>
               `;
