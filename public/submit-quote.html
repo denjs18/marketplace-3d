@@ -19,32 +19,37 @@
   <div class="container" style="max-width: 800px; margin-top: 2rem;">
     <h1 class="mb-3">Soumettre un devis</h1>
 
-    <div id="alert-container"></div>
+    <!-- Loading state -->
+    <div id="loading" style="text-align: center; padding: 40px;">
+      <p>Chargement des informations du projet...</p>
+    </div>
 
-    <!-- Project info -->
-    <div class="card mb-3">
-      <div class="card-header">
-        <h2 class="card-title">Informations du projet</h2>
-      </div>
-      <div class="card-body">
-        <h3 id="project-title" class="mb-2">Lot de pièces mécaniques</h3>
-        <p id="project-description" class="text-secondary mb-3">20 pièces identiques pour prototype industriel</p>
-        <div class="grid grid-2">
-          <div>
-            <strong>Matériau demandé:</strong> <span id="project-material">PETG</span>
-          </div>
-          <div>
-            <strong>Quantité:</strong> <span id="project-quantity">20</span>
-          </div>
-          <div>
-            <strong>Budget client:</strong> <span id="project-budget">150-200 €</span>
-          </div>
-          <div>
-            <strong>Délai souhaité:</strong> <span id="project-deadline">7 jours</span>
+    <!-- Content -->
+    <div id="content" class="hidden">
+      <!-- Project info -->
+      <div class="card mb-3">
+        <div class="card-header">
+          <h2 class="card-title">Informations du projet</h2>
+        </div>
+        <div class="card-body">
+          <h3 id="project-title" class="mb-2">-</h3>
+          <p id="project-description" class="text-secondary mb-3">-</p>
+          <div class="grid grid-2">
+            <div>
+              <strong>Matériau demandé:</strong> <span id="project-material">-</span>
+            </div>
+            <div>
+              <strong>Quantité:</strong> <span id="project-quantity">-</span>
+            </div>
+            <div>
+              <strong>Budget client:</strong> <span id="project-budget">-</span>
+            </div>
+            <div>
+              <strong>Délai souhaité:</strong> <span id="project-deadline">-</span>
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
     <!-- Quote form -->
     <form id="quote-form">
@@ -147,65 +152,10 @@
         </button>
       </div>
     </form>
+    </div><!-- End content -->
   </div>
 
-  <script src="/js/app.js"></script>
-  <script>
-    // Set minimum delivery date to tomorrow
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    document.getElementById('delivery-date').min = tomorrow.toISOString().split('T')[0];
-
-    // Calculate price breakdown
-    const priceInput = document.getElementById('price');
-    priceInput.addEventListener('input', updatePriceBreakdown);
-
-    function updatePriceBreakdown() {
-      const price = parseFloat(priceInput.value) || 0;
-      if (price > 0) {
-        const commission = price * 0.10;
-        const yourPayment = price * 0.90;
-
-        document.getElementById('client-price').textContent = price.toFixed(2);
-        document.getElementById('commission').textContent = commission.toFixed(2);
-        document.getElementById('your-payment').textContent = yourPayment.toFixed(2);
-        document.getElementById('price-breakdown').classList.remove('hidden');
-      } else {
-        document.getElementById('price-breakdown').classList.add('hidden');
-      }
-    }
-
-    // Form submission
-    document.getElementById('quote-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-
-      const message = document.getElementById('message').value;
-      if (message.length < 10) {
-        alert('Le message doit contenir au moins 10 caractères');
-        return;
-      }
-      if (message.length > 1000) {
-        alert('Le message ne peut pas dépasser 1000 caractères');
-        return;
-      }
-
-      const submitText = document.getElementById('submit-text');
-      const submitLoading = document.getElementById('submit-loading');
-      const alertContainer = document.getElementById('alert-container');
-
-      submitText.classList.add('hidden');
-      submitLoading.classList.remove('hidden');
-      alertContainer.innerHTML = '';
-
-      // Simulate API call
-      setTimeout(() => {
-        alertContainer.innerHTML = '<div class="alert alert-success">✓ Devis envoyé avec succès! Le client sera notifié.</div>';
-
-        setTimeout(() => {
-          window.location.href = '/dashboard-printer.html';
-        }, 1500);
-      }, 1000);
-    });
-  </script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/submit-quote.js"></script>
 </body>
 </html>
