@@ -234,9 +234,22 @@ exports.getProjectById = async (req, res) => {
     const isAssigned = project.assignedPrinter && project.assignedPrinter._id.toString() === req.userId.toString();
     const hasQuoted = project.quotes && project.quotes.some(q => q.printer._id.toString() === req.userId.toString());
 
-    if (!isOwner && !isAssigned && !hasQuoted && req.userRole !== 'printer') {
-      // Printers can view open projects
-      if (project.status !== 'open' && project.status !== 'quoted') {
+    // Allow access if:
+    // 1. User is the project owner (client)
+    // 2. User is the assigned printer
+    // 3. User has submitted a quote
+    // 4. User is a printer AND project is published/available
+    if (!isOwner && !isAssigned && !hasQuoted) {
+      if (req.userRole === 'printer') {
+        // Printers can view published and available projects
+        const allowedStatuses = ['published', 'in_negotiation', 'quote_received'];
+        if (!allowedStatuses.includes(project.projectStatus)) {
+          return res.status(403).json({
+            error: 'Access denied'
+          });
+        }
+      } else {
+        // Non-printers (like clients viewing other projects) are denied
         return res.status(403).json({
           error: 'Access denied'
         });

@@ -53,8 +53,9 @@ exports.createQuote = async (req, res) => {
 
     // Add quote to project
     project.quotes.push(quote._id);
-    if (project.status === 'open') {
-      project.status = 'quoted';
+    if (project.projectStatus === 'published') {
+      project.projectStatus = 'quote_received';
+      project.status = 'quoted'; // Keep for backward compatibility
     }
     await project.save();
 

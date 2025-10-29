@@ -188,14 +188,15 @@ projectSchema.virtual('quoteCount').get(function() {
 
 // Method to check if project is available for quotes
 projectSchema.methods.canReceiveQuotes = function() {
-  return this.status === 'open' || this.status === 'quoted';
+  return this.projectStatus === 'published' || this.projectStatus === 'quote_received';
 };
 
 // Method to assign printer
 projectSchema.methods.assignToPrinter = function(printerId, quoteId) {
   this.assignedPrinter = printerId;
   this.selectedQuote = quoteId;
-  this.status = 'in_progress';
+  this.projectStatus = 'in_progress';
+  this.status = 'in_progress'; // Keep for backward compatibility
 };
 
 module.exports = mongoose.model('Project', projectSchema);

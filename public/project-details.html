@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Détails du Projet - Marketplace 3D</title>
-  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/styles.css">
   <style>
     .page-container {
       max-width: 1200px;
@@ -382,10 +382,12 @@
         </div>
         <div class="header-actions">
           <span id="projectStatus"></span>
-          <a href="/my-projects.html" class="btn btn-secondary">← Retour</a>
+          <a id="backBtn" href="/my-projects.html" class="btn btn-secondary hidden">← Retour</a>
+          <a id="backToDashboardBtn" href="/dashboard-printer.html" class="btn btn-secondary hidden">← Retour au dashboard</a>
           <button id="editBtn" class="btn btn-primary hidden">✏️ Modifier</button>
           <button id="publishBtn" class="btn btn-success hidden">📤 Publier</button>
           <button id="inviteBtn" class="btn btn-info hidden">📧 Inviter imprimeurs</button>
+          <button id="submitQuoteBtn" class="btn btn-success hidden">💰 Soumettre un devis</button>
           <button id="deleteBtn" class="btn btn-danger hidden">🗑️ Supprimer</button>
         </div>
       </div>

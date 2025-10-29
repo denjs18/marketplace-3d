@@ -8,7 +8,7 @@ let projectId = null;
 
 // Initialisation
 document.addEventListener('DOMContentLoaded', async () => {
-  currentUser = await requireAuth('client');
+  currentUser = await requireAuth(); // Allow both client and printer
   if (!currentUser) return;
 
   createAuthNavbar(currentUser);
@@ -33,6 +33,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('inviteBtn').addEventListener('click', invitePrinters);
   document.getElementById('invitePrintersBtn').addEventListener('click', invitePrinters);
   document.getElementById('deleteBtn').addEventListener('click', deleteProject);
+  document.getElementById('submitQuoteBtn').addEventListener('click', () => {
+    window.location.href = `/submit-quote.html?projectId=${projectId}`;
+  });
 });
 
 // Charger le projet
@@ -96,19 +99,40 @@ function displayProject(project) {
   statusBadge.className = `status-badge badge-${project.projectStatus}`;
   statusBadge.textContent = statusLabels[project.projectStatus] || project.projectStatus;
 
-  // Boutons d'action selon le statut
-  if (project.projectStatus === 'draft') {
-    document.getElementById('editBtn').classList.remove('hidden');
-    document.getElementById('publishBtn').classList.remove('hidden');
-    document.getElementById('deleteBtn').classList.remove('hidden');
-  }
+  // Boutons d'action selon le rôle et le statut
+  const isOwner = project.client && project.client._id === currentUser._id;
+  const isPrinter = currentUser.role === 'printer';
 
-  const invitedCount = project.invitedPrinters ? project.invitedPrinters.length : 0;
-  const maxInvited = project.maxPrintersInvited || 5;
+  if (isOwner) {
+    // Boutons pour le client propriétaire
+    document.getElementById('backBtn').classList.remove('hidden');
 
-  if (project.projectStatus === 'published' && invitedCount < maxInvited) {
-    document.getElementById('inviteBtn').classList.remove('hidden');
-    document.getElementById('invitePrintersBtn').classList.remove('hidden');
+    if (project.projectStatus === 'draft') {
+      document.getElementById('editBtn').classList.remove('hidden');
+      document.getElementById('publishBtn').classList.remove('hidden');
+      document.getElementById('deleteBtn').classList.remove('hidden');
+    }
+
+    const invitedCount = project.invitedPrinters ? project.invitedPrinters.length : 0;
+    const maxInvited = project.maxPrintersInvited || 5;
+
+    if (project.projectStatus === 'published' && invitedCount < maxInvited) {
+      document.getElementById('inviteBtn').classList.remove('hidden');
+      document.getElementById('invitePrintersBtn').classList.remove('hidden');
+    }
+  } else if (isPrinter) {
+    // Boutons pour l'imprimeur
+    document.getElementById('backToDashboardBtn').classList.remove('hidden');
+
+    // Vérifier si l'imprimeur peut soumettre un devis
+    if (project.projectStatus === 'published' || project.projectStatus === 'quote_received') {
+      // Vérifier s'il n'a pas déjà soumis un devis
+      const hasQuoted = project.quotes && project.quotes.some(q => q.printer && q.printer._id === currentUser._id);
+
+      if (!hasQuoted) {
+        document.getElementById('submitQuoteBtn').classList.remove('hidden');
+      }
+    }
   }
 
   // Images
@@ -148,20 +172,24 @@ function displayProject(project) {
   }
 
   // Spécifications
-  document.getElementById('specMaterial').textContent = project.material || 'Non spécifié';
-  document.getElementById('specColor').textContent = project.color || 'Non spécifié';
-  document.getElementById('specQuantity').textContent = project.quantity || 1;
-  document.getElementById('specInfill').textContent = project.infill ? `${project.infill}%` : 'Standard';
-  document.getElementById('specFinish').textContent = project.finish || 'Standard';
-  document.getElementById('specLayerHeight').textContent = project.layerHeight ? `${project.layerHeight}mm` : 'Standard';
+  const specs = project.specifications || {};
+  document.getElementById('specMaterial').textContent = specs.material || project.material || 'Non spécifié';
+  document.getElementById('specColor').textContent = specs.color || project.color || 'Non spécifié';
+  document.getElementById('specQuantity').textContent = specs.quantity || project.quantity || 1;
+  document.getElementById('specInfill').textContent = specs.infill || project.infill ? `${specs.infill || project.infill}%` : 'Standard';
+  document.getElementById('specFinish').textContent = specs.postProcessing || project.finish || 'Standard';
+  document.getElementById('specLayerHeight').textContent = specs.layerHeight || project.layerHeight ? `${specs.layerHeight || project.layerHeight}mm` : 'Standard';
 
   // Budget et délai
-  document.getElementById('specBudget').textContent = formatPrice(project.estimatedBudget || 0);
+  const budget = project.budget?.max || project.estimatedBudget || 0;
+  document.getElementById('specBudget').textContent = formatPrice(budget);
   document.getElementById('specDeadline').textContent = project.deadline
     ? formatDate(project.deadline)
     : 'Non spécifié';
 
   // Imprimeurs invités
+  const invitedCount = project.invitedPrinters ? project.invitedPrinters.length : 0;
+  const maxInvited = project.maxPrintersInvited || 5;
   document.getElementById('specInvited').textContent = `${invitedCount} / ${maxInvited}`;
 }
 
