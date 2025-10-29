@@ -170,11 +170,11 @@ function renderProjectCard(project) {
         <div class="project-meta">
           <div class="meta-item">
             <span class="meta-label">Matériau</span>
-            <span class="meta-value">${project.material || 'Non spécifié'}</span>
+            <span class="meta-value">${project.specifications?.material || project.material || 'Non spécifié'}</span>
           </div>
           <div class="meta-item">
             <span class="meta-label">Quantité</span>
-            <span class="meta-value">${project.quantity || '-'}</span>
+            <span class="meta-value">${project.specifications?.quantity || project.quantity || '-'}</span>
           </div>
           <div class="meta-item">
             <span class="meta-label">Imprimeurs</span>
@@ -182,7 +182,7 @@ function renderProjectCard(project) {
           </div>
           <div class="meta-item">
             <span class="meta-label">Budget estimé</span>
-            <span class="meta-value">${formatPrice(project.estimatedBudget || 0)}</span>
+            <span class="meta-value">${formatPrice(project.budget?.max || project.estimatedBudget || 0)}</span>
           </div>
         </div>
         <div class="project-actions">

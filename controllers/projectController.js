@@ -230,9 +230,9 @@ exports.getProjectById = async (req, res) => {
     }
 
     // Check permissions
-    const isOwner = project.client._id.toString() === req.userId.toString();
-    const isAssigned = project.assignedPrinter && project.assignedPrinter._id.toString() === req.userId.toString();
-    const hasQuoted = project.quotes && project.quotes.some(q => q.printer._id.toString() === req.userId.toString());
+    const isOwner = project.client && project.client._id && project.client._id.toString() === req.userId.toString();
+    const isAssigned = project.assignedPrinter && project.assignedPrinter._id && project.assignedPrinter._id.toString() === req.userId.toString();
+    const hasQuoted = project.quotes && project.quotes.some(q => q.printer && q.printer._id && q.printer._id.toString() === req.userId.toString());
 
     // Allow access if:
     // 1. User is the project owner (client)

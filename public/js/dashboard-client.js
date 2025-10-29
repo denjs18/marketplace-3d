@@ -222,11 +222,11 @@ function renderProjectCard(project) {
         <div class="project-info-grid">
           <div class="info-item">
             <span class="info-label">Matériau</span>
-            <span class="info-value">${project.material || 'Non spécifié'}</span>
+            <span class="info-value">${project.specifications?.material || project.material || 'Non spécifié'}</span>
           </div>
           <div class="info-item">
             <span class="info-label">Quantité</span>
-            <span class="info-value">${project.quantity || '-'}</span>
+            <span class="info-value">${project.specifications?.quantity || project.quantity || '-'}</span>
           </div>
           <div class="info-item">
             <span class="info-label">Imprimeurs</span>
@@ -234,7 +234,7 @@ function renderProjectCard(project) {
           </div>
           <div class="info-item">
             <span class="info-label">Budget</span>
-            <span class="info-value">${formatPrice(project.estimatedBudget || 0)}</span>
+            <span class="info-value">${formatPrice(project.budget?.max || project.estimatedBudget || 0)}</span>
           </div>
         </div>
         <div class="card-actions">

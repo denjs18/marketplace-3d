@@ -160,11 +160,16 @@ function displayProject(project) {
     const stlDownload = document.getElementById('stlDownload');
     stlDownload.classList.remove('hidden');
 
-    const fileName = project.stlFile.split('/').pop();
+    // stlFile peut être un objet {filename, path, url} ou une chaîne (ancien format)
+    const stlUrl = typeof project.stlFile === 'string' ? project.stlFile : (project.stlFile.url || project.stlFile.path);
+    const fileName = typeof project.stlFile === 'string'
+      ? project.stlFile.split('/').pop()
+      : (project.stlFile.filename || project.stlFile.originalName || 'fichier.stl');
+
     document.getElementById('stlFileName').textContent = fileName;
 
     const downloadBtn = document.getElementById('downloadBtn');
-    downloadBtn.href = project.stlFile;
+    downloadBtn.href = stlUrl;
     downloadBtn.setAttribute('download', fileName);
 
     // Note: Pour afficher le STL en 3D, il faudrait utiliser Three.js

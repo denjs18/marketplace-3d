@@ -115,10 +115,10 @@ function displayProjectInfo() {
   document.getElementById('projectTitle').textContent = project.title;
   document.getElementById('conversationStatus').textContent = conversation.status;
   document.getElementById('conversationStatus').className = `status-badge status-${conversation.status}`;
-  document.getElementById('projectQuantity').textContent = project.quantity || '-';
-  document.getElementById('projectMaterial').textContent = project.material || '-';
-  document.getElementById('projectColor').textContent = project.color || '-';
-  document.getElementById('projectFinish').textContent = project.finish || '-';
+  document.getElementById('projectQuantity').textContent = project.specifications?.quantity || project.quantity || '-';
+  document.getElementById('projectMaterial').textContent = project.specifications?.material || project.material || '-';
+  document.getElementById('projectColor').textContent = project.specifications?.color || project.color || '-';
+  document.getElementById('projectFinish').textContent = project.specifications?.postProcessing || project.finish || '-';
 
   if (project.images && project.images.length > 0) {
     document.getElementById('projectImage').src = project.images[0];
