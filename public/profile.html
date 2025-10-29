@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mon Profil - Marketplace 3D</title>
-  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/styles.css">
   <style>
     .page-container {
       max-width: 1000px;
@@ -52,29 +52,44 @@
       height: 150px;
       border-radius: 50%;
       object-fit: cover;
-      border: 4px solid #0984e3;
+      border: 4px solid #40826D;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      background: #f8f9fa;
+      transition: all 0.3s ease;
+    }
+
+    .profile-avatar:hover {
+      transform: scale(1.05);
+      box-shadow: 0 6px 16px rgba(0,0,0,0.2);
     }
 
     .avatar-upload-btn {
       position: absolute;
-      bottom: 0;
-      right: 0;
-      background: #0984e3;
+      bottom: 5px;
+      right: 5px;
+      background: #40826D;
       color: white;
-      width: 40px;
-      height: 40px;
+      width: 45px;
+      height: 45px;
       border-radius: 50%;
       border: 3px solid white;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 18px;
-      transition: background 0.2s;
+      font-size: 20px;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
     }
 
     .avatar-upload-btn:hover {
-      background: #0770c7;
+      background: #2f6152;
+      transform: scale(1.1);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+
+    .avatar-upload-btn:active {
+      transform: scale(0.95);
     }
 
     .avatar-upload-input {

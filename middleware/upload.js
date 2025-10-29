@@ -94,6 +94,15 @@ const uploadImage = multer({
   }
 }).single('image');
 
+// Middleware to handle profile image upload
+const uploadProfileImage = multer({
+  storage: memoryStorage,
+  fileFilter: imageFileFilter,
+  limits: {
+    fileSize: 5 * 1024 * 1024 // 5 MB
+  }
+}).single('profileImage');
+
 // Middleware to handle multiple images upload
 const uploadMultipleImages = multer({
   storage: memoryStorage,
@@ -144,6 +153,28 @@ const uploadImageToBlob = (req, res, next) => {
     if (req.file) {
       try {
         const blobData = await uploadToVercelBlob(req.file, 'uploads/images');
+        req.file.url = blobData.url;
+        req.file.pathname = blobData.pathname;
+        req.file.path = blobData.url; // For backward compatibility
+      } catch (error) {
+        return next(error);
+      }
+    }
+
+    next();
+  });
+};
+
+// Wrapper middleware for profile image upload with Vercel Blob
+const uploadProfileImageToBlob = (req, res, next) => {
+  uploadProfileImage(req, res, async (err) => {
+    if (err) {
+      return next(err);
+    }
+
+    if (req.file) {
+      try {
+        const blobData = await uploadToVercelBlob(req.file, 'uploads/profile-images');
         req.file.url = blobData.url;
         req.file.pathname = blobData.pathname;
         req.file.path = blobData.url; // For backward compatibility
@@ -251,6 +282,7 @@ const deleteFile = async (fileUrl) => {
 module.exports = {
   uploadSTL: uploadSTLToBlob,
   uploadImage: uploadImageToBlob,
+  uploadProfileImage: uploadProfileImageToBlob,
   uploadMultipleImages: uploadMultipleImagesToBlob,
   uploadAttachment: uploadAttachmentToBlob,
   handleUploadError,

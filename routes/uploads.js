@@ -1,8 +1,34 @@
 const express = require('express');
 const router = express.Router();
 const { authenticate } = require('../middleware/auth');
-const { uploadMultipleImages, uploadSTL, uploadAttachment, handleUploadError } = require('../middleware/upload');
+const { uploadMultipleImages, uploadSTL, uploadAttachment, uploadProfileImage, handleUploadError } = require('../middleware/upload');
 const Conversation = require('../models/Conversation');
+
+/**
+ * @route   POST /api/uploads/profile-image
+ * @desc    Upload profile image
+ * @access  Private
+ */
+router.post('/profile-image', authenticate, uploadProfileImage, handleUploadError, (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        error: 'No image provided'
+      });
+    }
+
+    res.json({
+      message: 'Profile image uploaded successfully',
+      profileImage: req.file.url
+    });
+  } catch (error) {
+    console.error('Error uploading profile image:', error);
+    res.status(500).json({
+      error: 'Failed to upload profile image',
+      details: error.message
+    });
+  }
+});
 
 /**
  * @route   POST /api/uploads/images
