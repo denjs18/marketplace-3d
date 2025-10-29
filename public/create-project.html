@@ -64,33 +64,6 @@
             </div>
           </div>
 
-          <!-- Prévisualisation 3D (sera ajoutée dynamiquement) -->
-          <div id="preview-container" class="hidden mt-3">
-            <h3 class="mb-2">Prévisualisation 3D</h3>
-            <div id="stl-viewer" style="width: 100%; height: 400px; background: #1a1a1a; border-radius: 8px; position: relative;">
-              <div class="loading" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);"></div>
-            </div>
-            <div id="model-info" class="mt-2 grid grid-3">
-              <div class="card text-center">
-                <div class="card-body">
-                  <strong>Dimensions</strong>
-                  <p id="dimensions" class="text-primary">-</p>
-                </div>
-              </div>
-              <div class="card text-center">
-                <div class="card-body">
-                  <strong>Volume</strong>
-                  <p id="volume" class="text-primary">-</p>
-                </div>
-              </div>
-              <div class="card text-center">
-                <div class="card-body">
-                  <strong>Poids estimé</strong>
-                  <p id="weight" class="text-primary">-</p>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
 
@@ -174,13 +147,6 @@
             </div>
           </div>
 
-          <div id="estimated-price" class="hidden mt-3 card" style="background: #f0f9ff; border: 2px solid var(--primary-color);">
-            <div class="card-body text-center">
-              <p class="text-secondary mb-2">Prix estimé basé sur vos spécifications</p>
-              <p class="text-primary" style="font-size: 2rem; font-weight: 700;"><span id="price-estimate">-</span> €</p>
-              <small class="text-secondary">Cette estimation est indicative. Les imprimeurs vous fourniront des devis précis.</small>
-            </div>
-          </div>
         </div>
       </div>
 
@@ -195,10 +161,8 @@
     </form>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
   <script src="/js/auth.js"></script>
   <script src="/js/app.js"></script>
-  <script src="/js/stl-viewer.js"></script>
   <script>
     let currentUser = null;
 
@@ -330,91 +294,7 @@
 
       uploadPrompt.classList.add('hidden');
       fileInfo.classList.remove('hidden');
-
-      // Show preview for STL files
-      if (ext === 'stl') {
-        loadSTLPreview(file);
-      }
-
-      // Calculate estimate
-      calculateEstimate();
     }
-
-    function loadSTLPreview(file) {
-      previewContainer.classList.remove('hidden');
-
-      // Vérifier que Three.js est chargé
-      if (typeof THREE === 'undefined') {
-        console.error('Three.js n\'est pas chargé');
-        showToast('Erreur: Bibliothèque 3D non chargée', 'error');
-        document.getElementById('stl-viewer').innerHTML = '<p style="color: white; text-align: center; padding: 20px;">Impossible de charger le viewer 3D. Veuillez recharger la page.</p>';
-        return;
-      }
-
-      // Afficher un message de chargement
-      const viewer = document.getElementById('stl-viewer');
-      viewer.innerHTML = '<div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; text-align: center;"><p>Chargement du modèle 3D...</p></div>';
-
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        try {
-          if (typeof initSTLViewer === 'function') {
-            initSTLViewer('stl-viewer', e.target.result);
-            showToast('Modèle 3D chargé avec succès !', 'success');
-          } else {
-            throw new Error('Fonction initSTLViewer non disponible');
-          }
-        } catch (error) {
-          console.error('Error loading STL preview:', error);
-          showToast('Erreur lors du chargement du modèle 3D', 'error');
-          viewer.innerHTML = '<p style="color: white; text-align: center; padding: 20px;">Erreur lors du chargement du modèle 3D.<br>Vérifiez que le fichier est valide.</p>';
-          // Réinitialiser les valeurs
-          document.getElementById('dimensions').textContent = 'Erreur';
-          document.getElementById('volume').textContent = 'Erreur';
-          document.getElementById('weight').textContent = 'Erreur';
-        }
-      };
-
-      reader.onerror = function() {
-        showToast('Erreur lors de la lecture du fichier', 'error');
-        viewer.innerHTML = '<p style="color: white; text-align: center; padding: 20px;">Erreur lors de la lecture du fichier.</p>';
-      };
-
-      reader.readAsArrayBuffer(file);
-    }
-
-    function calculateEstimate() {
-      // Simple estimation based on file size and material
-      const material = document.getElementById('material').value;
-      const quantity = parseInt(document.getElementById('quantity').value) || 1;
-
-      if (!selectedFile || !material) return;
-
-      // Base price calculation (very simplified)
-      const sizeInMB = selectedFile.size / (1024 * 1024);
-      let basePrice = sizeInMB * 5; // 5€ per MB as base
-
-      // Material multiplier
-      const materialMultipliers = {
-        'PLA': 1.0,
-        'ABS': 1.2,
-        'PETG': 1.3,
-        'Resin': 2.0,
-        'Nylon': 2.5,
-        'TPU': 1.8,
-        'Other': 1.5
-      };
-
-      basePrice *= (materialMultipliers[material] || 1.0);
-      basePrice *= quantity;
-
-      document.getElementById('estimated-price').classList.remove('hidden');
-      document.getElementById('price-estimate').textContent = Math.round(basePrice);
-    }
-
-    // Recalculate on material or quantity change
-    document.getElementById('material').addEventListener('change', calculateEstimate);
-    document.getElementById('quantity').addEventListener('change', calculateEstimate);
 
     // Form submission
     document.getElementById('project-form').addEventListener('submit', async (e) => {

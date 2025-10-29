@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { authenticate } = require('../middleware/auth');
-const { uploadMultipleImages, uploadAttachment, handleUploadError } = require('../middleware/upload');
+const { uploadMultipleImages, uploadSTL, uploadAttachment, handleUploadError } = require('../middleware/upload');
 const Conversation = require('../models/Conversation');
 
 /**
@@ -26,6 +26,32 @@ router.post('/images', authenticate, uploadMultipleImages, handleUploadError, (r
   } catch (error) {
     res.status(500).json({
       error: 'Failed to upload images',
+      details: error.message
+    });
+  }
+});
+
+/**
+ * @route   POST /api/uploads/stl
+ * @desc    Upload STL file for project
+ * @access  Private
+ */
+router.post('/stl', authenticate, uploadSTL, handleUploadError, (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        error: 'No STL file provided'
+      });
+    }
+
+    res.json({
+      message: 'STL file uploaded successfully',
+      stlFile: req.file.url
+    });
+  } catch (error) {
+    console.error('Error uploading STL:', error);
+    res.status(500).json({
+      error: 'Failed to upload STL file',
       details: error.message
     });
   }
