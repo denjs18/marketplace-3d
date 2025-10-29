@@ -14,10 +14,23 @@ router.post(
   '/',
   authenticate,
   isClient,
-  uploadSTL,
-  handleUploadError,
-  validateProject,
-  projectController.createProject
+  // Middleware conditionnel : si JSON, pas d'upload, sinon upload STL
+  (req, res, next) => {
+    const contentType = req.get('Content-Type');
+    if (contentType && contentType.includes('application/json')) {
+      // JSON request, skip file upload
+      return projectController.createProjectJSON(req, res);
+    } else {
+      // FormData request, use file upload
+      uploadSTL(req, res, (err) => {
+        if (err) return handleUploadError(err, req, res, next);
+        validateProject(req, res, (err) => {
+          if (err) return next(err);
+          projectController.createProject(req, res);
+        });
+      });
+    }
+  }
 );
 
 /**

@@ -3,7 +3,7 @@ const Quote = require('../models/Quote');
 const { deleteFile } = require('../middleware/upload');
 
 /**
- * Create new project
+ * Create new project (FormData with file upload)
  */
 exports.createProject = async (req, res) => {
   try {
@@ -48,6 +48,95 @@ exports.createProject = async (req, res) => {
       deleteFile(req.file.path);
     }
 
+    res.status(500).json({
+      error: 'Failed to create project',
+      details: error.message
+    });
+  }
+};
+
+/**
+ * Create new project (JSON with pre-uploaded STL URL)
+ */
+exports.createProjectJSON = async (req, res) => {
+  try {
+    const {
+      title,
+      description,
+      stlFile,
+      material,
+      color,
+      quantity,
+      infill,
+      finish,
+      layerHeight,
+      estimatedBudget,
+      deadline,
+      projectStatus
+    } = req.body;
+
+    // Validation
+    if (!title || !description) {
+      return res.status(400).json({
+        error: 'Title and description are required'
+      });
+    }
+
+    if (!stlFile) {
+      return res.status(400).json({
+        error: 'STL file URL is required'
+      });
+    }
+
+    if (!material) {
+      return res.status(400).json({
+        error: 'Material is required'
+      });
+    }
+
+    // Extraire le nom du fichier depuis l'URL
+    const filename = stlFile.split('/').pop();
+
+    const projectData = {
+      client: req.userId,
+      title,
+      description,
+      stlFile: {
+        filename: filename,
+        path: stlFile,
+        size: 0, // On ne connaît pas la taille, mettre 0 par défaut
+        originalName: filename
+      },
+      specifications: {
+        material,
+        color: color || 'Natural',
+        quantity: quantity || 1,
+        infill: infill || 20,
+        layerHeight: layerHeight || 0.2,
+        postProcessing: finish || 'None'
+      },
+      projectStatus: projectStatus || 'draft'
+    };
+
+    if (estimatedBudget) {
+      projectData.budget = {
+        max: estimatedBudget
+      };
+    }
+
+    if (deadline) {
+      projectData.deadline = new Date(deadline);
+    }
+
+    const project = new Project(projectData);
+    await project.save();
+
+    res.status(201).json({
+      message: 'Project created successfully',
+      project
+    });
+  } catch (error) {
+    console.error('Create project JSON error:', error);
     res.status(500).json({
       error: 'Failed to create project',
       details: error.message
@@ -190,14 +279,62 @@ exports.updateProject = async (req, res) => {
       });
     }
 
-    const { title, description, specifications, deadline, budget, tags } = req.body;
+    const {
+      title,
+      description,
+      specifications,
+      deadline,
+      budget,
+      tags,
+      projectStatus,
+      // Champs individuels des spécifications
+      material,
+      color,
+      quantity,
+      infill,
+      finish,
+      layerHeight,
+      estimatedBudget,
+      stlFile
+    } = req.body;
 
+    // Mettre à jour les champs simples
     if (title) project.title = title;
     if (description) project.description = description;
-    if (specifications) project.specifications = specifications;
-    if (deadline) project.deadline = deadline;
-    if (budget) project.budget = budget;
+    if (deadline) project.deadline = new Date(deadline);
     if (tags) project.tags = tags;
+    if (projectStatus) project.projectStatus = projectStatus;
+
+    // Mettre à jour specifications (ancien format)
+    if (specifications) {
+      project.specifications = specifications;
+    }
+
+    // Mettre à jour specifications (nouveau format individuel)
+    if (material) project.specifications.material = material;
+    if (color) project.specifications.color = color;
+    if (quantity) project.specifications.quantity = quantity;
+    if (infill !== undefined) project.specifications.infill = infill;
+    if (layerHeight !== undefined) project.specifications.layerHeight = layerHeight;
+    if (finish) project.specifications.postProcessing = finish;
+
+    // Mettre à jour le budget
+    if (budget) {
+      project.budget = budget;
+    } else if (estimatedBudget) {
+      project.budget = { max: estimatedBudget };
+    }
+
+    // Mettre à jour le fichier STL si fourni
+    if (stlFile) {
+      const filename = stlFile.split('/').pop();
+      project.stlFile = {
+        filename: filename,
+        path: stlFile,
+        size: project.stlFile?.size || 0,
+        originalName: filename
+      };
+    }
 
     await project.save();
 
