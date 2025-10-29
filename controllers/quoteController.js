@@ -38,6 +38,10 @@ exports.createQuote = async (req, res) => {
       });
     }
 
+    // Calculate commission (10%) and printer payment (90%)
+    const commission = price * 0.10;
+    const printerPayment = price * 0.90;
+
     // Create quote
     const quote = new Quote({
       project: projectId,
@@ -46,7 +50,11 @@ exports.createQuote = async (req, res) => {
       estimatedDuration,
       deliveryDate,
       message,
-      breakdown
+      breakdown: {
+        clientPrice: price,
+        commission: commission,
+        printerPayment: printerPayment
+      }
     });
 
     await quote.save();

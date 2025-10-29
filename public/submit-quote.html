@@ -61,26 +61,7 @@
           <div class="form-group">
             <label class="form-label" for="price">Prix total (€) *</label>
             <input type="number" class="form-input" id="price" required min="1" step="0.01" placeholder="150.00">
-            <small class="text-secondary">Le client paiera ce montant. Vous recevrez 90% après commission.</small>
-            <div id="price-breakdown" class="mt-2 hidden">
-              <div class="card" style="background: #f0f9ff; border: 2px solid var(--primary-color);">
-                <div class="card-body">
-                  <div class="flex-between mb-2">
-                    <span>Prix client:</span>
-                    <strong><span id="client-price">0</span> €</strong>
-                  </div>
-                  <div class="flex-between mb-2">
-                    <span class="text-secondary">Commission plateforme (10%):</span>
-                    <span class="text-secondary">- <span id="commission">0</span> €</span>
-                  </div>
-                  <hr>
-                  <div class="flex-between">
-                    <strong>Vous recevrez:</strong>
-                    <strong class="text-success" style="font-size: 1.25rem;"><span id="your-payment">0</span> €</strong>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <small class="text-secondary">Montant que vous souhaitez facturer pour cette impression.</small>
           </div>
 
           <div class="grid grid-2">

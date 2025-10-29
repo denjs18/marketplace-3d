@@ -32,10 +32,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   tomorrow.setDate(tomorrow.getDate() + 1);
   document.getElementById('delivery-date').min = tomorrow.toISOString().split('T')[0];
 
-  // Calculate price breakdown
-  const priceInput = document.getElementById('price');
-  priceInput.addEventListener('input', updatePriceBreakdown);
-
   // Form submission
   document.getElementById('quote-form').addEventListener('submit', submitQuote);
 });
@@ -110,24 +106,6 @@ function displayProjectInfo(project) {
   }
 }
 
-// Mettre à jour la répartition des prix
-function updatePriceBreakdown() {
-  const priceInput = document.getElementById('price');
-  const price = parseFloat(priceInput.value) || 0;
-
-  if (price > 0) {
-    const commission = price * 0.10;
-    const yourPayment = price * 0.90;
-
-    document.getElementById('client-price').textContent = price.toFixed(2);
-    document.getElementById('commission').textContent = commission.toFixed(2);
-    document.getElementById('your-payment').textContent = yourPayment.toFixed(2);
-    document.getElementById('price-breakdown').classList.remove('hidden');
-  } else {
-    document.getElementById('price-breakdown').classList.add('hidden');
-  }
-}
-
 // Soumettre le devis
 async function submitQuote(e) {
   e.preventDefault();
@@ -185,12 +163,7 @@ async function submitQuote(e) {
         price: price,
         estimatedDuration: estimatedDuration,
         deliveryDate: deliveryDate,
-        message: message,
-        breakdown: {
-          clientPrice: price,
-          commission: price * 0.10,
-          printerPayment: price * 0.90
-        }
+        message: message
       })
     });
 
