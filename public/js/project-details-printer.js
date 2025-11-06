@@ -1,4 +1,5 @@
 // project-details-printer.js - Vue détaillée projet côté IMPRIMEUR
+console.log('🚀 Script project-details-printer.js chargé');
 
 const API_URL = window.location.hostname === 'localhost'
   ? 'http://localhost:5000/api'
@@ -12,17 +13,23 @@ let currentUser = null;
 const urlParams = new URLSearchParams(window.location.search);
 const projectId = urlParams.get('id');
 
+console.log('📋 Project ID:', projectId);
+
 if (!projectId) {
+  console.error('❌ ID de projet manquant');
   alert('ID de projet manquant');
   window.location.href = '/available-projects.html';
 }
 
 // Vérifier l'authentification au démarrage
-async function checkAuth() {
+function checkAuth() {
+  console.log('🔐 Vérification de l\'authentification...');
+
   const token = localStorage.getItem('token');
   const userStr = localStorage.getItem('user');
 
   if (!token || !userStr) {
+    console.error('❌ Token ou user manquant');
     alert('Vous devez être connecté');
     window.location.href = '/login.html';
     return false;
@@ -30,8 +37,10 @@ async function checkAuth() {
 
   try {
     currentUser = JSON.parse(userStr);
+    console.log('✅ Utilisateur:', currentUser.firstName, currentUser.lastName, '- Rôle:', currentUser.role);
 
     if (currentUser.role !== 'printer') {
+      console.error('❌ Mauvais rôle:', currentUser.role);
       alert('Cette page est réservée aux imprimeurs');
       window.location.href = '/';
       return false;
@@ -39,7 +48,7 @@ async function checkAuth() {
 
     return true;
   } catch (error) {
-    console.error('Error parsing user:', error);
+    console.error('❌ Error parsing user:', error);
     localStorage.removeItem('user');
     localStorage.removeItem('token');
     window.location.href = '/login.html';
@@ -49,8 +58,13 @@ async function checkAuth() {
 
 // Charger le projet
 async function loadProject() {
-  const isAuthenticated = await checkAuth();
-  if (!isAuthenticated) return;
+  console.log('📥 Chargement du projet...');
+
+  const isAuthenticated = checkAuth();
+  if (!isAuthenticated) {
+    console.error('❌ Non authentifié');
+    return;
+  }
 
   try {
     const response = await fetch(`${API_URL}/projects/${projectId}`, {
@@ -59,6 +73,8 @@ async function loadProject() {
       }
     });
 
+    console.log('📡 Réponse API:', response.status);
+
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       throw new Error(errorData.error || 'Erreur lors du chargement du projet');
@@ -66,14 +82,17 @@ async function loadProject() {
 
     const data = await response.json();
     currentProject = data.project;
+    console.log('✅ Projet chargé:', currentProject.title);
 
     displayProject();
     await checkExistingConversation();
 
     document.getElementById('loading').classList.add('hidden');
     document.getElementById('projectContent').classList.remove('hidden');
+
+    console.log('✅ Interface affichée');
   } catch (error) {
-    console.error('Error loading project:', error);
+    console.error('❌ Error loading project:', error);
     alert('Erreur lors du chargement du projet: ' + error.message);
     window.location.href = '/available-projects.html';
   }
@@ -81,6 +100,7 @@ async function loadProject() {
 
 // Afficher le projet
 function displayProject() {
+  console.log('🖼️ Affichage du projet...');
   const project = currentProject;
 
   // Titre et statut
@@ -118,9 +138,9 @@ function displayProject() {
 
   // Préremplir la quantité dans le formulaire
   const qtyInput = document.getElementById('quantity');
-  if (qtyInput) {
-    qtyInput.value = specs.quantity || 1;
-    calculateTotal(); // Recalculer au chargement
+  if (qtyInput && specs.quantity) {
+    qtyInput.value = specs.quantity;
+    console.log('✅ Quantité pré-remplie:', specs.quantity);
   }
 
   // Budget et délai
@@ -143,7 +163,7 @@ function displayProject() {
     document.getElementById('publishedDate').textContent = created.toLocaleDateString('fr-FR');
   }
 
-  // Nombre de devis (approximation via conversations)
+  // Nombre de devis
   document.getElementById('quotesCount').textContent = project.quotes ? project.quotes.length : '0';
 
   // Fichier STL
@@ -156,10 +176,14 @@ function displayProject() {
     document.getElementById('downloadBtn').href = stlPath;
     document.getElementById('downloadBtn').download = project.stlFile.filename || 'model.stl';
   }
+
+  console.log('✅ Projet affiché');
 }
 
 // Vérifier si une conversation existe déjà
 async function checkExistingConversation() {
+  console.log('🔍 Vérification conversation existante...');
+
   try {
     const response = await fetch(`${API_URL}/conversations/my-conversations`, {
       headers: {
@@ -168,7 +192,7 @@ async function checkExistingConversation() {
     });
 
     if (!response.ok) {
-      console.log('Pas de conversations existantes ou erreur');
+      console.log('⚠️ Pas de conversations ou erreur');
       return;
     }
 
@@ -179,7 +203,7 @@ async function checkExistingConversation() {
     });
 
     if (existingConversation) {
-      console.log('Conversation existante trouvée:', existingConversation._id);
+      console.log('✅ Conversation existante trouvée:', existingConversation._id);
 
       // Masquer le formulaire de devis
       document.getElementById('quoteFormCard').classList.add('hidden');
@@ -196,10 +220,10 @@ async function checkExistingConversation() {
       const statusText = getConversationStatusText(existingConversation.status);
       document.getElementById('conversationStatusText').textContent = statusText;
     } else {
-      console.log('Aucune conversation existante - affichage du formulaire');
+      console.log('ℹ️ Aucune conversation existante');
     }
   } catch (error) {
-    console.error('Error checking conversation:', error);
+    console.error('❌ Error checking conversation:', error);
   }
 }
 
@@ -216,25 +240,14 @@ function calculateTotal() {
   }
 }
 
-// Attacher les event listeners pour le calcul automatique
-function setupCalculationListeners() {
-  const priceInput = document.getElementById('pricePerUnit');
-  const qtyInput = document.getElementById('quantity');
-  const shippingInput = document.getElementById('shippingCost');
-
-  if (priceInput) priceInput.addEventListener('input', calculateTotal);
-  if (qtyInput) qtyInput.addEventListener('input', calculateTotal);
-  if (shippingInput) shippingInput.addEventListener('input', calculateTotal);
-}
-
 // Soumettre le devis
 async function submitQuote(e) {
   e.preventDefault();
-
-  console.log('Début soumission du devis...');
+  console.log('📤 DÉBUT SOUMISSION DU DEVIS');
 
   // Vérifier l'authentification
   if (!currentUser) {
+    console.error('❌ Utilisateur non connecté');
     alert('Erreur : utilisateur non connecté');
     window.location.href = '/login.html';
     return;
@@ -249,24 +262,34 @@ async function submitQuote(e) {
   const materialsRaw = document.getElementById('materials').value;
   const options = document.getElementById('options').value;
 
+  console.log('📋 Données du formulaire:', {
+    pricePerUnit,
+    quantity,
+    totalPrice,
+    deliveryDays,
+    shippingCost,
+    materialsRaw,
+    options: options.substring(0, 50) + '...'
+  });
+
   // Validation
   if (!pricePerUnit || pricePerUnit <= 0) {
-    alert('Veuillez entrer un prix unitaire valide');
+    alert('⚠️ Veuillez entrer un prix unitaire valide');
     return;
   }
 
   if (!quantity || quantity <= 0) {
-    alert('Veuillez entrer une quantité valide');
+    alert('⚠️ Veuillez entrer une quantité valide');
     return;
   }
 
   if (!deliveryDays || deliveryDays <= 0) {
-    alert('Veuillez entrer un délai de livraison valide');
+    alert('⚠️ Veuillez entrer un délai de livraison valide');
     return;
   }
 
   if (!options || options.trim().length < 10) {
-    alert('Veuillez décrire les options et détails (minimum 10 caractères)');
+    alert('⚠️ Veuillez décrire les options et détails (minimum 10 caractères)');
     return;
   }
 
@@ -280,23 +303,29 @@ async function submitQuote(e) {
     options: options
   };
 
-  console.log('Données du devis:', quoteData);
+  console.log('✅ Données validées:', quoteData);
 
   // Désactiver le bouton pendant l'envoi
   const submitBtn = e.target.querySelector('button[type="submit"]');
+  if (!submitBtn) {
+    console.error('❌ Bouton submit non trouvé');
+    return;
+  }
+
   const originalText = submitBtn.innerHTML;
   submitBtn.disabled = true;
   submitBtn.innerHTML = '⏳ Envoi en cours...';
+  console.log('🔒 Bouton désactivé');
 
   try {
     // 1. Créer ou récupérer la conversation
     let conversationId;
 
     if (existingConversation) {
-      console.log('Utilisation de la conversation existante');
+      console.log('♻️ Utilisation conversation existante:', existingConversation._id);
       conversationId = existingConversation._id;
     } else {
-      console.log('Création d\'une nouvelle conversation...');
+      console.log('🆕 Création nouvelle conversation...');
 
       const startResponse = await fetch(`${API_URL}/conversations/start`, {
         method: 'POST',
@@ -311,18 +340,21 @@ async function submitQuote(e) {
         })
       });
 
+      console.log('📡 Réponse création conversation:', startResponse.status);
+
       if (!startResponse.ok) {
         const errorData = await startResponse.json().catch(() => ({}));
+        console.error('❌ Erreur création conversation:', errorData);
         throw new Error(errorData.error || 'Erreur lors de la création de la conversation');
       }
 
       const startData = await startResponse.json();
       conversationId = startData.conversation._id;
-      console.log('Conversation créée:', conversationId);
+      console.log('✅ Conversation créée:', conversationId);
     }
 
     // 2. Envoyer le devis
-    console.log('Envoi du devis à la conversation:', conversationId);
+    console.log('💰 Envoi du devis...');
 
     const quoteResponse = await fetch(`${API_URL}/conversations/${conversationId}/send-quote`, {
       method: 'POST',
@@ -333,35 +365,29 @@ async function submitQuote(e) {
       body: JSON.stringify(quoteData)
     });
 
+    console.log('📡 Réponse envoi devis:', quoteResponse.status);
+
     if (!quoteResponse.ok) {
       const errorData = await quoteResponse.json().catch(() => ({}));
+      console.error('❌ Erreur envoi devis:', errorData);
       throw new Error(errorData.error || 'Erreur lors de l\'envoi du devis');
     }
 
     const quoteResult = await quoteResponse.json();
-    console.log('Devis envoyé avec succès:', quoteResult);
+    console.log('✅ DEVIS ENVOYÉ AVEC SUCCÈS:', quoteResult);
 
     alert('✅ Devis envoyé avec succès ! Vous pouvez maintenant discuter avec le client.');
+    console.log('🔀 Redirection vers conversation...');
     window.location.href = `/conversation.html?id=${conversationId}`;
 
   } catch (error) {
-    console.error('Error submitting quote:', error);
+    console.error('❌ ERREUR:', error);
     alert('❌ Erreur lors de l\'envoi du devis : ' + error.message);
 
     // Réactiver le bouton
     submitBtn.disabled = false;
     submitBtn.innerHTML = originalText;
-  }
-}
-
-// Attacher le gestionnaire de soumission du formulaire
-function setupFormSubmission() {
-  const form = document.getElementById('quoteForm');
-  if (form) {
-    form.addEventListener('submit', submitQuote);
-    console.log('Gestionnaire de soumission attaché au formulaire');
-  } else {
-    console.error('Formulaire de devis non trouvé!');
+    console.log('🔓 Bouton réactivé');
   }
 }
 
@@ -403,14 +429,62 @@ function formatFileSize(bytes) {
   return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
 }
 
-// Initialisation au chargement de la page
-async function init() {
-  console.log('Initialisation de la page imprimeur...');
-  await loadProject();
-  setupCalculationListeners();
-  setupFormSubmission();
-  console.log('Initialisation terminée');
+// Attacher les event listeners
+function setupEventListeners() {
+  console.log('🔗 Attachement des event listeners...');
+
+  // Calcul automatique du total
+  const priceInput = document.getElementById('pricePerUnit');
+  const qtyInput = document.getElementById('quantity');
+  const shippingInput = document.getElementById('shippingCost');
+
+  if (priceInput) {
+    priceInput.addEventListener('input', calculateTotal);
+    console.log('✅ Listener prix attaché');
+  }
+  if (qtyInput) {
+    qtyInput.addEventListener('input', calculateTotal);
+    console.log('✅ Listener quantité attaché');
+  }
+  if (shippingInput) {
+    shippingInput.addEventListener('input', calculateTotal);
+    console.log('✅ Listener frais livraison attaché');
+  }
+
+  // Soumission du formulaire
+  const form = document.getElementById('quoteForm');
+  if (form) {
+    form.addEventListener('submit', submitQuote);
+    console.log('✅ Listener formulaire attaché');
+  } else {
+    console.error('❌ FORMULAIRE NON TROUVÉ !');
+  }
+
+  // Calcul initial
+  calculateTotal();
 }
 
-// Charger au démarrage
-init();
+// Initialisation
+async function init() {
+  console.log('🚀 ========== INITIALISATION ==========');
+  console.log('📍 Page: project-details-printer.html');
+  console.log('🆔 Project ID:', projectId);
+
+  try {
+    await loadProject();
+    setupEventListeners();
+    console.log('✅ ========== INITIALISATION RÉUSSIE ==========');
+  } catch (error) {
+    console.error('❌ ========== ERREUR INITIALISATION ==========');
+    console.error(error);
+  }
+}
+
+// Démarrage quand le DOM est prêt
+if (document.readyState === 'loading') {
+  console.log('⏳ DOM en cours de chargement...');
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  console.log('✅ DOM déjà chargé');
+  init();
+}
