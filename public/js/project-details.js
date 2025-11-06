@@ -34,7 +34,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('invitePrintersBtn').addEventListener('click', invitePrinters);
   document.getElementById('deleteBtn').addEventListener('click', deleteProject);
   document.getElementById('submitQuoteBtn').addEventListener('click', () => {
-    window.location.href = `/submit-quote.html?projectId=${projectId}`;
+    // Utiliser le nouveau système de routage intelligent
+    window.location.href = `/project-details-printer.html?id=${projectId}`;
   });
 });
 

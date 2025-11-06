@@ -663,7 +663,8 @@
 
     // Submit quote
     function submitQuote(projectId) {
-      window.location.href = `/submit-quote.html?project=${projectId}`;
+      // Utiliser le nouveau système de routage intelligent
+      window.location.href = `/project-details-printer.html?id=${projectId}`;
     }
 
     // Complete project
