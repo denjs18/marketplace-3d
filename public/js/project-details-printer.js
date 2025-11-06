@@ -38,6 +38,7 @@ function checkAuth() {
   try {
     currentUser = JSON.parse(userStr);
     console.log('✅ Utilisateur:', currentUser.firstName, currentUser.lastName, '- Rôle:', currentUser.role);
+    console.log('🔍 User ID:', currentUser._id || currentUser.id, '(Type:', typeof (currentUser._id || currentUser.id) + ')');
 
     if (currentUser.role !== 'printer') {
       console.error('❌ Mauvais rôle:', currentUser.role);
@@ -327,6 +328,14 @@ async function handleQuoteSubmit(e) {
     } else {
       console.log('🆕 Création nouvelle conversation...');
 
+      // Utiliser _id ou id selon ce qui est disponible
+      const userId = currentUser._id || currentUser.id;
+      console.log('👤 Printer ID utilisé:', userId);
+
+      if (!userId) {
+        throw new Error('ID utilisateur introuvable. Veuillez vous reconnecter.');
+      }
+
       const startResponse = await fetch(`${API_URL}/conversations/start`, {
         method: 'POST',
         headers: {
@@ -335,7 +344,7 @@ async function handleQuoteSubmit(e) {
         },
         body: JSON.stringify({
           projectId: projectId,
-          printerId: currentUser._id,
+          printerId: userId,
           initiatedBy: 'printer'
         })
       });
