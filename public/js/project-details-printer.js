@@ -241,9 +241,9 @@ function calculateTotal() {
 }
 
 // Soumettre le devis
-async function submitQuote(e) {
+async function handleQuoteSubmit(e) {
   e.preventDefault();
-  console.log('📤 DÉBUT SOUMISSION DU DEVIS');
+  console.log('📤 DÉBUT SOUMISSION DU DEVIS - handleQuoteSubmit');
 
   // Vérifier l'authentification
   if (!currentUser) {
@@ -454,8 +454,8 @@ function setupEventListeners() {
   // Soumission du formulaire
   const form = document.getElementById('quoteForm');
   if (form) {
-    form.addEventListener('submit', submitQuote);
-    console.log('✅ Listener formulaire attaché');
+    form.addEventListener('submit', handleQuoteSubmit);
+    console.log('✅ Listener formulaire attaché sur handleQuoteSubmit');
   } else {
     console.error('❌ FORMULAIRE NON TROUVÉ !');
   }
