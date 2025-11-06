@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Détails du Projet - Imprimeur - Marketplace 3D</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <style>
+    .page-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 30px 20px;
+    }
+
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+
+    .page-title {
+      font-size: 28px;
+      font-weight: 700;
+      color: #2d3436;
+      margin-bottom: 10px;
+    }
+
+    .project-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 30px;
+    }
+
+    .card {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      margin-bottom: 20px;
+    }
+
+    .card-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: #2d3436;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .status-badge {
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .badge-draft { background: #dfe6e9; color: #636e72; }
+    .badge-published { background: #74b9ff; color: #0984e3; }
+    .badge-in_negotiation { background: #a29bfe; color: #6c5ce7; }
+    .badge-quote_received { background: #fd79a8; color: #e84393; }
+    .badge-quote_accepted { background: #55efc4; color: #00b894; }
+    .badge-in_production { background: #fdcb6e; color: #2d3436; }
+    .badge-completed { background: #00b894; color: white; }
+
+    .btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+    }
+
+    .btn-primary { background: #0984e3; color: white; }
+    .btn-primary:hover { background: #0770c7; }
+    .btn-secondary { background: #636e72; color: white; }
+    .btn-secondary:hover { background: #4a545a; }
+    .btn-success { background: #00b894; color: white; }
+    .btn-success:hover { background: #00916f; }
+    .btn-warning { background: #fdcb6e; color: #2d3436; }
+    .btn-warning:hover { background: #f5bc3e; }
+
+    .client-info-card {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      padding: 20px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 12px;
+      color: white;
+      margin-bottom: 20px;
+    }
+
+    .client-avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 4px solid rgba(255,255,255,0.3);
+    }
+
+    .client-details h3 {
+      margin: 0 0 10px 0;
+      font-size: 24px;
+    }
+
+    .client-details p {
+      margin: 5px 0;
+      opacity: 0.9;
+    }
+
+    .quote-form {
+      background: #f8f9fa;
+      padding: 25px;
+      border-radius: 12px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #2d3436;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #e1e8ed;
+      border-radius: 8px;
+      font-size: 14px;
+      transition: border-color 0.2s;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: #0984e3;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+    }
+
+    textarea.form-input {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    .specs-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+
+    .spec-item {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .spec-label {
+      font-size: 12px;
+      color: #636e72;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .spec-value {
+      font-size: 16px;
+      color: #2d3436;
+      font-weight: 600;
+    }
+
+    .stl-viewer {
+      width: 100%;
+      height: 400px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 15px;
+    }
+
+    .file-download {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 15px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      margin-top: 15px;
+    }
+
+    .alert {
+      padding: 15px 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .alert-info {
+      background: #e3f2fd;
+      color: #1976d2;
+      border-left: 4px solid #1976d2;
+    }
+
+    .alert-success {
+      background: #e8f5e9;
+      color: #388e3c;
+      border-left: 4px solid #388e3c;
+    }
+
+    .alert-warning {
+      background: #fff3e0;
+      color: #f57c00;
+      border-left: 4px solid #f57c00;
+    }
+
+    .conversation-status {
+      padding: 20px;
+      background: #f8f9fa;
+      border-radius: 12px;
+      margin-bottom: 20px;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 60px;
+      color: #636e72;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    @media (max-width: 968px) {
+      .project-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+
+      .specs-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="/" class="nav-logo">Marketplace 3D</a>
+      <div class="nav-menu" id="navMenu">
+        <span>Chargement...</span>
+      </div>
+    </div>
+  </nav>
+
+  <div class="page-container">
+    <div id="loading" class="loading">
+      <p>Chargement du projet...</p>
+    </div>
+
+    <div id="projectContent" class="hidden">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title" id="projectTitle">-</h1>
+          <span id="projectStatus"></span>
+        </div>
+        <div style="display: flex; gap: 10px;">
+          <a href="/available-projects.html" class="btn btn-secondary">← Retour aux projets</a>
+        </div>
+      </div>
+
+      <!-- Alertes -->
+      <div id="existingConversationAlert" class="alert alert-success hidden">
+        <span style="font-size: 24px;">✓</span>
+        <div>
+          <strong>Vous avez déjà soumis un devis pour ce projet</strong>
+          <p style="margin: 5px 0 0 0;">
+            <a href="#" id="viewConversationLink" style="color: inherit; text-decoration: underline;">
+              Voir la conversation →
+            </a>
+          </p>
+        </div>
+      </div>
+
+      <div class="project-grid">
+        <!-- Main Content -->
+        <div class="project-main">
+          <!-- Info client -->
+          <div class="client-info-card">
+            <img id="clientAvatar" src="/images/default-avatar.png" alt="Client" class="client-avatar">
+            <div class="client-details">
+              <h3 id="clientName">Client</h3>
+              <p>📧 Contactez via la messagerie après avoir soumis un devis</p>
+              <p id="clientProjects">Projets complétés : -</p>
+            </div>
+          </div>
+
+          <!-- Formulaire de devis -->
+          <div class="card" id="quoteFormCard">
+            <h2 class="card-title">💰 Soumettre un devis</h2>
+
+            <div class="alert alert-info">
+              <span style="font-size: 24px;">ℹ️</span>
+              <div>
+                <strong>Soumettez un devis détaillé</strong>
+                <p style="margin: 5px 0 0 0;">
+                  Une fois votre devis soumis, vous pourrez échanger avec le client via la messagerie.
+                </p>
+              </div>
+            </div>
+
+            <form id="quoteForm" class="quote-form">
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Prix unitaire (€) *</label>
+                  <input type="number" step="0.01" min="0" class="form-input" id="pricePerUnit" required>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Quantité *</label>
+                  <input type="number" min="1" class="form-input" id="quantity" required>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Prix total (€) *</label>
+                  <input type="number" step="0.01" min="0" class="form-input" id="totalPrice" required readonly>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Délai (jours) *</label>
+                  <input type="number" min="1" class="form-input" id="deliveryDays" required>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Frais de livraison (€)</label>
+                  <input type="number" step="0.01" min="0" class="form-input" id="shippingCost" value="0">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Matériaux</label>
+                  <input type="text" class="form-input" id="materials" placeholder="PLA, ABS, etc.">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Options et détails *</label>
+                <textarea class="form-input" id="options" required
+                  placeholder="Décrivez les finitions, couleurs, et tout autre détail important..."></textarea>
+              </div>
+
+              <button type="submit" class="btn btn-success" style="width: 100%;">
+                💰 Soumettre le devis
+              </button>
+            </form>
+          </div>
+
+          <!-- Statut de la conversation existante -->
+          <div class="card hidden" id="conversationStatusCard">
+            <h2 class="card-title">💬 État de votre proposition</h2>
+            <div class="conversation-status">
+              <p id="conversationStatusText">-</p>
+              <div style="margin-top: 15px;">
+                <a href="#" id="goToConversationBtn" class="btn btn-primary">
+                  💬 Accéder à la conversation
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Description -->
+          <div class="card">
+            <h2 class="card-title">📝 Description du projet</h2>
+            <p id="projectDescription" style="line-height: 1.6; color: #636e72;">-</p>
+          </div>
+
+          <!-- Fichier 3D -->
+          <div class="card">
+            <h2 class="card-title">📦 Fichier 3D</h2>
+            <div id="stlViewer" class="stl-viewer">
+              <p style="color: #636e72;">Aperçu 3D non disponible</p>
+            </div>
+            <div id="stlDownload" class="file-download hidden">
+              <div style="font-size: 32px;">📄</div>
+              <div style="flex: 1;">
+                <div style="font-weight: 600; color: #2d3436;" id="stlFileName">fichier.stl</div>
+                <div style="font-size: 12px; color: #636e72;" id="stlFileSize">-</div>
+              </div>
+              <a id="downloadBtn" class="btn btn-primary" download>⬇️ Télécharger STL</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="project-sidebar">
+          <!-- Spécifications -->
+          <div class="card">
+            <h2 class="card-title">⚙️ Spécifications demandées</h2>
+            <div class="specs-grid">
+              <div class="spec-item">
+                <div class="spec-label">Matériau</div>
+                <div class="spec-value" id="specMaterial">-</div>
+              </div>
+              <div class="spec-item">
+                <div class="spec-label">Couleur</div>
+                <div class="spec-value" id="specColor">-</div>
+              </div>
+              <div class="spec-item">
+                <div class="spec-label">Quantité</div>
+                <div class="spec-value" id="specQuantity">-</div>
+              </div>
+              <div class="spec-item">
+                <div class="spec-label">Remplissage</div>
+                <div class="spec-value" id="specInfill">-</div>
+              </div>
+              <div class="spec-item">
+                <div class="spec-label">Finition</div>
+                <div class="spec-value" id="specFinish">-</div>
+              </div>
+              <div class="spec-item">
+                <div class="spec-label">Hauteur couche</div>
+                <div class="spec-value" id="specLayerHeight">-</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Budget et délai du client -->
+          <div class="card">
+            <h2 class="card-title">💰 Budget & Délai souhaités</h2>
+            <div class="specs-grid">
+              <div class="spec-item">
+                <div class="spec-label">Budget max</div>
+                <div class="spec-value" id="specBudget">-</div>
+              </div>
+              <div class="spec-item">
+                <div class="spec-label">Date limite</div>
+                <div class="spec-value" id="specDeadline">-</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Détails projet -->
+          <div class="card">
+            <h2 class="card-title">📊 Informations</h2>
+            <div class="spec-item" style="margin-bottom: 15px;">
+              <div class="spec-label">Publié le</div>
+              <div class="spec-value" id="publishedDate">-</div>
+            </div>
+            <div class="spec-item">
+              <div class="spec-label">Devis reçus</div>
+              <div class="spec-value" id="quotesCount">-</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/auth.js"></script>
+  <script src="/js/project-details-printer.js"></script>
+</body>
+</html>

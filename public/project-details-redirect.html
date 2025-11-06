@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Redirection...</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    .loader {
+      text-align: center;
+      color: white;
+    }
+    .spinner {
+      border: 4px solid rgba(255,255,255,0.3);
+      border-radius: 50%;
+      border-top: 4px solid white;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 20px;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="loader">
+    <div class="spinner"></div>
+    <p>Redirection en cours...</p>
+  </div>
+
+  <script>
+    // Récupérer l'utilisateur connecté
+    const user = JSON.parse(localStorage.getItem('user'));
+
+    if (!user) {
+      window.location.href = '/login.html';
+    } else {
+      // Récupérer l'ID du projet depuis l'URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const projectId = urlParams.get('id');
+
+      if (!projectId) {
+        alert('ID de projet manquant');
+        window.location.href = user.role === 'client' ? '/my-projects.html' : '/available-projects.html';
+      } else {
+        // Rediriger vers la bonne page selon le rôle
+        if (user.role === 'client') {
+          window.location.href = `/project-details-client.html?id=${projectId}`;
+        } else if (user.role === 'printer') {
+          window.location.href = `/project-details-printer.html?id=${projectId}`;
+        } else {
+          alert('Rôle utilisateur non reconnu');
+          window.location.href = '/';
+        }
+      }
+    }
+  </script>
+</body>
+</html>
