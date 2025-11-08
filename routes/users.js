@@ -7,6 +7,30 @@ const { uploadImage, handleUploadError } = require('../middleware/upload');
 const { getThresholdStatus } = require('../middleware/checkSalesThreshold');
 
 /**
+ * @route   GET /api/users/profile
+ * @desc    Get current user profile
+ * @access  Private
+ */
+router.get('/profile', authenticate, async (req, res) => {
+  try {
+    const user = await User.findById(req.userId).select('-password -refreshToken');
+
+    if (!user) {
+      return res.status(404).json({
+        error: 'User not found'
+      });
+    }
+
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({
+      error: 'Failed to get profile',
+      details: error.message
+    });
+  }
+});
+
+/**
  * @route   GET /api/users/:id
  * @desc    Get user by ID
  * @access  Private

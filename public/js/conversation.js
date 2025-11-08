@@ -74,12 +74,24 @@ document.addEventListener('DOMContentLoaded', async () => {
 // Charger l'utilisateur actuel
 async function loadCurrentUser() {
   const token = localStorage.getItem('token');
-  const response = await fetch('/api/users/profile', {
-    headers: { 'Authorization': `Bearer ${token}` }
-  });
 
-  if (response.ok) {
-    currentUser = await response.json();
+  try {
+    const response = await fetch('/api/users/profile', {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+
+    if (response.ok) {
+      currentUser = await response.json();
+      console.log('Current user loaded:', currentUser);
+    } else {
+      console.error('Failed to load user profile:', response.status);
+      alert('Erreur lors du chargement de votre profil');
+      window.location.href = '/login.html';
+    }
+  } catch (error) {
+    console.error('Error loading user:', error);
+    alert('Erreur de connexion');
+    window.location.href = '/login.html';
   }
 }
 
@@ -110,6 +122,11 @@ async function loadConversation() {
 
 // Afficher les infos du projet
 function displayProjectInfo() {
+  if (!currentUser) {
+    console.error('currentUser is null in displayProjectInfo');
+    return;
+  }
+
   const project = conversation.project;
 
   document.getElementById('projectTitle').textContent = project.title;
@@ -162,6 +179,11 @@ function displayQuote() {
 
 // Afficher les actions disponibles
 function displayActions() {
+  if (!currentUser) {
+    console.error('currentUser is null in displayActions');
+    return;
+  }
+
   const actionsContainer = document.getElementById('actionsContainer');
   actionsContainer.innerHTML = '';
 
@@ -310,7 +332,7 @@ function createMessageElement(msg) {
       <div class="message-timestamp">${formatDate(msg.createdAt)}</div>
     `;
   } else if (msg.messageType === 'file') {
-    const isSent = msg.sender._id === currentUser._id;
+    const isSent = currentUser && msg.sender && msg.sender._id === currentUser._id;
     div.className = `message ${isSent ? 'message-sent' : 'message-received'}`;
     div.innerHTML = `
       <div class="message-file">
@@ -322,7 +344,7 @@ function createMessageElement(msg) {
       <div class="message-timestamp">${formatDate(msg.createdAt)}</div>
     `;
   } else {
-    const isSent = msg.sender._id === currentUser._id;
+    const isSent = currentUser && msg.sender && msg.sender._id === currentUser._id;
     div.className = `message ${isSent ? 'message-sent' : 'message-received'}`;
     div.innerHTML = `
       <div>${msg.contentFiltered}</div>
@@ -571,6 +593,11 @@ async function pauseConversation() {
 
 // Toggle favoris
 async function toggleFavorite() {
+  if (!currentUser) {
+    console.error('currentUser is null in toggleFavorite');
+    return;
+  }
+
   const token = localStorage.getItem('token');
   const isFavorite = currentUser.role === 'client' ? conversation.isFavoriteForClient : conversation.isFavoriteForPrinter;
 
