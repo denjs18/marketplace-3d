@@ -279,6 +279,8 @@ router.post('/:id/send-quote', authenticate, async (req, res) => {
     const { pricePerUnit, quantity, totalPrice, materials, deliveryDays, shippingCost, options } = req.body;
     const conversationId = req.params.id;
 
+    console.log('Received quote data:', { pricePerUnit, quantity, totalPrice, materials, deliveryDays, shippingCost, options });
+
     const conversation = await Conversation.findById(conversationId);
     if (!conversation) {
       return res.status(404).json({ error: 'Conversation non trouvée' });
@@ -299,6 +301,8 @@ router.post('/:id/send-quote', authenticate, async (req, res) => {
       shippingCost,
       options
     }, 'printer');
+
+    console.log('Quote saved:', conversation.currentQuote);
 
     // Créer un message de devis
     await Message.createQuoteMessage(

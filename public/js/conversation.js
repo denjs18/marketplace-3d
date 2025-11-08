@@ -161,17 +161,21 @@ function displayQuote() {
   }
 
   const quote = conversation.currentQuote;
+  console.log('Displaying quote:', quote);
+
+  // Gérer le cas où materials est undefined ou pas un tableau
+  const materials = Array.isArray(quote.materials) ? quote.materials.join(', ') : (quote.materials || 'Non spécifié');
 
   quoteContainer.innerHTML = `
     <div class="quote-card">
-      <div class="quote-price">${quote.totalPrice}€</div>
-      <div class="quote-detail"><strong>Prix unitaire:</strong> ${quote.pricePerUnit}€</div>
-      <div class="quote-detail"><strong>Quantité:</strong> ${quote.quantity}</div>
-      <div class="quote-detail"><strong>Délai:</strong> ${quote.deliveryDays} jours</div>
-      <div class="quote-detail"><strong>Matériaux:</strong> ${quote.materials.join(', ')}</div>
+      <div class="quote-price">${quote.totalPrice || '?'}€</div>
+      <div class="quote-detail"><strong>Prix unitaire:</strong> ${quote.pricePerUnit || '?'}€</div>
+      <div class="quote-detail"><strong>Quantité:</strong> ${quote.quantity || '?'}</div>
+      <div class="quote-detail"><strong>Délai:</strong> ${quote.deliveryDays || '?'} jours</div>
+      <div class="quote-detail"><strong>Matériaux:</strong> ${materials}</div>
       ${quote.shippingCost ? `<div class="quote-detail"><strong>Port:</strong> ${quote.shippingCost}€</div>` : ''}
       <div class="quote-detail" style="font-size: 12px; margin-top: 10px; color: #999;">
-        Version ${quote.version} • ${quote.sentBy === 'client' ? 'Client' : 'Imprimeur'}
+        Version ${quote.version || 1} • ${quote.sentBy === 'client' ? 'Client' : 'Imprimeur'}
       </div>
     </div>
   `;
@@ -471,14 +475,50 @@ function removeFile() {
 async function submitQuote() {
   const token = localStorage.getItem('token');
 
+  // Récupérer les valeurs
+  const pricePerUnit = parseFloat(document.getElementById('quotePricePerUnit').value);
+  const quantity = parseInt(document.getElementById('quoteQuantity').value);
+  const totalPrice = parseFloat(document.getElementById('quoteTotalPrice').value);
+  const deliveryDays = parseInt(document.getElementById('quoteDeliveryDays').value);
+  const materialsInput = document.getElementById('quoteMaterials').value.trim();
+  const shippingCost = parseFloat(document.getElementById('quoteShipping').value) || 0;
+
+  // Validation
+  if (isNaN(pricePerUnit) || pricePerUnit <= 0) {
+    alert('Veuillez entrer un prix unitaire valide');
+    return;
+  }
+
+  if (isNaN(quantity) || quantity <= 0) {
+    alert('Veuillez entrer une quantité valide');
+    return;
+  }
+
+  if (isNaN(totalPrice) || totalPrice <= 0) {
+    alert('Veuillez entrer un prix total valide');
+    return;
+  }
+
+  if (isNaN(deliveryDays) || deliveryDays <= 0) {
+    alert('Veuillez entrer un délai de livraison valide');
+    return;
+  }
+
+  if (!materialsInput) {
+    alert('Veuillez entrer au moins un matériau');
+    return;
+  }
+
   const quoteData = {
-    pricePerUnit: parseFloat(document.getElementById('quotePricePerUnit').value),
-    quantity: parseInt(document.getElementById('quoteQuantity').value),
-    totalPrice: parseFloat(document.getElementById('quoteTotalPrice').value),
-    deliveryDays: parseInt(document.getElementById('quoteDeliveryDays').value),
-    materials: document.getElementById('quoteMaterials').value.split(',').map(m => m.trim()),
-    shippingCost: parseFloat(document.getElementById('quoteShipping').value) || 0
+    pricePerUnit: pricePerUnit,
+    quantity: quantity,
+    totalPrice: totalPrice,
+    deliveryDays: deliveryDays,
+    materials: materialsInput.split(',').map(m => m.trim()).filter(m => m.length > 0),
+    shippingCost: shippingCost
   };
+
+  console.log('Submitting quote:', quoteData);
 
   // Déterminer si c'est un nouveau devis ou une contre-proposition
   const endpoint = conversation.currentQuote ? 'counter-quote' : 'send-quote';
@@ -493,11 +533,25 @@ async function submitQuote() {
   });
 
   if (response.ok) {
+    const result = await response.json();
+    console.log('Quote sent successfully:', result);
+
     document.getElementById('quoteModal').classList.remove('active');
+
+    // Réinitialiser le formulaire
+    document.getElementById('quotePricePerUnit').value = '';
+    document.getElementById('quoteQuantity').value = '';
+    document.getElementById('quoteTotalPrice').value = '';
+    document.getElementById('quoteDeliveryDays').value = '';
+    document.getElementById('quoteMaterials').value = '';
+    document.getElementById('quoteShipping').value = '0';
+
     await loadConversation();
     await loadMessages();
   } else {
-    alert('Erreur lors de l\'envoi du devis');
+    const error = await response.json();
+    console.error('Error sending quote:', error);
+    alert('Erreur lors de l\'envoi du devis: ' + (error.error || 'Erreur inconnue'));
   }
 }
 
