@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mes Devis - Marketplace 3D</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <style>
+    .quotes-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .quotes-grid {
+      display: grid;
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    .quote-card {
+      background: white;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      transition: transform 0.2s;
+    }
+
+    .quote-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    }
+
+    .quote-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      margin-bottom: 15px;
+    }
+
+    .quote-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 5px;
+    }
+
+    .quote-status {
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .status-pending { background: #ffeaa7; color: #fdcb6e; }
+    .status-accepted { background: #55efc4; color: #00b894; }
+    .status-rejected { background: #fab1a0; color: #e17055; }
+    .status-negotiating { background: #a29bfe; color: #6c5ce7; }
+
+    .quote-info {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 15px;
+      margin: 15px 0;
+    }
+
+    .quote-detail {
+      font-size: 14px;
+      color: #666;
+    }
+
+    .quote-detail strong {
+      color: #333;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .quote-price {
+      font-size: 24px;
+      font-weight: 700;
+      color: #0984e3;
+    }
+
+    .quote-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: #0984e3;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #0652a1;
+    }
+
+    .btn-secondary {
+      background: #dfe6e9;
+      color: #2d3436;
+    }
+
+    .btn-secondary:hover {
+      background: #b2bec3;
+    }
+
+    .filters {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .filter-btn {
+      padding: 8px 16px;
+      border: 2px solid #dfe6e9;
+      background: white;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .filter-btn.active {
+      border-color: #0984e3;
+      background: #e3f2fd;
+      color: #0984e3;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #999;
+    }
+
+    .empty-state-icon {
+      font-size: 64px;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="/" class="nav-logo">Marketplace 3D</a>
+      <div class="nav-menu">
+        <a href="/dashboard-printer.html" class="nav-link">Tableau de bord</a>
+        <a href="#" id="logoutBtn" class="nav-link">Déconnexion</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="quotes-container">
+    <h1>Mes Devis</h1>
+
+    <div class="filters">
+      <button class="filter-btn active" onclick="filterQuotes('all')">Tous</button>
+      <button class="filter-btn" onclick="filterQuotes('pending')">En attente</button>
+      <button class="filter-btn" onclick="filterQuotes('accepted')">Acceptés</button>
+      <button class="filter-btn" onclick="filterQuotes('rejected')">Refusés</button>
+      <button class="filter-btn" onclick="filterQuotes('negotiating')">En négociation</button>
+    </div>
+
+    <div id="loading" style="text-align: center; padding: 40px;">
+      Chargement des devis...
+    </div>
+
+    <div id="quotesGrid" class="quotes-grid" style="display: none;"></div>
+
+    <div id="emptyState" class="empty-state" style="display: none;">
+      <div class="empty-state-icon">📋</div>
+      <h2>Aucun devis pour le moment</h2>
+      <p>Vos devis envoyés apparaîtront ici</p>
+      <button class="btn btn-primary" onclick="window.location.href='/available-projects.html'">
+        Voir les projets disponibles
+      </button>
+    </div>
+  </div>
+
+  <script>
+    let allQuotes = [];
+    let currentFilter = 'all';
+
+    // Charger les devis
+    async function loadQuotes() {
+      const token = localStorage.getItem('token');
+
+      try {
+        const response = await fetch('/api/conversations/my-conversations', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (!response.ok) {
+          throw new Error('Erreur lors du chargement');
+        }
+
+        const data = await response.json();
+        allQuotes = data.conversations || [];
+
+        document.getElementById('loading').style.display = 'none';
+
+        if (allQuotes.length === 0) {
+          document.getElementById('emptyState').style.display = 'block';
+        } else {
+          displayQuotes();
+        }
+      } catch (error) {
+        console.error('Error loading quotes:', error);
+        document.getElementById('loading').innerHTML = '<p style="color: red;">Erreur lors du chargement des devis</p>';
+      }
+    }
+
+    // Afficher les devis
+    function displayQuotes() {
+      const grid = document.getElementById('quotesGrid');
+      const filtered = currentFilter === 'all'
+        ? allQuotes
+        : allQuotes.filter(q => q.status === currentFilter);
+
+      if (filtered.length === 0) {
+        grid.style.display = 'none';
+        document.getElementById('emptyState').style.display = 'block';
+        return;
+      }
+
+      grid.style.display = 'grid';
+      document.getElementById('emptyState').style.display = 'none';
+
+      grid.innerHTML = filtered.map(conversation => {
+        const quote = conversation.currentQuote;
+        const project = conversation.project;
+
+        return `
+          <div class="quote-card">
+            <div class="quote-header">
+              <div>
+                <div class="quote-title">${project.title}</div>
+                <div style="font-size: 13px; color: #999;">Client: ${conversation.client.firstName} ${conversation.client.lastName}</div>
+              </div>
+              <span class="quote-status status-${conversation.status}">${getStatusLabel(conversation.status)}</span>
+            </div>
+
+            ${quote ? `
+              <div class="quote-info">
+                <div class="quote-detail">
+                  <strong>Prix total</strong>
+                  <div class="quote-price">${quote.totalPrice}€</div>
+                </div>
+                <div class="quote-detail">
+                  <strong>Prix unitaire</strong>
+                  ${quote.pricePerUnit}€
+                </div>
+                <div class="quote-detail">
+                  <strong>Quantité</strong>
+                  ${quote.quantity}
+                </div>
+                <div class="quote-detail">
+                  <strong>Délai</strong>
+                  ${quote.deliveryDays} jours
+                </div>
+                <div class="quote-detail">
+                  <strong>Matériaux</strong>
+                  ${Array.isArray(quote.materials) ? quote.materials.join(', ') : quote.materials || 'N/A'}
+                </div>
+              </div>
+            ` : '<p style="color: #999;">Aucun devis envoyé</p>'}
+
+            <div class="quote-actions">
+              <button class="btn btn-primary" onclick="window.location.href='/conversation.html?id=${conversation._id}'">
+                💬 Voir la conversation
+              </button>
+              ${!quote ? `<button class="btn btn-secondary" onclick="window.location.href='/conversation.html?id=${conversation._id}'">📋 Envoyer un devis</button>` : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Filtrer les devis
+    function filterQuotes(status) {
+      currentFilter = status;
+
+      // Mettre à jour les boutons de filtre
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      event.target.classList.add('active');
+
+      displayQuotes();
+    }
+
+    // Obtenir le label du statut
+    function getStatusLabel(status) {
+      const labels = {
+        'pending': 'En attente',
+        'active': 'Actif',
+        'quote_sent': 'Devis envoyé',
+        'negotiating': 'Négociation',
+        'quote_accepted': 'Accepté',
+        'signed': 'Signé',
+        'in_production': 'En production',
+        'ready': 'Prêt',
+        'completed': 'Terminé',
+        'cancelled_by_client': 'Annulé',
+        'cancelled_by_printer': 'Annulé',
+        'paused': 'En pause'
+      };
+      return labels[status] || status;
+    }
+
+    // Déconnexion
+    function logout() {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      window.location.href = '/login.html';
+    }
+
+    // Charger au démarrage
+    document.addEventListener('DOMContentLoaded', () => {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        window.location.href = '/login.html';
+        return;
+      }
+
+      document.getElementById('logoutBtn').addEventListener('click', logout);
+      loadQuotes();
+    });
+  </script>
+</body>
+</html>
