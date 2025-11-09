@@ -69,6 +69,19 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   document.getElementById('submitQuoteBtn').addEventListener('click', submitQuote);
   document.getElementById('confirmCancelBtn').addEventListener('click', confirmCancel);
+
+  // Modals de production
+  document.getElementById('closePhotosModal')?.addEventListener('click', () => {
+    document.getElementById('photosModal').classList.remove('active');
+  });
+
+  document.getElementById('submitPhotosBtn')?.addEventListener('click', completePrinting);
+
+  document.getElementById('closeShippingModal')?.addEventListener('click', () => {
+    document.getElementById('shippingModal').classList.remove('active');
+  });
+
+  document.getElementById('submitShippingBtn')?.addEventListener('click', shipOrder);
 });
 
 // Charger l'utilisateur actuel
@@ -862,7 +875,7 @@ function displayProductionProgress() {
 async function startPrinting() {
   if (!confirm('Confirmez-vous le début de l\'impression ?')) return;
 
-  const token = getToken();
+  const token = localStorage.getItem('token');
   const response = await fetch(`/api/conversations/${conversationId}/production/start-printing`, {
     method: 'POST',
     headers: { 'Authorization': `Bearer ${token}` }
@@ -887,7 +900,7 @@ async function completePrinting() {
     return;
   }
 
-  const token = getToken();
+  const token = localStorage.getItem('token');
 
   try {
     // Upload des photos
@@ -937,7 +950,7 @@ async function completePrinting() {
 async function sharePhotos() {
   if (!confirm('Confirmer le partage des photos avec le client ?')) return;
 
-  const token = getToken();
+  const token = localStorage.getItem('token');
   const response = await fetch(`/api/conversations/${conversationId}/production/share-photos`, {
     method: 'POST',
     headers: { 'Authorization': `Bearer ${token}` }
@@ -957,7 +970,7 @@ async function shipOrder() {
   const trackingNumber = document.getElementById('trackingNumber').value;
   const shippingMethod = document.getElementById('shippingMethod').value;
 
-  const token = getToken();
+  const token = localStorage.getItem('token');
   const response = await fetch(`/api/conversations/${conversationId}/production/ship-order`, {
     method: 'POST',
     headers: {
@@ -978,23 +991,6 @@ async function shipOrder() {
     alert('Erreur : ' + (error.error || 'Erreur inconnue'));
   }
 }
-
-// Event listeners pour les modals de production
-document.addEventListener('DOMContentLoaded', () => {
-  // Modal photos
-  document.getElementById('closePhotosModal')?.addEventListener('click', () => {
-    document.getElementById('photosModal').classList.remove('active');
-  });
-
-  document.getElementById('submitPhotosBtn')?.addEventListener('click', completePrinting);
-
-  // Modal expédition
-  document.getElementById('closeShippingModal')?.addEventListener('click', () => {
-    document.getElementById('shippingModal').classList.remove('active');
-  });
-
-  document.getElementById('submitShippingBtn')?.addEventListener('click', shipOrder);
-});
 
 // Nettoyer le polling à la fermeture
 window.addEventListener('beforeunload', () => {
