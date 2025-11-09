@@ -116,8 +116,10 @@ function displayProject() {
   if (project.client) {
     document.getElementById('clientName').textContent =
       `${project.client.firstName} ${project.client.lastName}`;
-    document.getElementById('clientAvatar').src =
-      project.client.profileImage || '/images/default-avatar.png';
+
+    // Utiliser le système de fallback avatar
+    const clientAvatarImg = document.getElementById('clientAvatar');
+    setAvatar(clientAvatarImg, project.client, 80);
 
     if (project.client.clientProfile && project.client.clientProfile.completedProjects) {
       document.getElementById('clientProjects').textContent =

@@ -58,8 +58,9 @@ async function loadProfile() {
 
 // Remplir les données du profil
 function fillProfileData(user) {
-  // Sidebar
-  document.getElementById('profileAvatar').src = user.profileImage || '/images/avatar-default.png';
+  // Sidebar - Utiliser le système de fallback avatar
+  const avatarImg = document.getElementById('profileAvatar');
+  setAvatar(avatarImg, user, 150);
   document.getElementById('profileName').textContent = `${user.firstName} ${user.lastName}`;
 
   const roleLabels = {
@@ -291,8 +292,9 @@ async function uploadAvatar(e) {
     const userData = await updateResponse.json();
     currentUser = userData;
 
-    // Mettre à jour l'affichage
-    document.getElementById('profileAvatar').src = imageUrl;
+    // Mettre à jour l'affichage avec la nouvelle image
+    const avatarImg = document.getElementById('profileAvatar');
+    setAvatar(avatarImg, userData, 150);
 
     // Mettre à jour la navbar
     createAuthNavbar(userData);

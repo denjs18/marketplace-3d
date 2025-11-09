@@ -146,9 +146,9 @@ function displayProjectInfo() {
   document.getElementById('otherUserName').textContent = `${otherUser.firstName} ${otherUser.lastName}`;
   document.getElementById('otherUserRole').textContent = otherUser.role === 'printer' ? 'Imprimeur' : 'Client';
 
-  if (otherUser.profileImage) {
-    document.getElementById('otherUserAvatar').src = otherUser.profileImage;
-  }
+  // Utiliser le système de fallback avatar
+  const otherUserAvatar = document.getElementById('otherUserAvatar');
+  setAvatar(otherUserAvatar, otherUser, 45);
 }
 
 // Afficher le devis

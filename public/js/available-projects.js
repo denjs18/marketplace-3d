@@ -27,8 +27,8 @@ async function loadAvailableProjects() {
   const token = getToken();
 
   try {
-    // Charger tous les projets publiés
-    const response = await fetch('/api/projects?status=published', {
+    // Charger tous les projets (le backend filtre déjà pour les imprimeurs)
+    const response = await fetch('/api/projects', {
       headers: { 'Authorization': `Bearer ${token}` }
     });
 
@@ -39,8 +39,8 @@ async function loadAvailableProjects() {
     const data = await response.json();
     allProjects = data.projects || [];
 
-    // Filtrer uniquement les projets avec projectStatus = 'published'
-    allProjects = allProjects.filter(p => p.projectStatus === 'published');
+    // Le backend filtre déjà sur projectStatus pour les imprimeurs
+    // Pas besoin de re-filtrer ici
 
     filteredProjects = [...allProjects];
 
@@ -119,7 +119,8 @@ function renderProjectCard(project) {
     ? project.images[0]
     : '/images/placeholder-project.png';
 
-  const clientAvatar = project.client?.profileImage || '/images/avatar-default.png';
+  // Utiliser le système de fallback avatar
+  const clientAvatar = getAvatarUrl(project.client, 40);
   const clientName = project.client
     ? `${project.client.firstName} ${project.client.lastName}`
     : 'Client anonyme';

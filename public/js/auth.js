@@ -165,7 +165,7 @@ function createAuthNavbar(user) {
 
   navContainer.innerHTML = `
     <a href="/${user.role === 'client' ? 'dashboard-client' : 'dashboard-printer'}.html" class="nav-logo">
-      Marketplace 3D
+      Strivex
     </a>
     <div class="nav-menu">
       <a href="/${user.role === 'client' ? 'dashboard-client' : 'dashboard-printer'}.html" class="nav-link">

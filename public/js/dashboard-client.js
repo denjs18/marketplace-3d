@@ -301,7 +301,8 @@ function renderQuoteRow(conversation) {
   const printer = conversation.printer;
   const project = conversation.project;
 
-  const printerAvatar = printer.profileImage || '/images/avatar-default.png';
+  // Utiliser le système de fallback avatar
+  const printerAvatar = getAvatarUrl(printer, 40);
   const printerName = `${printer.firstName} ${printer.lastName}`;
   const rating = printer.rating?.average || 0;
   const ratingCount = printer.rating?.count || 0;
