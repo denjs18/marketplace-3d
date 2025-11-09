@@ -134,6 +134,11 @@ router.post('/:id/withdraw', authenticate, async (req, res) => {
       return res.status(400).json({ error: 'Impossible de se retirer après signature' });
     }
 
+    // Supprimer le devis pour permettre une nouvelle soumission
+    conversation.currentQuote = undefined;
+    conversation.quoteHistory = conversation.quoteHistory || [];
+    conversation.counterOfferCount = 0;
+
     await conversation.cancel('printer', `Retrait de l'imprimeur: ${reason}`);
 
     await Message.createSystemMessage(

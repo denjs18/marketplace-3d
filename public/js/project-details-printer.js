@@ -200,7 +200,15 @@ async function checkExistingConversation() {
     const data = await response.json();
     existingConversation = data.conversations.find(c => {
       const convProjectId = c.project && (c.project._id || c.project);
-      return convProjectId === projectId;
+      // Ignorer les conversations annulées
+      const isCancelled = c.status && (
+        c.status.includes('cancelled') ||
+        c.status === 'cancelled_by_client' ||
+        c.status === 'cancelled_by_printer' ||
+        c.status === 'cancelled_mutual' ||
+        c.status === 'cancelled_mediation'
+      );
+      return convProjectId === projectId && !isCancelled;
     });
 
     if (existingConversation) {
