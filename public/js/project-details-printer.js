@@ -438,6 +438,64 @@ function formatFileSize(bytes) {
   return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
 }
 
+// Annuler le devis et permettre d'en soumettre un nouveau
+async function handleCancelQuote() {
+  console.log('🗑️ Annulation du devis demandée');
+
+  if (!existingConversation) {
+    alert('Aucune conversation à annuler');
+    return;
+  }
+
+  if (!confirm('Êtes-vous sûr de vouloir annuler votre devis ? Vous pourrez en soumettre un nouveau après.')) {
+    return;
+  }
+
+  const token = localStorage.getItem('token');
+  if (!token) {
+    alert('Vous devez être connecté');
+    window.location.href = '/login.html';
+    return;
+  }
+
+  try {
+    const response = await fetch(`/api/conversations/${existingConversation._id}/withdraw`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        reason: 'L\'imprimeur souhaite soumettre un nouveau devis'
+      })
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Erreur lors de l\'annulation');
+    }
+
+    console.log('✅ Devis annulé avec succès');
+    alert('Votre devis a été annulé. Vous pouvez maintenant en soumettre un nouveau.');
+
+    // Réinitialiser l'état
+    existingConversation = null;
+
+    // Masquer l'alerte
+    document.getElementById('existingConversationAlert').classList.add('hidden');
+    document.getElementById('conversationStatusCard').classList.add('hidden');
+
+    // Afficher le formulaire de devis
+    document.getElementById('quoteFormCard').classList.remove('hidden');
+
+    // Recharger la page pour avoir un état propre
+    window.location.reload();
+  } catch (error) {
+    console.error('❌ Error cancelling quote:', error);
+    alert('Erreur lors de l\'annulation : ' + error.message);
+  }
+}
+
 // Attacher les event listeners
 function setupEventListeners() {
   console.log('🔗 Attachement des event listeners...');
@@ -467,6 +525,13 @@ function setupEventListeners() {
     console.log('✅ Listener formulaire attaché sur handleQuoteSubmit');
   } else {
     console.error('❌ FORMULAIRE NON TROUVÉ !');
+  }
+
+  // Bouton d'annulation du devis
+  const cancelQuoteBtn = document.getElementById('cancelQuoteBtn');
+  if (cancelQuoteBtn) {
+    cancelQuoteBtn.addEventListener('click', handleCancelQuote);
+    console.log('✅ Listener bouton annulation devis attaché');
   }
 
   // Calcul initial

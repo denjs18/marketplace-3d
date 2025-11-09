@@ -298,13 +298,18 @@
       <!-- Alertes -->
       <div id="existingConversationAlert" class="alert alert-success hidden">
         <span style="font-size: 24px;">✓</span>
-        <div>
+        <div style="flex: 1;">
           <strong>Vous avez déjà soumis un devis pour ce projet</strong>
           <p style="margin: 5px 0 0 0;">
             <a href="#" id="viewConversationLink" style="color: inherit; text-decoration: underline;">
               Voir la conversation →
             </a>
           </p>
+        </div>
+        <div style="display: flex; gap: 10px; align-items: center;">
+          <button id="cancelQuoteBtn" class="btn" style="background: #d63031; color: white; padding: 8px 16px; font-size: 14px;">
+            ❌ Annuler mon devis
+          </button>
         </div>
       </div>
 
