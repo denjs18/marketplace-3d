@@ -499,6 +499,14 @@
         <p style="color: #999; font-size: 14px;">Aucun devis pour le moment</p>
       </div>
 
+      <!-- Progression de production (visible si contrat signé) -->
+      <div id="productionProgress" style="display: none; margin-top: 25px;">
+        <h3>📊 Progression</h3>
+        <div id="progressSteps" style="font-size: 13px;">
+          <!-- Étapes de production dynamiques -->
+        </div>
+      </div>
+
       <h3 style="margin-top: 25px;">⚙️ Actions</h3>
       <div class="quote-actions" id="actionsContainer">
         <!-- Actions dynamiques -->
@@ -545,6 +553,39 @@
       <div class="modal-actions">
         <button class="action-btn" style="background: #ddd; color: #333;" id="closeCancelModal">Annuler</button>
         <button class="action-btn btn-cancel" id="confirmCancelBtn">Confirmer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal photos de production -->
+  <div class="modal" id="photosModal">
+    <div class="modal-content">
+      <h3>✅ Terminer l'impression</h3>
+      <p style="margin-bottom: 15px; color: #666;">Veuillez prendre en photo les pièces imprimées</p>
+      <label>Photos (plusieurs fichiers possibles)</label>
+      <input type="file" id="productionPhotos" accept="image/*" multiple>
+      <div id="photosPreview" style="margin-top: 10px;"></div>
+
+      <div class="modal-actions">
+        <button class="action-btn" style="background: #ddd; color: #333;" id="closePhotosModal">Annuler</button>
+        <button class="action-btn btn-success" id="submitPhotosBtn">Valider l'impression</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal expédition -->
+  <div class="modal" id="shippingModal">
+    <div class="modal-content">
+      <h3>📦 Expédier la commande</h3>
+      <label>Numéro de suivi (optionnel)</label>
+      <input type="text" id="trackingNumber" placeholder="Ex: 1234567890">
+
+      <label>Méthode d'expédition (optionnel)</label>
+      <input type="text" id="shippingMethod" placeholder="Ex: Colissimo, Chronopost...">
+
+      <div class="modal-actions">
+        <button class="action-btn" style="background: #ddd; color: #333;" id="closeShippingModal">Annuler</button>
+        <button class="action-btn btn-primary" id="submitShippingBtn">Confirmer l'expédition</button>
       </div>
     </div>
   </div>

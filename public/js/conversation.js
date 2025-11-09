@@ -116,6 +116,9 @@ async function loadConversation() {
   // Afficher le devis si présent
   displayQuote();
 
+  // Afficher la progression de production si contrat signé
+  displayProductionProgress();
+
   // Afficher les actions disponibles
   displayActions();
 }
@@ -270,6 +273,44 @@ function displayActions() {
     signBtn.disabled = alreadySigned;
     signBtn.onclick = signContract;
     actionsContainer.appendChild(signBtn);
+  }
+
+  // Étapes de production (après signature complète)
+  if (conversation.signedAt && role === 'printer') {
+    const steps = conversation.productionSteps || {};
+
+    // Étape 1: Démarrer l'impression
+    if (!steps.printingStarted?.completed) {
+      const btn = document.createElement('button');
+      btn.className = 'action-btn btn-primary';
+      btn.textContent = '🖨️ Démarrer l\'impression';
+      btn.onclick = startPrinting;
+      actionsContainer.appendChild(btn);
+    }
+    // Étape 2: Terminer l'impression et uploader photos
+    else if (!steps.printingCompleted?.completed) {
+      const btn = document.createElement('button');
+      btn.className = 'action-btn btn-success';
+      btn.textContent = '✅ Terminer l\'impression';
+      btn.onclick = () => document.getElementById('photosModal').classList.add('active');
+      actionsContainer.appendChild(btn);
+    }
+    // Étape 3: Partager les photos
+    else if (!steps.photosShared?.completed) {
+      const btn = document.createElement('button');
+      btn.className = 'action-btn btn-primary';
+      btn.textContent = '📸 Partager les photos';
+      btn.onclick = sharePhotos;
+      actionsContainer.appendChild(btn);
+    }
+    // Étape 4: Expédier la commande
+    else if (!steps.orderShipped?.completed) {
+      const btn = document.createElement('button');
+      btn.className = 'action-btn btn-primary';
+      btn.textContent = '📦 Expédier la commande';
+      btn.onclick = () => document.getElementById('shippingModal').classList.add('active');
+      actionsContainer.appendChild(btn);
+    }
   }
 
   // Annuler
@@ -753,6 +794,207 @@ function formatDate(dateString) {
 
   return date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
 }
+
+// === GESTION DES ÉTAPES DE PRODUCTION ===
+
+// Afficher la progression de production
+function displayProductionProgress() {
+  if (!conversation.signedAt) {
+    document.getElementById('productionProgress').style.display = 'none';
+    return;
+  }
+
+  document.getElementById('productionProgress').style.display = 'block';
+  const progressSteps = document.getElementById('progressSteps');
+  const steps = conversation.productionSteps || {};
+
+  const stepsList = [
+    { key: 'printingStarted', label: '🖨️ Impression démarrée', data: steps.printingStarted },
+    { key: 'printingCompleted', label: '✅ Impression terminée', data: steps.printingCompleted },
+    { key: 'photosShared', label: '📸 Photos partagées', data: steps.photosShared },
+    { key: 'orderShipped', label: '📦 Commande expédiée', data: steps.orderShipped }
+  ];
+
+  progressSteps.innerHTML = stepsList.map(step => {
+    const completed = step.data?.completed || false;
+    const completedAt = step.data?.completedAt ? new Date(step.data.completedAt).toLocaleDateString('fr-FR') : '';
+    const checkmark = completed ? '✓' : '○';
+    const color = completed ? '#00b894' : '#dfe6e9';
+
+    let html = `
+      <div style="margin: 10px 0; padding: 10px; background: ${completed ? '#e8f5e9' : '#f8f9fa'}; border-radius: 6px;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="color: ${color}; font-weight: bold; font-size: 16px;">${checkmark}</span>
+          <span style="color: ${completed ? '#2d3436' : '#999'};">${step.label}</span>
+        </div>
+        ${completed && completedAt ? `<div style="font-size: 11px; color: #999; margin-top: 4px; margin-left: 24px;">${completedAt}</div>` : ''}
+    `;
+
+    // Photos si impression terminée
+    if (step.key === 'printingCompleted' && step.data?.photos && step.data.photos.length > 0) {
+      html += `
+        <div style="margin-top: 8px; margin-left: 24px;">
+          <div style="display: flex; flex-wrap: wrap; gap: 5px;">
+            ${step.data.photos.map(photo => `
+              <img src="${photo.url}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 4px; cursor: pointer;"
+                   onclick="window.open('${photo.url}', '_blank')">
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    // Numéro de suivi si expédié
+    if (step.key === 'orderShipped' && step.data?.trackingNumber) {
+      html += `
+        <div style="font-size: 12px; color: #0984e3; margin-top: 4px; margin-left: 24px;">
+          Suivi: ${step.data.trackingNumber}
+        </div>
+      `;
+    }
+
+    html += `</div>`;
+    return html;
+  }).join('');
+}
+
+// Démarrer l'impression
+async function startPrinting() {
+  if (!confirm('Confirmez-vous le début de l\'impression ?')) return;
+
+  const token = getToken();
+  const response = await fetch(`/api/conversations/${conversationId}/production/start-printing`, {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${token}` }
+  });
+
+  if (response.ok) {
+    await loadConversation();
+    await loadMessages();
+  } else {
+    const error = await response.json();
+    alert('Erreur : ' + (error.error || 'Erreur inconnue'));
+  }
+}
+
+// Terminer l'impression avec photos
+async function completePrinting() {
+  const fileInput = document.getElementById('productionPhotos');
+  const files = fileInput.files;
+
+  if (!files || files.length === 0) {
+    alert('Veuillez sélectionner au moins une photo');
+    return;
+  }
+
+  const token = getToken();
+
+  try {
+    // Upload des photos
+    const formData = new FormData();
+    for (let i = 0; i < files.length; i++) {
+      formData.append('images', files[i]);
+    }
+    formData.append('conversationId', conversationId);
+
+    const uploadResponse = await fetch('/api/uploads/production-photos', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${token}` },
+      body: formData
+    });
+
+    if (!uploadResponse.ok) {
+      throw new Error('Erreur lors de l\'upload des photos');
+    }
+
+    const uploadData = await uploadResponse.json();
+    const photoUrls = uploadData.photos;
+
+    // Marquer l'impression comme terminée
+    const completeResponse = await fetch(`/api/conversations/${conversationId}/production/complete-printing`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ photoUrls })
+    });
+
+    if (!completeResponse.ok) {
+      throw new Error('Erreur lors de la validation');
+    }
+
+    document.getElementById('photosModal').classList.remove('active');
+    fileInput.value = '';
+    await loadConversation();
+    await loadMessages();
+  } catch (error) {
+    alert('Erreur : ' + error.message);
+  }
+}
+
+// Partager les photos
+async function sharePhotos() {
+  if (!confirm('Confirmer le partage des photos avec le client ?')) return;
+
+  const token = getToken();
+  const response = await fetch(`/api/conversations/${conversationId}/production/share-photos`, {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${token}` }
+  });
+
+  if (response.ok) {
+    await loadConversation();
+    await loadMessages();
+  } else {
+    const error = await response.json();
+    alert('Erreur : ' + (error.error || 'Erreur inconnue'));
+  }
+}
+
+// Expédier la commande
+async function shipOrder() {
+  const trackingNumber = document.getElementById('trackingNumber').value;
+  const shippingMethod = document.getElementById('shippingMethod').value;
+
+  const token = getToken();
+  const response = await fetch(`/api/conversations/${conversationId}/production/ship-order`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ trackingNumber, shippingMethod })
+  });
+
+  if (response.ok) {
+    document.getElementById('shippingModal').classList.remove('active');
+    document.getElementById('trackingNumber').value = '';
+    document.getElementById('shippingMethod').value = '';
+    await loadConversation();
+    await loadMessages();
+  } else {
+    const error = await response.json();
+    alert('Erreur : ' + (error.error || 'Erreur inconnue'));
+  }
+}
+
+// Event listeners pour les modals de production
+document.addEventListener('DOMContentLoaded', () => {
+  // Modal photos
+  document.getElementById('closePhotosModal')?.addEventListener('click', () => {
+    document.getElementById('photosModal').classList.remove('active');
+  });
+
+  document.getElementById('submitPhotosBtn')?.addEventListener('click', completePrinting);
+
+  // Modal expédition
+  document.getElementById('closeShippingModal')?.addEventListener('click', () => {
+    document.getElementById('shippingModal').classList.remove('active');
+  });
+
+  document.getElementById('submitShippingBtn')?.addEventListener('click', shipOrder);
+});
 
 // Nettoyer le polling à la fermeture
 window.addEventListener('beforeunload', () => {

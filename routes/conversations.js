@@ -519,4 +519,176 @@ router.post('/:id/sign', authenticate, async (req, res) => {
   }
 });
 
+/**
+ * @route   POST /api/conversations/:id/production/start-printing
+ * @desc    Marquer le début de l'impression
+ * @access  Private (Printer only)
+ */
+router.post('/:id/production/start-printing', authenticate, async (req, res) => {
+  try {
+    const conversationId = req.params.id;
+    const conversation = await Conversation.findById(conversationId);
+
+    if (!conversation) {
+      return res.status(404).json({ error: 'Conversation non trouvée' });
+    }
+
+    const user = await User.findById(req.userId);
+    if (user.role !== 'printer' || conversation.printer.toString() !== req.userId.toString()) {
+      return res.status(403).json({ error: 'Seul l\'imprimeur peut mettre à jour la production' });
+    }
+
+    if (!conversation.signedAt) {
+      return res.status(400).json({ error: 'Le contrat doit être signé avant de démarrer la production' });
+    }
+
+    conversation.productionSteps.printingStarted.completed = true;
+    conversation.productionSteps.printingStarted.completedAt = new Date();
+    conversation.status = 'in_production';
+    await conversation.save();
+
+    await Message.createSystemMessage(
+      conversationId,
+      '🖨️ L\'impression a démarré !'
+    );
+
+    res.json({ conversation });
+  } catch (error) {
+    console.error('Error starting printing:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+/**
+ * @route   POST /api/conversations/:id/production/complete-printing
+ * @desc    Marquer l'impression comme terminée et uploader des photos
+ * @access  Private (Printer only)
+ */
+router.post('/:id/production/complete-printing', authenticate, async (req, res) => {
+  try {
+    const conversationId = req.params.id;
+    const { photoUrls } = req.body; // Array d'URLs de photos déjà uploadées
+
+    const conversation = await Conversation.findById(conversationId);
+    if (!conversation) {
+      return res.status(404).json({ error: 'Conversation non trouvée' });
+    }
+
+    const user = await User.findById(req.userId);
+    if (user.role !== 'printer' || conversation.printer.toString() !== req.userId.toString()) {
+      return res.status(403).json({ error: 'Seul l\'imprimeur peut mettre à jour la production' });
+    }
+
+    if (!conversation.productionSteps.printingStarted.completed) {
+      return res.status(400).json({ error: 'Vous devez d\'abord démarrer l\'impression' });
+    }
+
+    conversation.productionSteps.printingCompleted.completed = true;
+    conversation.productionSteps.printingCompleted.completedAt = new Date();
+
+    // Ajouter les photos
+    if (photoUrls && Array.isArray(photoUrls)) {
+      conversation.productionSteps.printingCompleted.photos = photoUrls.map(url => ({
+        url,
+        uploadedAt: new Date()
+      }));
+    }
+
+    await conversation.save();
+
+    await Message.createSystemMessage(
+      conversationId,
+      '✅ Impression terminée avec succès ! Des photos ont été ajoutées.'
+    );
+
+    res.json({ conversation });
+  } catch (error) {
+    console.error('Error completing printing:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+/**
+ * @route   POST /api/conversations/:id/production/share-photos
+ * @desc    Partager les photos avec le client
+ * @access  Private (Printer only)
+ */
+router.post('/:id/production/share-photos', authenticate, async (req, res) => {
+  try {
+    const conversationId = req.params.id;
+    const conversation = await Conversation.findById(conversationId);
+
+    if (!conversation) {
+      return res.status(404).json({ error: 'Conversation non trouvée' });
+    }
+
+    const user = await User.findById(req.userId);
+    if (user.role !== 'printer' || conversation.printer.toString() !== req.userId.toString()) {
+      return res.status(403).json({ error: 'Seul l\'imprimeur peut partager les photos' });
+    }
+
+    if (!conversation.productionSteps.printingCompleted.completed) {
+      return res.status(400).json({ error: 'Vous devez d\'abord terminer l\'impression' });
+    }
+
+    conversation.productionSteps.photosShared.completed = true;
+    conversation.productionSteps.photosShared.completedAt = new Date();
+    await conversation.save();
+
+    await Message.createSystemMessage(
+      conversationId,
+      '📸 Photos partagées avec le client'
+    );
+
+    res.json({ conversation });
+  } catch (error) {
+    console.error('Error sharing photos:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+/**
+ * @route   POST /api/conversations/:id/production/ship-order
+ * @desc    Marquer la commande comme expédiée
+ * @access  Private (Printer only)
+ */
+router.post('/:id/production/ship-order', authenticate, async (req, res) => {
+  try {
+    const conversationId = req.params.id;
+    const { trackingNumber, shippingMethod } = req.body;
+
+    const conversation = await Conversation.findById(conversationId);
+    if (!conversation) {
+      return res.status(404).json({ error: 'Conversation non trouvée' });
+    }
+
+    const user = await User.findById(req.userId);
+    if (user.role !== 'printer' || conversation.printer.toString() !== req.userId.toString()) {
+      return res.status(403).json({ error: 'Seul l\'imprimeur peut expédier la commande' });
+    }
+
+    if (!conversation.productionSteps.photosShared.completed) {
+      return res.status(400).json({ error: 'Vous devez d\'abord partager les photos avec le client' });
+    }
+
+    conversation.productionSteps.orderShipped.completed = true;
+    conversation.productionSteps.orderShipped.completedAt = new Date();
+    conversation.productionSteps.orderShipped.trackingNumber = trackingNumber;
+    conversation.productionSteps.orderShipped.shippingMethod = shippingMethod;
+    conversation.status = 'ready';
+    await conversation.save();
+
+    const trackingInfo = trackingNumber ? ` Numéro de suivi : ${trackingNumber}` : '';
+    await Message.createSystemMessage(
+      conversationId,
+      `📦 Commande expédiée !${trackingInfo}`
+    );
+
+    res.json({ conversation });
+  } catch (error) {
+    console.error('Error shipping order:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 module.exports = router;

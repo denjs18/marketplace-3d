@@ -110,6 +110,32 @@ const conversationSchema = new mongoose.Schema({
   printerSignedAt: Date,
   signedAt: Date, // Date où les deux ont signé
 
+  // Étapes de production (après signature)
+  productionSteps: {
+    printingStarted: {
+      completed: { type: Boolean, default: false },
+      completedAt: Date
+    },
+    printingCompleted: {
+      completed: { type: Boolean, default: false },
+      completedAt: Date,
+      photos: [{
+        url: String,
+        uploadedAt: { type: Date, default: Date.now }
+      }]
+    },
+    photosShared: {
+      completed: { type: Boolean, default: false },
+      completedAt: Date
+    },
+    orderShipped: {
+      completed: { type: Boolean, default: false },
+      completedAt: Date,
+      trackingNumber: String,
+      shippingMethod: String
+    }
+  },
+
   // Métadonnées
   initiatedBy: {
     type: String,

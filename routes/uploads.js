@@ -139,4 +139,48 @@ router.post('/conversation-attachment', authenticate, uploadAttachment, handleUp
   }
 });
 
+/**
+ * @route   POST /api/uploads/production-photos
+ * @desc    Upload photos des impressions terminées
+ * @access  Private (Printer only)
+ */
+router.post('/production-photos', authenticate, uploadMultipleImages, handleUploadError, async (req, res) => {
+  try {
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({
+        error: 'Aucune photo fournie'
+      });
+    }
+
+    const { conversationId } = req.body;
+
+    // Vérifier que la conversation existe et que c'est bien l'imprimeur
+    if (conversationId) {
+      const conversation = await Conversation.findById(conversationId);
+
+      if (!conversation) {
+        return res.status(404).json({ error: 'Conversation non trouvée' });
+      }
+
+      const userId = req.userId.toString();
+      if (conversation.printer.toString() !== userId) {
+        return res.status(403).json({ error: 'Seul l\'imprimeur peut uploader des photos de production' });
+      }
+    }
+
+    const photoUrls = req.files.map(file => file.url);
+
+    res.json({
+      message: 'Photos uploadées avec succès',
+      photos: photoUrls
+    });
+  } catch (error) {
+    console.error('Error uploading production photos:', error);
+    res.status(500).json({
+      error: 'Échec de l\'upload des photos',
+      details: error.message
+    });
+  }
+});
+
 module.exports = router;
