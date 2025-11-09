@@ -271,7 +271,7 @@ router.post('/:id/messages', authenticate, contentFilterMiddleware, async (req, 
 
 /**
  * @route   POST /api/conversations/:id/send-quote
- * @desc    Envoyer un devis
+ * @desc    Envoyer un devis (imprimeur uniquement pour premier devis)
  * @access  Private (Printer only)
  */
 router.post('/:id/send-quote', authenticate, async (req, res) => {
@@ -287,8 +287,10 @@ router.post('/:id/send-quote', authenticate, async (req, res) => {
     }
 
     const user = await User.findById(req.userId);
+
+    // Seul l'imprimeur peut envoyer le premier devis
     if (user.role !== 'printer' || conversation.printer.toString() !== req.userId.toString()) {
-      return res.status(403).json({ error: 'Seul l\'imprimeur peut envoyer un devis' });
+      return res.status(403).json({ error: 'Seul l\'imprimeur peut envoyer le premier devis' });
     }
 
     // Envoyer le devis
@@ -372,8 +374,8 @@ router.post('/:id/counter-quote', authenticate, async (req, res) => {
 
 /**
  * @route   POST /api/conversations/:id/accept-quote
- * @desc    Accepter un devis
- * @access  Private (Client only)
+ * @desc    Accepter un devis ou une contre-proposition
+ * @access  Private (Client ou Printer)
  */
 router.post('/:id/accept-quote', authenticate, async (req, res) => {
   try {
@@ -385,22 +387,89 @@ router.post('/:id/accept-quote', authenticate, async (req, res) => {
     }
 
     const user = await User.findById(req.userId);
-    if (user.role !== 'client' || conversation.client.toString() !== req.userId.toString()) {
-      return res.status(403).json({ error: 'Seul le client peut accepter un devis' });
+    const userId = req.userId.toString();
+
+    // Vérifier que l'utilisateur fait partie de la conversation
+    if (conversation.client.toString() !== userId && conversation.printer.toString() !== userId) {
+      return res.status(403).json({ error: 'Accès non autorisé' });
+    }
+
+    // Vérifier qu'il y a bien un devis à accepter
+    if (!conversation.currentQuote) {
+      return res.status(400).json({ error: 'Aucun devis à accepter' });
     }
 
     // Accepter le devis
     await conversation.acceptQuote();
 
-    // Message système
+    // Message système personnalisé selon qui accepte
+    const acceptedBy = user.role === 'client' ? 'le client' : "l'imprimeur";
     await Message.createSystemMessage(
       conversationId,
-      'Devis accepté par le client. En attente de signature du contrat.'
+      `Devis accepté par ${acceptedBy}. En attente de signature du contrat.`
     );
 
     res.json({ conversation });
   } catch (error) {
     console.error('Error accepting quote:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+/**
+ * @route   POST /api/conversations/:id/reject-quote
+ * @desc    Refuser un devis ou une contre-proposition
+ * @access  Private (Client ou Printer)
+ */
+router.post('/:id/reject-quote', authenticate, async (req, res) => {
+  try {
+    const conversationId = req.params.id;
+    const { reason } = req.body;
+
+    const conversation = await Conversation.findById(conversationId);
+    if (!conversation) {
+      return res.status(404).json({ error: 'Conversation non trouvée' });
+    }
+
+    const user = await User.findById(req.userId);
+    const userId = req.userId.toString();
+
+    // Vérifier que l'utilisateur fait partie de la conversation
+    if (conversation.client.toString() !== userId && conversation.printer.toString() !== userId) {
+      return res.status(403).json({ error: 'Accès non autorisé' });
+    }
+
+    // Vérifier qu'il y a bien un devis à refuser
+    if (!conversation.currentQuote) {
+      return res.status(400).json({ error: 'Aucun devis à refuser' });
+    }
+
+    // Sauvegarder dans l'historique
+    if (!conversation.quoteHistory) {
+      conversation.quoteHistory = [];
+    }
+    conversation.quoteHistory.push({
+      ...conversation.currentQuote.toObject(),
+      rejectedAt: new Date(),
+      rejectedBy: user.role
+    });
+
+    // Retirer le devis actuel et revenir en négociation
+    conversation.currentQuote = undefined;
+    conversation.status = 'negotiating';
+    await conversation.save();
+
+    // Message système
+    const rejectedBy = user.role === 'client' ? 'le client' : "l'imprimeur";
+    const reasonText = reason ? ` Raison: ${reason}` : '';
+    await Message.createSystemMessage(
+      conversationId,
+      `Devis refusé par ${rejectedBy}.${reasonText}`
+    );
+
+    res.json({ conversation });
+  } catch (error) {
+    console.error('Error rejecting quote:', error);
     res.status(500).json({ error: error.message });
   }
 });

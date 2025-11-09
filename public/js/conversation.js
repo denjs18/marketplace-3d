@@ -218,13 +218,47 @@ function displayActions() {
     actionsContainer.appendChild(counterBtn);
   }
 
-  // Les deux peuvent contre-proposer
-  if (status === 'negotiating' && conversation.currentQuote.counterOfferCount < 3) {
-    const counterBtn = document.createElement('button');
-    counterBtn.className = 'action-btn btn-counter';
-    counterBtn.textContent = `💬 Contre-proposer (${3 - conversation.currentQuote.counterOfferCount} restantes)`;
-    counterBtn.onclick = () => document.getElementById('quoteModal').classList.add('active');
-    actionsContainer.appendChild(counterBtn);
+  // En négociation : les deux parties peuvent accepter, refuser ou contre-proposer
+  if (status === 'negotiating' && conversation.currentQuote) {
+    const quote = conversation.currentQuote;
+    const counterOfferCount = quote.counterOfferCount || 0;
+
+    // Vérifier qui a envoyé la dernière proposition
+    const lastSentBy = quote.sentBy;
+    const canRespond = (role === 'client' && lastSentBy === 'printer') ||
+                       (role === 'printer' && lastSentBy === 'client');
+
+    if (canRespond) {
+      // Bouton accepter
+      const acceptBtn = document.createElement('button');
+      acceptBtn.className = 'action-btn btn-accept';
+      acceptBtn.textContent = '✅ Accepter la contre-proposition';
+      acceptBtn.onclick = acceptQuote;
+      actionsContainer.appendChild(acceptBtn);
+
+      // Bouton refuser
+      const rejectBtn = document.createElement('button');
+      rejectBtn.className = 'action-btn btn-reject';
+      rejectBtn.textContent = '❌ Refuser';
+      rejectBtn.onclick = rejectQuote;
+      actionsContainer.appendChild(rejectBtn);
+
+      // Bouton contre-proposer (si limite pas atteinte)
+      if (counterOfferCount < 3) {
+        const counterBtn = document.createElement('button');
+        counterBtn.className = 'action-btn btn-counter';
+        counterBtn.textContent = `💬 Nouvelle contre-proposition (${3 - counterOfferCount} restantes)`;
+        counterBtn.onclick = () => document.getElementById('quoteModal').classList.add('active');
+        actionsContainer.appendChild(counterBtn);
+      }
+    } else {
+      // En attente de la réponse de l'autre partie
+      const waitingText = document.createElement('p');
+      waitingText.style.color = '#999';
+      waitingText.style.fontSize = '14px';
+      waitingText.textContent = 'En attente de la réponse de ' + (role === 'client' ? "l'imprimeur" : "du client");
+      actionsContainer.appendChild(waitingText);
+    }
   }
 
   // Signer le contrat
@@ -569,6 +603,35 @@ async function acceptQuote() {
     await loadMessages();
   } else {
     alert('Erreur lors de l\'acceptation du devis');
+  }
+}
+
+// Refuser un devis ou une contre-proposition
+async function rejectQuote() {
+  const reason = prompt('Pourquoi refusez-vous cette proposition ? (optionnel)');
+
+  // Si l'utilisateur clique sur annuler, on sort
+  if (reason === null) {
+    return;
+  }
+
+  const token = localStorage.getItem('token');
+
+  const response = await fetch(`/api/conversations/${conversationId}/reject-quote`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ reason: reason || '' })
+  });
+
+  if (response.ok) {
+    await loadConversation();
+    await loadMessages();
+  } else {
+    const error = await response.json();
+    alert('Erreur lors du refus : ' + (error.error || 'Erreur inconnue'));
   }
 }
 
