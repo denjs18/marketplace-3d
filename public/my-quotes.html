@@ -279,6 +279,7 @@
                 💬 Voir la conversation
               </button>
               ${!quote ? `<button class="btn btn-secondary" onclick="window.location.href='/conversation.html?id=${conversation._id}'">📋 Envoyer un devis</button>` : ''}
+              ${canCancelQuote(conversation) ? `<button class="btn" style="background: #d63031; color: white;" onclick="handleCancelQuote('${conversation._id}')">❌ Annuler le devis</button>` : ''}
             </div>
           </div>
         `;
@@ -315,6 +316,55 @@
         'paused': 'En pause'
       };
       return labels[status] || status;
+    }
+
+    // Vérifier si on peut annuler le devis
+    function canCancelQuote(conversation) {
+      // Statuts où l'annulation n'est pas possible
+      const immutableStatuses = ['completed', 'cancelled_by_client', 'cancelled_by_printer', 'cancelled_mutual', 'signed', 'in_production', 'ready'];
+
+      // On peut annuler si :
+      // - Le devis a été envoyé (currentQuote existe)
+      // - Le statut n'est pas dans les statuts immuables
+      // - Le contrat n'est pas signé
+      return conversation.currentQuote &&
+             !immutableStatuses.includes(conversation.status) &&
+             !conversation.signedAt;
+    }
+
+    // Annuler un devis
+    async function handleCancelQuote(conversationId) {
+      if (!confirm('Êtes-vous sûr de vouloir annuler ce devis ? Vous pourrez en soumettre un nouveau après.')) {
+        return;
+      }
+
+      const token = localStorage.getItem('token');
+
+      try {
+        const response = await fetch(`/api/conversations/${conversationId}/withdraw`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            reason: 'L\'imprimeur a annulé son devis depuis la page Mes devis'
+          })
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.error || 'Erreur lors de l\'annulation');
+        }
+
+        alert('Votre devis a été annulé avec succès. Vous pouvez maintenant en soumettre un nouveau.');
+
+        // Recharger les devis
+        await loadQuotes();
+      } catch (error) {
+        console.error('Error cancelling quote:', error);
+        alert('Erreur lors de l\'annulation : ' + error.message);
+      }
     }
 
     // Déconnexion
