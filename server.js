@@ -19,6 +19,8 @@ const uploadRoutes = require('./routes/uploads');
 const adminRoutes = require('./routes/admin');
 const conversationRoutes = require('./routes/conversations');
 const conversationActionRoutes = require('./routes/conversationActions');
+const contractRoutes = require('./routes/contracts');
+const payoutRoutes = require('./routes/payouts');
 
 // Initialize Express app
 const app = express();
@@ -84,6 +86,8 @@ app.use('/api/uploads', uploadRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/conversations', conversationRoutes);
 app.use('/api/conversations', conversationActionRoutes);
+app.use('/api/contracts', contractRoutes);
+app.use('/api/payouts', payoutRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

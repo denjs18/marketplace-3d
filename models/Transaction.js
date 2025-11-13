@@ -52,8 +52,20 @@ const transactionSchema = new mongoose.Schema({
   },
   paymentMethod: {
     type: String,
-    enum: ['card', 'bank_transfer', 'paypal', 'other'],
+    enum: ['card', 'bank_transfer', 'paypal', 'balance', 'mixed', 'other'],
     default: 'card'
+  },
+  // Montant payé avec le solde disponible
+  balanceUsed: {
+    type: Number,
+    default: 0,
+    min: 0
+  },
+  // Montant payé avec Stripe
+  stripeAmount: {
+    type: Number,
+    default: 0,
+    min: 0
   },
   stripePaymentIntentId: {
     type: String

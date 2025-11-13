@@ -249,6 +249,36 @@ const userSchema = new mongoose.Schema({
     type: String,
     trim: true
   },
+  // Balance virtuelle pour les imprimeurs
+  balance: {
+    available: {
+      type: Number,
+      default: 0,
+      min: 0
+    },
+    pending: {
+      type: Number,
+      default: 0,
+      min: 0
+    },
+    total: {
+      type: Number,
+      default: 0,
+      min: 0
+    }
+  },
+  // Informations bancaires pour les virements
+  bankDetails: {
+    accountHolderName: String,
+    iban: String,
+    bic: String,
+    bankName: String,
+    verified: {
+      type: Boolean,
+      default: false
+    },
+    verifiedAt: Date
+  },
   // Alertes et sanctions
   warningFlags: [String],
   suspendedUntil: Date,
@@ -289,6 +319,47 @@ userSchema.methods.updateRating = function(newRating) {
   const totalRating = (this.rating.average * this.rating.count) + newRating;
   this.rating.count += 1;
   this.rating.average = totalRating / this.rating.count;
+};
+
+// Méthodes pour la gestion de la balance
+userSchema.methods.addPendingBalance = function(amount) {
+  if (!this.balance) {
+    this.balance = { available: 0, pending: 0, total: 0 };
+  }
+  this.balance.pending = (this.balance.pending || 0) + amount;
+  this.balance.total = (this.balance.total || 0) + amount;
+};
+
+userSchema.methods.convertPendingToAvailable = function(amount) {
+  if (!this.balance) {
+    this.balance = { available: 0, pending: 0, total: 0 };
+  }
+  if (this.balance.pending < amount) {
+    throw new Error('Insufficient pending balance');
+  }
+  this.balance.pending -= amount;
+  this.balance.available = (this.balance.available || 0) + amount;
+};
+
+userSchema.methods.deductFromAvailable = function(amount) {
+  if (!this.balance) {
+    this.balance = { available: 0, pending: 0, total: 0 };
+  }
+  if (this.balance.available < amount) {
+    throw new Error('Insufficient available balance');
+  }
+  this.balance.available -= amount;
+  this.balance.total -= amount;
+};
+
+userSchema.methods.canWithdraw = function(amount) {
+  return this.balance && this.balance.available >= amount;
+};
+
+userSchema.methods.hasBankDetails = function() {
+  return this.bankDetails &&
+         this.bankDetails.iban &&
+         this.bankDetails.accountHolderName;
 };
 
 module.exports = mongoose.model('User', userSchema);
