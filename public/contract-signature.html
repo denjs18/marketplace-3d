@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signature de Contrat - Strivex</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="https://js.stripe.com/v3/"></script>
+    <style>
+        .contract-container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        .contract-card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .contract-header {
+            text-align: center;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #f0f0f0;
+            margin-bottom: 30px;
+        }
+
+        .contract-header h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .contract-status {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .status-pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .contract-details {
+            margin: 30px 0;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            color: #7f8c8d;
+        }
+
+        .detail-value {
+            color: #2c3e50;
+            font-weight: 500;
+        }
+
+        .price-breakdown {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .price-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+        }
+
+        .price-row.total {
+            border-top: 2px solid #dee2e6;
+            margin-top: 10px;
+            padding-top: 15px;
+            font-size: 1.2em;
+            font-weight: 700;
+            color: #27ae60;
+        }
+
+        .commission-info {
+            background: #e8f5e9;
+            border-left: 4px solid #4caf50;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+
+        .commission-info p {
+            margin: 5px 0;
+            color: #2e7d32;
+        }
+
+        .balance-section {
+            background: #fff3e0;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .balance-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .balance-amount {
+            font-size: 1.5em;
+            font-weight: 700;
+            color: #f57c00;
+        }
+
+        .use-balance-control {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .use-balance-control input[type="number"] {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 1em;
+        }
+
+        .use-balance-control button {
+            padding: 10px 20px;
+            background: #ff9800;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .use-balance-control button:hover {
+            background: #f57c00;
+        }
+
+        .payment-summary {
+            background: #e3f2fd;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .payment-summary h3 {
+            margin-top: 0;
+            color: #1976d2;
+        }
+
+        #card-element {
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            background: white;
+            margin: 20px 0;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 15px;
+            background: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .btn-primary:hover {
+            background: #229954;
+        }
+
+        .btn-primary:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+        }
+
+        .error-message {
+            background: #ffebee;
+            color: #c62828;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 15px 0;
+            display: none;
+        }
+
+        .success-message {
+            background: #e8f5e9;
+            color: #2e7d32;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 15px 0;
+            display: none;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="contract-container">
+        <div id="loadingIndicator" class="loading">
+            <div class="spinner"></div>
+            <p>Chargement du contrat...</p>
+        </div>
+
+        <div id="contractContent" style="display: none;">
+            <div class="contract-card">
+                <div class="contract-header">
+                    <h1>🤝 Signature de Contrat</h1>
+                    <span id="contractStatus" class="contract-status status-pending">En attente de signature</span>
+                </div>
+
+                <div class="contract-details">
+                    <div class="detail-row">
+                        <span class="detail-label">Projet :</span>
+                        <span class="detail-value" id="projectTitle">-</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Imprimeur :</span>
+                        <span class="detail-value" id="printerName">-</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Date de livraison estimée :</span>
+                        <span class="detail-value" id="deliveryDate">-</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Durée estimée :</span>
+                        <span class="detail-value" id="duration">-</span>
+                    </div>
+                </div>
+
+                <div class="price-breakdown">
+                    <h3>💰 Détail du Paiement</h3>
+                    <div class="price-row">
+                        <span>Prix convenu avec l'imprimeur :</span>
+                        <strong id="agreedPrice">-</strong>
+                    </div>
+                    <div class="price-row">
+                        <span>Commission plateforme (10%) :</span>
+                        <strong id="commission">-</strong>
+                    </div>
+                    <div class="price-row total">
+                        <span>Total à payer :</span>
+                        <strong id="totalAmount">-</strong>
+                    </div>
+                </div>
+
+                <div class="commission-info">
+                    <strong>ℹ️ À propos de la commission</strong>
+                    <p>La commission de 10% permet de maintenir la plateforme et d'assurer un service de qualité pour tous les utilisateurs.</p>
+                </div>
+
+                <!-- Balance Section -->
+                <div id="balanceSection" class="balance-section" style="display: none;">
+                    <div class="balance-header">
+                        <h3>💳 Utiliser mon solde disponible</h3>
+                        <div class="balance-amount" id="availableBalance">0.00 €</div>
+                    </div>
+                    <p>Vous pouvez utiliser votre solde disponible pour payer tout ou partie de cette commande.</p>
+                    <div class="use-balance-control">
+                        <input type="number" id="balanceToUse" min="0" step="0.01" placeholder="Montant à utiliser">
+                        <button onclick="applyBalance()">Utiliser</button>
+                    </div>
+                </div>
+
+                <!-- Payment Summary -->
+                <div id="paymentSummary" class="payment-summary" style="display: none;">
+                    <h3>📊 Récapitulatif du Paiement</h3>
+                    <div class="price-row">
+                        <span>Payé avec le solde :</span>
+                        <strong id="balanceUsedAmount">0.00 €</strong>
+                    </div>
+                    <div class="price-row">
+                        <span>Restant à payer (carte) :</span>
+                        <strong id="stripeAmountDisplay">0.00 €</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="contract-card">
+                <h3>💳 Paiement par Carte</h3>
+                <p id="paymentInstruction">Entrez les informations de votre carte bancaire :</p>
+
+                <div id="card-element"></div>
+
+                <div id="errorMessage" class="error-message"></div>
+                <div id="successMessage" class="success-message"></div>
+
+                <button id="submitButton" class="btn-primary">
+                    Signer le contrat et payer <span id="paymentAmount"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/auth.js"></script>
+    <script>
+        let stripe;
+        let elements;
+        let cardElement;
+        let contractData;
+        let balanceUsed = 0;
+        let stripeAmount = 0;
+        let userBalance = 0;
+
+        async function init() {
+            const user = getUser();
+            if (!user || user.role !== 'client') {
+                window.location.href = '/login.html';
+                return;
+            }
+
+            // Get contract ID from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const contractId = urlParams.get('id');
+
+            if (!contractId) {
+                alert('ID de contrat manquant');
+                window.location.href = '/dashboard-client.html';
+                return;
+            }
+
+            await loadContract(contractId);
+            await loadUserBalance();
+        }
+
+        async function loadContract(contractId) {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch(`/api/contracts/${contractId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Erreur lors du chargement du contrat');
+                }
+
+                const data = await response.json();
+                contractData = data.contract;
+
+                displayContract();
+                initializeStripe();
+
+                document.getElementById('loadingIndicator').style.display = 'none';
+                document.getElementById('contractContent').style.display = 'block';
+
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Erreur lors du chargement du contrat');
+                window.location.href = '/dashboard-client.html';
+            }
+        }
+
+        async function loadUserBalance() {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch('/api/payouts/balance', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    userBalance = data.balance.available || 0;
+
+                    if (userBalance > 0) {
+                        document.getElementById('balanceSection').style.display = 'block';
+                        document.getElementById('availableBalance').textContent =
+                            userBalance.toFixed(2) + ' €';
+                        document.getElementById('balanceToUse').max = userBalance;
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading balance:', error);
+            }
+        }
+
+        function displayContract() {
+            document.getElementById('projectTitle').textContent =
+                contractData.project?.title || '-';
+
+            const printerName = contractData.printer ?
+                `${contractData.printer.firstName} ${contractData.printer.lastName}` : '-';
+            document.getElementById('printerName').textContent = printerName;
+
+            if (contractData.quote?.deliveryDate) {
+                const date = new Date(contractData.quote.deliveryDate);
+                document.getElementById('deliveryDate').textContent =
+                    date.toLocaleDateString('fr-FR');
+            }
+
+            if (contractData.quote?.estimatedDuration) {
+                const duration = contractData.quote.estimatedDuration;
+                document.getElementById('duration').textContent =
+                    `${duration.value} ${duration.unit === 'days' ? 'jours' : duration.unit === 'hours' ? 'heures' : 'semaines'}`;
+            }
+
+            document.getElementById('agreedPrice').textContent =
+                contractData.agreedPrice.toFixed(2) + ' €';
+            document.getElementById('commission').textContent =
+                contractData.platformCommission.toFixed(2) + ' €';
+            document.getElementById('totalAmount').textContent =
+                contractData.totalPaid.toFixed(2) + ' €';
+
+            stripeAmount = contractData.totalPaid;
+            updatePaymentSummary();
+        }
+
+        function initializeStripe() {
+            stripe = Stripe('<?= STRIPE_PUBLISHABLE_KEY ?>'); // You'll need to replace this
+            elements = stripe.elements();
+            cardElement = elements.create('card', {
+                style: {
+                    base: {
+                        fontSize: '16px',
+                        color: '#32325d',
+                        fontFamily: '"Helvetica Neue", Helvetica, sans-serif',
+                        '::placeholder': {
+                            color: '#aab7c4'
+                        }
+                    }
+                }
+            });
+            cardElement.mount('#card-element');
+
+            cardElement.on('change', function(event) {
+                if (event.error) {
+                    showError(event.error.message);
+                } else {
+                    hideError();
+                }
+            });
+
+            document.getElementById('submitButton').addEventListener('click', handleSubmit);
+        }
+
+        function applyBalance() {
+            const input = document.getElementById('balanceToUse');
+            const amount = parseFloat(input.value) || 0;
+
+            if (amount < 0) {
+                alert('Montant invalide');
+                return;
+            }
+
+            if (amount > userBalance) {
+                alert('Solde insuffisant');
+                return;
+            }
+
+            if (amount > contractData.totalPaid) {
+                balanceUsed = contractData.totalPaid;
+                input.value = balanceUsed.toFixed(2);
+            } else {
+                balanceUsed = amount;
+            }
+
+            stripeAmount = contractData.totalPaid - balanceUsed;
+            updatePaymentSummary();
+        }
+
+        function updatePaymentSummary() {
+            if (balanceUsed > 0) {
+                document.getElementById('paymentSummary').style.display = 'block';
+                document.getElementById('balanceUsedAmount').textContent =
+                    balanceUsed.toFixed(2) + ' €';
+                document.getElementById('stripeAmountDisplay').textContent =
+                    stripeAmount.toFixed(2) + ' €';
+
+                if (stripeAmount === 0) {
+                    document.getElementById('paymentInstruction').textContent =
+                        'Paiement 100% par solde. Aucune carte requise.';
+                    document.getElementById('card-element').style.display = 'none';
+                } else {
+                    document.getElementById('paymentInstruction').textContent =
+                        'Paiement mixte : solde + carte bancaire';
+                    document.getElementById('card-element').style.display = 'block';
+                }
+            }
+
+            document.getElementById('paymentAmount').textContent =
+                contractData.totalPaid.toFixed(2) + ' €';
+        }
+
+        async function handleSubmit(e) {
+            e.preventDefault();
+
+            const submitButton = document.getElementById('submitButton');
+            submitButton.disabled = true;
+            submitButton.textContent = 'Traitement...';
+
+            try {
+                const token = localStorage.getItem('token');
+
+                // Sign contract
+                const signResponse = await fetch('/api/contracts/sign', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        contractId: contractData._id,
+                        useBalance: balanceUsed
+                    })
+                });
+
+                if (!signResponse.ok) {
+                    const error = await signResponse.json();
+                    throw new Error(error.error || 'Erreur lors de la signature');
+                }
+
+                const signData = await signResponse.json();
+
+                // If 100% balance payment
+                if (signData.paymentMethod === 'balance') {
+                    showSuccess('Contrat signé et payé avec succès !');
+                    setTimeout(() => {
+                        window.location.href = '/dashboard-client.html';
+                    }, 2000);
+                    return;
+                }
+
+                // If Stripe payment required
+                const { error, paymentIntent } = await stripe.confirmCardPayment(
+                    signData.clientSecret,
+                    {
+                        payment_method: {
+                            card: cardElement
+                        }
+                    }
+                );
+
+                if (error) {
+                    throw new Error(error.message);
+                }
+
+                // Confirm payment
+                await fetch('/api/contracts/confirm-payment', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        transactionId: signData.transaction._id
+                    })
+                });
+
+                showSuccess('Contrat signé et payé avec succès !');
+                setTimeout(() => {
+                    window.location.href = '/dashboard-client.html';
+                }, 2000);
+
+            } catch (error) {
+                console.error('Error:', error);
+                showError(error.message);
+                submitButton.disabled = false;
+                submitButton.textContent = 'Signer le contrat et payer ' +
+                    contractData.totalPaid.toFixed(2) + ' €';
+            }
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+
+        function hideError() {
+            document.getElementById('errorMessage').style.display = 'none';
+        }
+
+        function showSuccess(message) {
+            const successDiv = document.getElementById('successMessage');
+            successDiv.textContent = message;
+            successDiv.style.display = 'block';
+        }
+
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

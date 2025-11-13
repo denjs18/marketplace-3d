@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mes Contrats - Strivex</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .contracts-container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        .page-header {
+            margin-bottom: 30px;
+        }
+
+        .page-header h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .page-header p {
+            color: #7f8c8d;
+        }
+
+        .filters {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .filter-group label {
+            font-size: 0.9em;
+            color: #555;
+            font-weight: 600;
+        }
+
+        .filter-group select {
+            padding: 8px 12px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 1em;
+            min-width: 200px;
+        }
+
+        .contracts-grid {
+            display: grid;
+            gap: 20px;
+        }
+
+        .contract-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+        }
+
+        .contract-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        }
+
+        .contract-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .contract-title h3 {
+            margin: 0 0 5px 0;
+            color: #2c3e50;
+        }
+
+        .contract-id {
+            font-size: 0.85em;
+            color: #95a5a6;
+            font-family: monospace;
+        }
+
+        .status-badge {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .status-pending_signature { background: #fff3cd; color: #856404; }
+        .status-signed { background: #d1ecf1; color: #0c5460; }
+        .status-printing_started { background: #d1ecf1; color: #0c5460; }
+        .status-printing_completed { background: #cce5ff; color: #004085; }
+        .status-photos_sent { background: #d4edda; color: #155724; }
+        .status-shipped { background: #d4edda; color: #155724; }
+        .status-delivered_confirmed { background: #28a745; color: white; }
+        .status-completed { background: #28a745; color: white; }
+        .status-cancelled { background: #f8d7da; color: #721c24; }
+
+        .contract-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 15px 0;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .info-label {
+            font-size: 0.85em;
+            color: #7f8c8d;
+            font-weight: 600;
+        }
+
+        .info-value {
+            color: #2c3e50;
+            font-weight: 500;
+        }
+
+        .contract-amount {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: #27ae60;
+        }
+
+        .contract-footer {
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .contract-date {
+            font-size: 0.9em;
+            color: #95a5a6;
+        }
+
+        .btn-view {
+            padding: 8px 20px;
+            background: #3498db;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+
+        .btn-view:hover {
+            background: #2980b9;
+        }
+
+        .empty-state {
+            background: white;
+            border-radius: 12px;
+            padding: 60px 20px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .empty-state svg {
+            width: 100px;
+            height: 100px;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+
+        .empty-state h3 {
+            color: #95a5a6;
+            margin-bottom: 10px;
+        }
+
+        .empty-state p {
+            color: #bdc3c7;
+        }
+
+        .stats-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .stat-card h4 {
+            margin: 0 0 10px 0;
+            color: #7f8c8d;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-card .value {
+            font-size: 2em;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+
+        .stat-card .label {
+            font-size: 0.85em;
+            color: #95a5a6;
+            margin-top: 5px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="contracts-container">
+        <div class="page-header">
+            <h1>📄 Mes Contrats</h1>
+            <p>Gérez tous vos contrats en cours et passés</p>
+        </div>
+
+        <div class="stats-cards" id="statsCards">
+            <!-- Filled by JS -->
+        </div>
+
+        <div class="filters">
+            <div class="filter-group">
+                <label for="statusFilter">Statut</label>
+                <select id="statusFilter" onchange="loadContracts()">
+                    <option value="">Tous les statuts</option>
+                    <option value="signed">Signés</option>
+                    <option value="printing_started">Impression en cours</option>
+                    <option value="printing_completed">Impression terminée</option>
+                    <option value="photos_sent">Photos envoyées</option>
+                    <option value="shipped">Expédiés</option>
+                    <option value="delivered_confirmed">Livrés</option>
+                    <option value="completed">Terminés</option>
+                    <option value="cancelled">Annulés</option>
+                </select>
+            </div>
+        </div>
+
+        <div id="loadingIndicator" class="loading">
+            <div class="spinner"></div>
+            <p>Chargement...</p>
+        </div>
+
+        <div id="contractsGrid" class="contracts-grid" style="display: none;">
+            <!-- Filled by JS -->
+        </div>
+
+        <div id="emptyState" class="empty-state" style="display: none;">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
+            </svg>
+            <h3>Aucun contrat trouvé</h3>
+            <p>Vos contrats apparaîtront ici une fois créés</p>
+        </div>
+    </div>
+
+    <script src="/js/auth.js"></script>
+    <script>
+        let contracts = [];
+        let userRole;
+
+        async function init() {
+            const user = getUser();
+            if (!user) {
+                window.location.href = '/login.html';
+                return;
+            }
+
+            userRole = user.role;
+
+            await loadContracts();
+        }
+
+        async function loadContracts() {
+            try {
+                document.getElementById('loadingIndicator').style.display = 'block';
+                document.getElementById('contractsGrid').style.display = 'none';
+                document.getElementById('emptyState').style.display = 'none';
+
+                const statusFilter = document.getElementById('statusFilter').value;
+                let url = '/api/contracts?limit=100';
+                if (statusFilter) {
+                    url += `&status=${statusFilter}`;
+                }
+
+                const token = localStorage.getItem('token');
+                const response = await fetch(url, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) throw new Error('Erreur lors du chargement');
+
+                const data = await response.json();
+                contracts = data.contracts;
+
+                document.getElementById('loadingIndicator').style.display = 'none';
+
+                if (contracts.length === 0) {
+                    document.getElementById('emptyState').style.display = 'block';
+                } else {
+                    displayContracts();
+                    displayStats();
+                }
+
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('loadingIndicator').style.display = 'none';
+                document.getElementById('emptyState').style.display = 'block';
+            }
+        }
+
+        function displayStats() {
+            const stats = {
+                total: contracts.length,
+                active: contracts.filter(c => ['signed', 'printing_started', 'printing_completed', 'photos_sent', 'shipped'].includes(c.status)).length,
+                completed: contracts.filter(c => c.status === 'completed').length,
+                totalAmount: contracts.reduce((sum, c) => sum + c.agreedPrice, 0)
+            };
+
+            const statsHTML = `
+                <div class="stat-card">
+                    <h4>Total Contrats</h4>
+                    <div class="value">${stats.total}</div>
+                    <div class="label">Tous les contrats</div>
+                </div>
+                <div class="stat-card">
+                    <h4>En Cours</h4>
+                    <div class="value">${stats.active}</div>
+                    <div class="label">Contrats actifs</div>
+                </div>
+                <div class="stat-card">
+                    <h4>Terminés</h4>
+                    <div class="value">${stats.completed}</div>
+                    <div class="label">Contrats complétés</div>
+                </div>
+                <div class="stat-card">
+                    <h4>Montant Total</h4>
+                    <div class="value">${stats.totalAmount.toFixed(2)} €</div>
+                    <div class="label">${userRole === 'printer' ? 'Gains' : 'Dépensé'}</div>
+                </div>
+            `;
+
+            document.getElementById('statsCards').innerHTML = statsHTML;
+        }
+
+        function displayContracts() {
+            const grid = document.getElementById('contractsGrid');
+
+            grid.innerHTML = contracts.map(contract => {
+                const statusText = getStatusText(contract.status);
+                const otherParty = userRole === 'client' ? contract.printer : contract.client;
+                const otherPartyName = otherParty ?
+                    `${otherParty.firstName} ${otherParty.lastName}` : '-';
+
+                const signedDate = contract.signedAt ?
+                    new Date(contract.signedAt).toLocaleDateString('fr-FR') : '-';
+
+                return `
+                    <div class="contract-card" onclick="viewContract('${contract._id}')">
+                        <div class="contract-card-header">
+                            <div class="contract-title">
+                                <h3>${contract.project?.title || 'Projet'}</h3>
+                                <div class="contract-id">#${contract._id.slice(-8).toUpperCase()}</div>
+                            </div>
+                            <span class="status-badge status-${contract.status}">${statusText}</span>
+                        </div>
+
+                        <div class="contract-info">
+                            <div class="info-item">
+                                <span class="info-label">💰 Montant</span>
+                                <span class="contract-amount">${contract.agreedPrice.toFixed(2)} €</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">👤 ${userRole === 'client' ? 'Imprimeur' : 'Client'}</span>
+                                <span class="info-value">${otherPartyName}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">📅 Date de signature</span>
+                                <span class="info-value">${signedDate}</span>
+                            </div>
+                        </div>
+
+                        <div class="contract-footer">
+                            <span class="contract-date">
+                                Créé le ${new Date(contract.createdAt).toLocaleDateString('fr-FR')}
+                            </span>
+                            <a href="/contract-tracking.html?id=${contract._id}" class="btn-view" onclick="event.stopPropagation()">
+                                Voir le suivi →
+                            </a>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            grid.style.display = 'grid';
+        }
+
+        function getStatusText(status) {
+            const statusMap = {
+                'pending_signature': 'En attente de signature',
+                'signed': 'Signé',
+                'printing_started': 'Impression en cours',
+                'printing_completed': 'Impression terminée',
+                'photos_sent': 'Photos envoyées',
+                'shipped': 'Expédié',
+                'delivered_confirmed': 'Livraison confirmée',
+                'completed': 'Terminé',
+                'cancelled': 'Annulé'
+            };
+            return statusMap[status] || status;
+        }
+
+        function viewContract(contractId) {
+            window.location.href = `/contract-tracking.html?id=${contractId}`;
+        }
+
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

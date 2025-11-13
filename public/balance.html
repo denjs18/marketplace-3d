@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ma Balance - Strivex</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .balance-container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        .balance-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 16px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+
+        .balance-title {
+            font-size: 1.2em;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+
+        .balance-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .balance-card {
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 25px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .balance-card-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+            margin-bottom: 8px;
+        }
+
+        .balance-card-amount {
+            font-size: 2.5em;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .balance-card-info {
+            font-size: 0.85em;
+            opacity: 0.8;
+        }
+
+        .section {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .section-header h2 {
+            margin: 0;
+            color: #2c3e50;
+        }
+
+        .btn-primary {
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .btn-primary:hover {
+            background: #229954;
+        }
+
+        .btn-primary:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .btn-secondary:hover {
+            background: #2980b9;
+        }
+
+        .bank-details-form {
+            display: grid;
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .form-group input {
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .bank-details-display {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #27ae60;
+        }
+
+        .bank-details-display p {
+            margin: 10px 0;
+            color: #2c3e50;
+        }
+
+        .bank-details-display strong {
+            color: #555;
+            display: inline-block;
+            min-width: 150px;
+        }
+
+        .payout-form {
+            background: #e3f2fd;
+            padding: 25px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .payout-form h3 {
+            margin-top: 0;
+            color: #1976d2;
+        }
+
+        .amount-input-group {
+            display: flex;
+            gap: 15px;
+            align-items: flex-end;
+            margin: 20px 0;
+        }
+
+        .amount-input-group .form-group {
+            flex: 1;
+        }
+
+        .quick-amounts {
+            display: flex;
+            gap: 10px;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+
+        .quick-amount-btn {
+            padding: 8px 16px;
+            background: white;
+            border: 2px solid #3498db;
+            color: #3498db;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .quick-amount-btn:hover {
+            background: #3498db;
+            color: white;
+        }
+
+        .payouts-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .payouts-table th {
+            background: #f8f9fa;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            color: #555;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .payouts-table td {
+            padding: 15px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .payouts-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-processing {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .status-completed {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-failed {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .alert {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .alert-warning {
+            background: #fff3cd;
+            color: #856404;
+            border-left: 4px solid #ffc107;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border-left: 4px solid #17a2b8;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+
+        .alert-danger {
+            background: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #95a5a6;
+        }
+
+        .empty-state svg {
+            width: 100px;
+            height: 100px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5em;
+            cursor: pointer;
+            color: #95a5a6;
+        }
+
+        .close-btn:hover {
+            color: #2c3e50;
+        }
+    </style>
+</head>
+<body>
+    <div class="balance-container">
+        <div class="balance-header">
+            <div class="balance-title">💰 Ma Balance</div>
+            <div class="balance-cards">
+                <div class="balance-card">
+                    <div class="balance-card-label">Disponible</div>
+                    <div class="balance-card-amount" id="availableBalance">0.00 €</div>
+                    <div class="balance-card-info">Prêt à être retiré</div>
+                </div>
+                <div class="balance-card">
+                    <div class="balance-card-label">En attente</div>
+                    <div class="balance-card-amount" id="pendingBalance">0.00 €</div>
+                    <div class="balance-card-info" id="pendingInfo">Confirmation client</div>
+                </div>
+                <div class="balance-card">
+                    <div class="balance-card-label">Total</div>
+                    <div class="balance-card-amount" id="totalBalance">0.00 €</div>
+                    <div class="balance-card-info">Balance totale</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Alerts -->
+        <div id="alertContainer"></div>
+
+        <!-- Bank Details Section -->
+        <div class="section">
+            <div class="section-header">
+                <h2>🏦 Coordonnées Bancaires</h2>
+                <button class="btn-secondary" id="editBankDetailsBtn" onclick="toggleBankDetailsForm()">
+                    <span id="editBtnText">Ajouter</span>
+                </button>
+            </div>
+
+            <div id="bankDetailsDisplay" style="display: none;">
+                <div class="bank-details-display">
+                    <p><strong>Titulaire :</strong> <span id="accountHolder"></span></p>
+                    <p><strong>IBAN :</strong> <span id="iban"></span></p>
+                    <p><strong>BIC :</strong> <span id="bic"></span></p>
+                    <p><strong>Banque :</strong> <span id="bankName"></span></p>
+                </div>
+            </div>
+
+            <div id="bankDetailsForm" style="display: none;">
+                <form class="bank-details-form" onsubmit="saveBankDetails(event)">
+                    <div class="form-group">
+                        <label for="accountHolderName">Nom du titulaire *</label>
+                        <input type="text" id="accountHolderName" required placeholder="Jean Dupont">
+                    </div>
+                    <div class="form-group">
+                        <label for="ibanInput">IBAN *</label>
+                        <input type="text" id="ibanInput" required placeholder="FR76 1234 5678 9012 3456 7890 123">
+                    </div>
+                    <div class="form-group">
+                        <label for="bicInput">BIC / SWIFT</label>
+                        <input type="text" id="bicInput" placeholder="BNPAFRPP">
+                    </div>
+                    <div class="form-group">
+                        <label for="bankNameInput">Nom de la banque</label>
+                        <input type="text" id="bankNameInput" placeholder="BNP Paribas">
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <button type="submit" class="btn-primary">Enregistrer</button>
+                        <button type="button" class="btn-secondary" onclick="toggleBankDetailsForm()">Annuler</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Payout Request Section -->
+        <div class="section">
+            <div class="section-header">
+                <h2>💸 Demander un Virement</h2>
+            </div>
+
+            <div id="payoutFormSection">
+                <div class="payout-form">
+                    <h3>Retirer vos fonds</h3>
+                    <p>Demandez un virement de votre solde disponible vers votre compte bancaire.</p>
+
+                    <div class="quick-amounts">
+                        <button class="quick-amount-btn" onclick="setPayoutAmount(50)">50 €</button>
+                        <button class="quick-amount-btn" onclick="setPayoutAmount(100)">100 €</button>
+                        <button class="quick-amount-btn" onclick="setPayoutAmount(250)">250 €</button>
+                        <button class="quick-amount-btn" onclick="setPayoutAmount(500)">500 €</button>
+                        <button class="quick-amount-btn" onclick="setPayoutAmount('max')">Tout</button>
+                    </div>
+
+                    <div class="amount-input-group">
+                        <div class="form-group">
+                            <label for="payoutAmount">Montant à retirer</label>
+                            <input type="number" id="payoutAmount" min="0" step="0.01" placeholder="0.00">
+                        </div>
+                        <button class="btn-primary" onclick="requestPayout()">
+                            Demander le virement
+                        </button>
+                    </div>
+
+                    <p style="font-size: 0.9em; color: #666; margin-top: 10px;">
+                        ℹ️ Les virements sont traités sous 2 à 5 jours ouvrés
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Payouts History -->
+        <div class="section">
+            <div class="section-header">
+                <h2>📋 Historique des Virements</h2>
+            </div>
+
+            <div id="payoutsTableContainer">
+                <table class="payouts-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Montant</th>
+                            <th>Statut</th>
+                            <th>IBAN</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="payoutsTableBody">
+                        <!-- Filled by JS -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="emptyPayouts" class="empty-state" style="display: none;">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/>
+                </svg>
+                <h3>Aucun virement pour le moment</h3>
+                <p>Vos demandes de virement apparaîtront ici</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payout Details Modal -->
+    <div id="payoutModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Détails du Virement</h3>
+                <button class="close-btn" onclick="closePayoutModal()">&times;</button>
+            </div>
+            <div id="payoutModalContent">
+                <!-- Filled by JS -->
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/auth.js"></script>
+    <script>
+        let balanceData = null;
+        let bankDetailsData = null;
+        let payoutsData = [];
+
+        async function init() {
+            const user = getUser();
+            if (!user || user.role !== 'printer') {
+                window.location.href = '/login.html';
+                return;
+            }
+
+            await Promise.all([
+                loadBalance(),
+                loadBankDetails(),
+                loadPayouts()
+            ]);
+        }
+
+        async function loadBalance() {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch('/api/payouts/balance', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) throw new Error('Erreur lors du chargement de la balance');
+
+                const data = await response.json();
+                balanceData = data;
+
+                displayBalance();
+            } catch (error) {
+                console.error('Error:', error);
+                showAlert('Erreur lors du chargement de la balance', 'danger');
+            }
+        }
+
+        function displayBalance() {
+            const balance = balanceData.balance;
+
+            document.getElementById('availableBalance').textContent =
+                (balance.available || 0).toFixed(2) + ' €';
+            document.getElementById('pendingBalance').textContent =
+                (balance.pending || 0).toFixed(2) + ' €';
+            document.getElementById('totalBalance').textContent =
+                (balance.total || 0).toFixed(2) + ' €';
+
+            if (balanceData.pendingContracts > 0) {
+                document.getElementById('pendingInfo').textContent =
+                    `${balanceData.pendingContracts} contrat(s) en cours`;
+            }
+
+            if (!balanceData.hasBankDetails) {
+                showAlert('⚠️ Veuillez ajouter vos coordonnées bancaires pour pouvoir demander un virement', 'warning');
+            }
+        }
+
+        async function loadBankDetails() {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch('/api/payouts/bank-details', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) throw new Error('Erreur');
+
+                const data = await response.json();
+                bankDetailsData = data.bankDetails;
+
+                displayBankDetails();
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        function displayBankDetails() {
+            if (bankDetailsData && bankDetailsData.iban) {
+                document.getElementById('bankDetailsDisplay').style.display = 'block';
+                document.getElementById('accountHolder').textContent =
+                    bankDetailsData.accountHolderName || '-';
+                document.getElementById('iban').textContent =
+                    bankDetailsData.iban || '-';
+                document.getElementById('bic').textContent =
+                    bankDetailsData.bic || '-';
+                document.getElementById('bankName').textContent =
+                    bankDetailsData.bankName || '-';
+                document.getElementById('editBtnText').textContent = 'Modifier';
+            } else {
+                document.getElementById('editBtnText').textContent = 'Ajouter';
+            }
+        }
+
+        function toggleBankDetailsForm() {
+            const form = document.getElementById('bankDetailsForm');
+            const display = document.getElementById('bankDetailsDisplay');
+
+            if (form.style.display === 'none') {
+                form.style.display = 'block';
+                display.style.display = 'none';
+
+                if (bankDetailsData) {
+                    document.getElementById('accountHolderName').value =
+                        bankDetailsData.accountHolderName || '';
+                    document.getElementById('ibanInput').value =
+                        bankDetailsData.iban || '';
+                    document.getElementById('bicInput').value =
+                        bankDetailsData.bic || '';
+                    document.getElementById('bankNameInput').value =
+                        bankDetailsData.bankName || '';
+                }
+            } else {
+                form.style.display = 'none';
+                display.style.display = 'block';
+            }
+        }
+
+        async function saveBankDetails(event) {
+            event.preventDefault();
+
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch('/api/payouts/bank-details', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        accountHolderName: document.getElementById('accountHolderName').value,
+                        iban: document.getElementById('ibanInput').value,
+                        bic: document.getElementById('bicInput').value,
+                        bankName: document.getElementById('bankNameInput').value
+                    })
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error || 'Erreur');
+                }
+
+                showAlert('✅ Coordonnées bancaires enregistrées avec succès', 'success');
+                await loadBankDetails();
+                toggleBankDetailsForm();
+
+            } catch (error) {
+                console.error('Error:', error);
+                showAlert(error.message, 'danger');
+            }
+        }
+
+        function setPayoutAmount(amount) {
+            const input = document.getElementById('payoutAmount');
+            if (amount === 'max') {
+                input.value = (balanceData.balance.available || 0).toFixed(2);
+            } else {
+                input.value = amount;
+            }
+        }
+
+        async function requestPayout() {
+            const amount = parseFloat(document.getElementById('payoutAmount').value);
+
+            if (!amount || amount <= 0) {
+                showAlert('Veuillez entrer un montant valide', 'danger');
+                return;
+            }
+
+            if (!balanceData.hasBankDetails) {
+                showAlert('Veuillez d\'abord ajouter vos coordonnées bancaires', 'warning');
+                return;
+            }
+
+            if (amount > balanceData.balance.available) {
+                showAlert('Solde disponible insuffisant', 'danger');
+                return;
+            }
+
+            if (!confirm(`Confirmer la demande de virement de ${amount.toFixed(2)} € ?`)) {
+                return;
+            }
+
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch('/api/payouts/request', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ amount })
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error || 'Erreur');
+                }
+
+                showAlert('✅ Demande de virement créée avec succès !', 'success');
+                document.getElementById('payoutAmount').value = '';
+                await Promise.all([loadBalance(), loadPayouts()]);
+
+            } catch (error) {
+                console.error('Error:', error);
+                showAlert(error.message, 'danger');
+            }
+        }
+
+        async function loadPayouts() {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch('/api/payouts', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) throw new Error('Erreur');
+
+                const data = await response.json();
+                payoutsData = data.payouts;
+
+                displayPayouts();
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        function displayPayouts() {
+            const tbody = document.getElementById('payoutsTableBody');
+            const emptyState = document.getElementById('emptyPayouts');
+            const tableContainer = document.getElementById('payoutsTableContainer');
+
+            if (payoutsData.length === 0) {
+                tableContainer.style.display = 'none';
+                emptyState.style.display = 'block';
+                return;
+            }
+
+            tableContainer.style.display = 'block';
+            emptyState.style.display = 'none';
+
+            tbody.innerHTML = payoutsData.map(payout => {
+                const date = new Date(payout.requestedAt).toLocaleDateString('fr-FR');
+                const statusClass = `status-${payout.status}`;
+                const statusText = {
+                    pending: 'En attente',
+                    processing: 'En cours',
+                    completed: 'Complété',
+                    failed: 'Échoué',
+                    cancelled: 'Annulé'
+                }[payout.status] || payout.status;
+
+                const maskedIban = payout.bankDetails?.iban ?
+                    '***' + payout.bankDetails.iban.slice(-4) : '-';
+
+                return `
+                    <tr>
+                        <td>${date}</td>
+                        <td><strong>${payout.amount.toFixed(2)} €</strong></td>
+                        <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                        <td>${maskedIban}</td>
+                        <td>
+                            <button class="btn-secondary" style="padding: 6px 12px; font-size: 0.9em;"
+                                    onclick="showPayoutDetails('${payout._id}')">
+                                Détails
+                            </button>
+                            ${payout.status === 'pending' ? `
+                                <button class="btn-secondary" style="padding: 6px 12px; font-size: 0.9em; background: #e74c3c;"
+                                        onclick="cancelPayout('${payout._id}')">
+                                    Annuler
+                                </button>
+                            ` : ''}
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        async function showPayoutDetails(payoutId) {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch(`/api/payouts/${payoutId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) throw new Error('Erreur');
+
+                const data = await response.json();
+                const payout = data.payout;
+
+                const statusText = {
+                    pending: 'En attente',
+                    processing: 'En cours de traitement',
+                    completed: 'Complété',
+                    failed: 'Échoué',
+                    cancelled: 'Annulé'
+                }[payout.status] || payout.status;
+
+                const modalContent = document.getElementById('payoutModalContent');
+                modalContent.innerHTML = `
+                    <div style="line-height: 1.8;">
+                        <p><strong>Montant :</strong> ${payout.amount.toFixed(2)} €</p>
+                        <p><strong>Statut :</strong> <span class="status-badge status-${payout.status}">${statusText}</span></p>
+                        <p><strong>Date de demande :</strong> ${new Date(payout.requestedAt).toLocaleString('fr-FR')}</p>
+
+                        <h4 style="margin-top: 20px;">Coordonnées bancaires :</h4>
+                        <p><strong>Titulaire :</strong> ${payout.bankDetails.accountHolderName}</p>
+                        <p><strong>IBAN :</strong> ${payout.bankDetails.iban}</p>
+                        ${payout.bankDetails.bic ? `<p><strong>BIC :</strong> ${payout.bankDetails.bic}</p>` : ''}
+                        ${payout.bankDetails.bankName ? `<p><strong>Banque :</strong> ${payout.bankDetails.bankName}</p>` : ''}
+
+                        ${payout.completedAt ? `
+                            <p style="margin-top: 15px;"><strong>Complété le :</strong> ${new Date(payout.completedAt).toLocaleString('fr-FR')}</p>
+                        ` : ''}
+
+                        ${payout.errorMessage ? `
+                            <div class="alert alert-danger" style="margin-top: 15px;">
+                                <strong>Erreur :</strong> ${payout.errorMessage}
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+
+                document.getElementById('payoutModal').classList.add('active');
+
+            } catch (error) {
+                console.error('Error:', error);
+                showAlert('Erreur lors du chargement des détails', 'danger');
+            }
+        }
+
+        function closePayoutModal() {
+            document.getElementById('payoutModal').classList.remove('active');
+        }
+
+        async function cancelPayout(payoutId) {
+            if (!confirm('Voulez-vous vraiment annuler cette demande de virement ?')) {
+                return;
+            }
+
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch(`/api/payouts/${payoutId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error || 'Erreur');
+                }
+
+                showAlert('✅ Demande de virement annulée', 'success');
+                await Promise.all([loadBalance(), loadPayouts()]);
+
+            } catch (error) {
+                console.error('Error:', error);
+                showAlert(error.message, 'danger');
+            }
+        }
+
+        function showAlert(message, type = 'info') {
+            const container = document.getElementById('alertContainer');
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.innerHTML = message;
+            container.appendChild(alert);
+
+            setTimeout(() => {
+                alert.remove();
+            }, 5000);
+        }
+
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

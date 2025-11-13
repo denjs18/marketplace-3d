@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Suivi de Contrat - Strivex</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .tracking-container {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        .contract-card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .contract-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .contract-title h1 {
+            margin: 0 0 10px 0;
+            color: #2c3e50;
+        }
+
+        .contract-id {
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+
+        .status-badge {
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.95em;
+        }
+
+        .status-pending_signature { background: #fff3cd; color: #856404; }
+        .status-signed { background: #d1ecf1; color: #0c5460; }
+        .status-printing_started { background: #d1ecf1; color: #0c5460; }
+        .status-printing_completed { background: #cce5ff; color: #004085; }
+        .status-photos_sent { background: #d4edda; color: #155724; }
+        .status-shipped { background: #d4edda; color: #155724; }
+        .status-delivered_confirmed { background: #28a745; color: white; }
+        .status-completed { background: #28a745; color: white; }
+        .status-cancelled { background: #f8d7da; color: #721c24; }
+
+        .timeline {
+            position: relative;
+            padding: 20px 0;
+        }
+
+        .timeline-item {
+            position: relative;
+            padding: 25px 0 25px 60px;
+            border-left: 3px solid #e0e0e0;
+        }
+
+        .timeline-item.completed {
+            border-left-color: #28a745;
+        }
+
+        .timeline-item.active {
+            border-left-color: #3498db;
+        }
+
+        .timeline-icon {
+            position: absolute;
+            left: -15px;
+            top: 25px;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #e0e0e0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+
+        .timeline-item.completed .timeline-icon {
+            background: #28a745;
+            color: white;
+        }
+
+        .timeline-item.active .timeline-icon {
+            background: #3498db;
+            color: white;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .timeline-content h3 {
+            margin: 0 0 8px 0;
+            color: #2c3e50;
+        }
+
+        .timeline-content p {
+            margin: 5px 0;
+            color: #7f8c8d;
+        }
+
+        .timeline-date {
+            font-size: 0.85em;
+            color: #95a5a6;
+            font-style: italic;
+        }
+
+        .timeline-action {
+            margin-top: 15px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #3498db;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2980b9;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+
+        .btn:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+        }
+
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .detail-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        .detail-card h4 {
+            margin: 0 0 10px 0;
+            color: #555;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .detail-card p {
+            margin: 5px 0;
+            color: #2c3e50;
+            font-size: 1.1em;
+            font-weight: 600;
+        }
+
+        .photos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .photo-card {
+            position: relative;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .photo-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .photo-date {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 8px;
+            font-size: 0.85em;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5em;
+            cursor: pointer;
+            color: #95a5a6;
+        }
+
+        .close-btn:hover {
+            color: #2c3e50;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 1em;
+            font-family: inherit;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .photos-upload-preview {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        .preview-image {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 6px;
+        }
+
+        .alert {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+
+        .alert-danger {
+            background: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border-left: 4px solid #17a2b8;
+        }
+
+        .tracking-number {
+            display: inline-block;
+            background: #f8f9fa;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 1.1em;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="tracking-container">
+        <div id="alertContainer"></div>
+
+        <div class="contract-card">
+            <div class="contract-header">
+                <div class="contract-title">
+                    <h1 id="projectTitle">-</h1>
+                    <div class="contract-id">Contrat #<span id="contractId">-</span></div>
+                </div>
+                <div>
+                    <span id="contractStatus" class="status-badge">-</span>
+                </div>
+            </div>
+
+            <div class="details-grid">
+                <div class="detail-card">
+                    <h4>💰 Montant</h4>
+                    <p id="contractAmount">-</p>
+                </div>
+                <div class="detail-card">
+                    <h4>👤 <span id="roleLabel">Imprimeur</span></h4>
+                    <p id="otherPartyName">-</p>
+                </div>
+                <div class="detail-card">
+                    <h4>📅 Date de signature</h4>
+                    <p id="signedDate">-</p>
+                </div>
+                <div class="detail-card" id="deliveryDateCard" style="display: none;">
+                    <h4>📦 Date de livraison estimée</h4>
+                    <p id="deliveryDate">-</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="contract-card">
+            <h2 style="margin-top: 0;">📍 Suivi de Commande</h2>
+
+            <div class="timeline" id="timeline">
+                <!-- Filled by JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Upload Photos Modal -->
+    <div id="photosModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>📸 Envoyer des Photos</h3>
+                <button class="close-btn" onclick="closePhotosModal()">&times;</button>
+            </div>
+            <form onsubmit="submitPhotos(event)">
+                <div class="form-group">
+                    <label>Photos de l'impression terminée</label>
+                    <input type="file" id="photosInput" accept="image/*" multiple required>
+                    <div id="photosPreview" class="photos-upload-preview"></div>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">
+                    Envoyer les photos
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Shipping Info Modal -->
+    <div id="shippingModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>📦 Informations d'Expédition</h3>
+                <button class="close-btn" onclick="closeShippingModal()">&times;</button>
+            </div>
+            <form onsubmit="submitShipping(event)">
+                <div class="form-group">
+                    <label for="trackingNumber">Numéro de suivi *</label>
+                    <input type="text" id="trackingNumber" required placeholder="EX: TRACK123456">
+                </div>
+                <div class="form-group">
+                    <label for="carrier">Transporteur *</label>
+                    <input type="text" id="carrier" required placeholder="EX: Colissimo, Chronopost...">
+                </div>
+                <button type="submit" class="btn btn-success" style="width: 100%;">
+                    Confirmer l'expédition
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script src="/js/auth.js"></script>
+    <script>
+        let contractData;
+        let userRole;
+
+        async function init() {
+            const user = getUser();
+            if (!user) {
+                window.location.href = '/login.html';
+                return;
+            }
+
+            userRole = user.role;
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const contractId = urlParams.get('id');
+
+            if (!contractId) {
+                alert('ID de contrat manquant');
+                window.location.href = userRole === 'client' ? '/dashboard-client.html' : '/dashboard-printer.html';
+                return;
+            }
+
+            await loadContract(contractId);
+        }
+
+        async function loadContract(contractId) {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch(`/api/contracts/${contractId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) throw new Error('Erreur lors du chargement');
+
+                const data = await response.json();
+                contractData = data.contract;
+
+                displayContract();
+                buildTimeline();
+
+            } catch (error) {
+                console.error('Error:', error);
+                showAlert('Erreur lors du chargement du contrat', 'danger');
+            }
+        }
+
+        function displayContract() {
+            document.getElementById('projectTitle').textContent =
+                contractData.project?.title || 'Projet';
+            document.getElementById('contractId').textContent =
+                contractData._id.slice(-8).toUpperCase();
+
+            const statusText = getStatusText(contractData.status);
+            const statusBadge = document.getElementById('contractStatus');
+            statusBadge.textContent = statusText;
+            statusBadge.className = `status-badge status-${contractData.status}`;
+
+            document.getElementById('contractAmount').textContent =
+                contractData.agreedPrice.toFixed(2) + ' €';
+
+            if (userRole === 'client') {
+                document.getElementById('roleLabel').textContent = 'Imprimeur';
+                const printer = contractData.printer;
+                document.getElementById('otherPartyName').textContent =
+                    printer ? `${printer.firstName} ${printer.lastName}` : '-';
+            } else {
+                document.getElementById('roleLabel').textContent = 'Client';
+                const client = contractData.client;
+                document.getElementById('otherPartyName').textContent =
+                    client ? `${client.firstName} ${client.lastName}` : '-';
+            }
+
+            if (contractData.signedAt) {
+                document.getElementById('signedDate').textContent =
+                    new Date(contractData.signedAt).toLocaleDateString('fr-FR');
+            }
+
+            if (contractData.quote?.deliveryDate) {
+                document.getElementById('deliveryDateCard').style.display = 'block';
+                document.getElementById('deliveryDate').textContent =
+                    new Date(contractData.quote.deliveryDate).toLocaleDateString('fr-FR');
+            }
+        }
+
+        function getStatusText(status) {
+            const statusMap = {
+                'pending_signature': 'En attente de signature',
+                'signed': 'Signé',
+                'printing_started': 'Impression en cours',
+                'printing_completed': 'Impression terminée',
+                'photos_sent': 'Photos envoyées',
+                'shipped': 'Expédié',
+                'delivered_confirmed': 'Livraison confirmée',
+                'completed': 'Terminé',
+                'cancelled': 'Annulé'
+            };
+            return statusMap[status] || status;
+        }
+
+        function buildTimeline() {
+            const timeline = document.getElementById('timeline');
+            const steps = [
+                {
+                    key: 'signed',
+                    icon: '✍️',
+                    title: 'Contrat signé',
+                    description: 'Le contrat a été signé et payé',
+                    date: contractData.signedAt,
+                    role: 'all'
+                },
+                {
+                    key: 'printing_started',
+                    icon: '🖨️',
+                    title: 'Impression lancée',
+                    description: 'L\'imprimeur a commencé l\'impression',
+                    date: contractData.printingStartedAt,
+                    action: userRole === 'printer' && contractData.status === 'signed',
+                    actionBtn: 'Lancer l\'impression',
+                    actionFn: 'startPrinting',
+                    role: 'all'
+                },
+                {
+                    key: 'printing_completed',
+                    icon: '✅',
+                    title: 'Impression terminée',
+                    description: 'L\'impression est terminée',
+                    date: contractData.printingCompletedAt,
+                    action: userRole === 'printer' && contractData.status === 'printing_started',
+                    actionBtn: 'Marquer comme terminé',
+                    actionFn: 'completePrinting',
+                    role: 'all'
+                },
+                {
+                    key: 'photos_sent',
+                    icon: '📸',
+                    title: 'Photos envoyées',
+                    description: 'Photos du résultat final',
+                    date: contractData.photosSentAt,
+                    action: userRole === 'printer' && contractData.status === 'printing_completed',
+                    actionBtn: 'Envoyer les photos',
+                    actionFn: 'openPhotosModal',
+                    role: 'all',
+                    extra: contractData.printPhotos?.length > 0 ? `
+                        <div class="photos-grid">
+                            ${contractData.printPhotos.map(photo => `
+                                <div class="photo-card">
+                                    <img src="${photo.url}" alt="Photo">
+                                    <div class="photo-date">
+                                        ${new Date(photo.uploadedAt).toLocaleDateString('fr-FR')}
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    ` : ''
+                },
+                {
+                    key: 'shipped',
+                    icon: '📦',
+                    title: 'Commande expédiée',
+                    description: 'Le colis a été expédié',
+                    date: contractData.shippedAt,
+                    action: userRole === 'printer' && contractData.status === 'photos_sent',
+                    actionBtn: 'Marquer comme expédié',
+                    actionFn: 'openShippingModal',
+                    role: 'all',
+                    extra: contractData.trackingNumber ? `
+                        <p><strong>Numéro de suivi :</strong></p>
+                        <div class="tracking-number">${contractData.trackingNumber}</div>
+                        <p><strong>Transporteur :</strong> ${contractData.shippingCarrier || '-'}</p>
+                    ` : ''
+                },
+                {
+                    key: 'delivered_confirmed',
+                    icon: '🎉',
+                    title: 'Livraison confirmée',
+                    description: 'Le client a confirmé la réception',
+                    date: contractData.deliveredConfirmedAt,
+                    action: userRole === 'client' && contractData.status === 'shipped',
+                    actionBtn: 'Confirmer la réception',
+                    actionFn: 'confirmDelivery',
+                    role: 'all'
+                },
+                {
+                    key: 'completed',
+                    icon: '💰',
+                    title: 'Paiement imprimeur',
+                    description: 'L\'argent est disponible pour l\'imprimeur',
+                    date: contractData.printerPaidAt,
+                    role: 'printer'
+                }
+            ];
+
+            const currentStepIndex = steps.findIndex(step =>
+                step.key === contractData.status || !contractData[step.key + 'At']);
+
+            timeline.innerHTML = steps.map((step, index) => {
+                if (step.role !== 'all' && step.role !== userRole) return '';
+
+                const isCompleted = contractData[step.key + 'At'] || index < currentStepIndex;
+                const isActive = index === currentStepIndex;
+
+                return `
+                    <div class="timeline-item ${isCompleted ? 'completed' : ''} ${isActive ? 'active' : ''}">
+                        <div class="timeline-icon">${step.icon}</div>
+                        <div class="timeline-content">
+                            <h3>${step.title}</h3>
+                            <p>${step.description}</p>
+                            ${step.date ? `<div class="timeline-date">
+                                ${new Date(step.date).toLocaleString('fr-FR')}
+                            </div>` : ''}
+                            ${step.extra || ''}
+                            ${step.action ? `
+                                <div class="timeline-action">
+                                    <button class="btn btn-primary" onclick="${step.actionFn}()">
+                                        ${step.actionBtn}
+                                    </button>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function startPrinting() {
+            if (!confirm('Confirmer le lancement de l\'impression ?')) return;
+
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch(`/api/contracts/${contractData._id}/start-printing`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error);
+                }
+
+                showAlert('✅ Impression lancée !', 'success');
+                await loadContract(contractData._id);
+
+            } catch (error) {
+                console.error('Error:', error);
+                showAlert(error.message, 'danger');
+            }
+        }
+
+        async function completePrinting() {
+            if (!confirm('Confirmer que l\'impression est terminée ?')) return;
+
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch(`/api/contracts/${contractData._id}/complete-printing`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error);
+                }
+
+                showAlert('✅ Impression marquée comme terminée !', 'success');
+                await loadContract(contractData._id);
+
+            } catch (error) {
+                console.error('Error:', error);
+                showAlert(error.message, 'danger');
+            }
+        }
+
+        function openPhotosModal() {
+            document.getElementById('photosModal').classList.add('active');
+        }
+
+        function closePhotosModal() {
+            document.getElementById('photosModal').classList.remove('active');
+        }
+
+        async function submitPhotos(event) {
+            event.preventDefault();
+
+            const photosInput = document.getElementById('photosInput');
+            if (photosInput.files.length === 0) {
+                alert('Veuillez sélectionner au moins une photo');
+                return;
+            }
+
+            // TODO: Upload photos to server first
+            // For now, using placeholder URLs
+            const photoUrls = Array.from(photosInput.files).map((file, i) =>
+                `/uploads/images/placeholder-${i}.jpg`);
+
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch(`/api/contracts/${contractData._id}/send-photos`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ photos: photoUrls })
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error);
+                }
+
+                showAlert('✅ Photos envoyées avec succès !', 'success');
+                closePhotosModal();
+                await loadContract(contractData._id);
+
+            } catch (error) {
+                console.error('Error:', error);
+                showAlert(error.message, 'danger');
+            }
+        }
+
+        function openShippingModal() {
+            document.getElementById('shippingModal').classList.add('active');
+        }
+
+        function closeShippingModal() {
+            document.getElementById('shippingModal').classList.remove('active');
+        }
+
+        async function submitShipping(event) {
+            event.preventDefault();
+
+            const trackingNumber = document.getElementById('trackingNumber').value;
+            const carrier = document.getElementById('carrier').value;
+
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch(`/api/contracts/${contractData._id}/ship`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ trackingNumber, carrier })
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error);
+                }
+
+                showAlert('✅ Commande marquée comme expédiée !', 'success');
+                closeShippingModal();
+                await loadContract(contractData._id);
+
+            } catch (error) {
+                console.error('Error:', error);
+                showAlert(error.message, 'danger');
+            }
+        }
+
+        async function confirmDelivery() {
+            if (!confirm('Confirmer que vous avez bien reçu votre commande ?\n\nL\'argent sera transféré à l\'imprimeur.')) {
+                return;
+            }
+
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch(`/api/contracts/${contractData._id}/confirm-delivery`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error);
+                }
+
+                showAlert('✅ Livraison confirmée ! Merci pour votre achat.', 'success');
+                await loadContract(contractData._id);
+
+            } catch (error) {
+                console.error('Error:', error);
+                showAlert(error.message, 'danger');
+            }
+        }
+
+        function showAlert(message, type = 'info') {
+            const container = document.getElementById('alertContainer');
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.textContent = message;
+            container.appendChild(alert);
+
+            setTimeout(() => {
+                alert.remove();
+            }, 5000);
+        }
+
+        // Preview photos
+        document.addEventListener('DOMContentLoaded', () => {
+            const photosInput = document.getElementById('photosInput');
+            if (photosInput) {
+                photosInput.addEventListener('change', (e) => {
+                    const preview = document.getElementById('photosPreview');
+                    preview.innerHTML = '';
+
+                    Array.from(e.target.files).forEach(file => {
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            const img = document.createElement('img');
+                            img.src = e.target.result;
+                            img.className = 'preview-image';
+                            preview.appendChild(img);
+                        };
+                        reader.readAsDataURL(file);
+                    });
+                });
+            }
+
+            init();
+        });
+    </script>
+</body>
+</html>
