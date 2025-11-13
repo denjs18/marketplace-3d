@@ -81,7 +81,7 @@ const uploadSTL = multer({
   storage: memoryStorage,
   fileFilter: stlFileFilter,
   limits: {
-    fileSize: 50 * 1024 * 1024 // 50 MB
+    fileSize: 500 * 1024 * 1024 // 500 MB (Vercel Blob max recommended size)
   }
 }).single('stlFile');
 

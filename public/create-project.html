@@ -47,7 +47,7 @@
         </div>
         <div class="card-body">
           <div class="form-group">
-            <label class="form-label">Fichier 3D (STL, OBJ, 3MF) - Max 50MB *</label>
+            <label class="form-label">Fichier 3D (STL, OBJ, 3MF) - Max 500MB *</label>
             <div class="upload-area" id="upload-area">
               <input type="file" id="stlFile" name="stlFile" accept=".stl,.obj,.3mf" style="display: none;" required>
               <div id="upload-prompt">
@@ -282,9 +282,9 @@
         return;
       }
 
-      // Validate file size (50MB)
-      if (file.size > 50 * 1024 * 1024) {
-        alert('Le fichier est trop volumineux. Maximum 50MB.');
+      // Validate file size (500MB)
+      if (file.size > 500 * 1024 * 1024) {
+        alert('Le fichier est trop volumineux. Maximum 500MB.');
         return;
       }
 
