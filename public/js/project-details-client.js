@@ -90,6 +90,9 @@ function displayProject() {
     document.getElementById('stlFileSize').textContent = formatFileSize(project.stlFile.size);
     document.getElementById('downloadBtn').href = project.stlFile.path || project.stlFile.url;
     document.getElementById('downloadBtn').download = project.stlFile.filename || 'model.stl';
+
+    // Charger le viewer 3D
+    loadSTLViewer(project.stlFile.path || project.stlFile.url);
   }
 
   // Boutons d'action selon le statut
@@ -458,6 +461,46 @@ function formatFileSize(bytes) {
   if (bytes < 1024) return bytes + ' B';
   if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
   return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+}
+
+// Charger le viewer STL 3D
+async function loadSTLViewer(stlUrl) {
+  try {
+    console.log('🎨 Chargement du viewer 3D pour:', stlUrl);
+
+    // Vérifier que Three.js est chargé
+    if (typeof THREE === 'undefined') {
+      console.error('❌ Three.js n\'est pas chargé');
+      return;
+    }
+
+    // Vérifier que le viewer existe
+    if (typeof initSTLViewer !== 'function') {
+      console.error('❌ STL Viewer n\'est pas chargé');
+      return;
+    }
+
+    // Télécharger le fichier STL
+    const response = await fetch(stlUrl);
+    if (!response.ok) {
+      throw new Error('Erreur lors du téléchargement du fichier STL');
+    }
+
+    const arrayBuffer = await response.arrayBuffer();
+    console.log('✅ Fichier STL téléchargé:', arrayBuffer.byteLength, 'bytes');
+
+    // Initialiser le viewer
+    initSTLViewer('stlViewer', arrayBuffer);
+    console.log('✅ Viewer 3D initialisé');
+
+  } catch (error) {
+    console.error('❌ Erreur lors du chargement du viewer 3D:', error);
+    document.getElementById('stlViewer').innerHTML = `
+      <p style="color: #d63031;">
+        ❌ Erreur lors du chargement du modèle 3D
+      </p>
+    `;
+  }
 }
 
 // Charger au démarrage
