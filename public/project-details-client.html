@@ -368,10 +368,16 @@
       height: 400px;
       background: #f8f9fa;
       border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      display: block;
+      position: relative;
       margin-bottom: 15px;
+      overflow: hidden;
+    }
+
+    .stl-viewer canvas {
+      display: block;
+      width: 100% !important;
+      height: 100% !important;
     }
 
     .file-download {

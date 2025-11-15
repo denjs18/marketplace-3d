@@ -468,38 +468,60 @@ async function loadSTLViewer(stlUrl) {
   try {
     console.log('🎨 Chargement du viewer 3D pour:', stlUrl);
 
+    const viewerContainer = document.getElementById('stlViewer');
+    if (!viewerContainer) {
+      console.error('❌ Container stlViewer non trouvé');
+      return;
+    }
+
+    console.log('📦 Container dimensions:', viewerContainer.clientWidth, 'x', viewerContainer.clientHeight);
+
+    // Afficher un loader
+    viewerContainer.innerHTML = '<p style="color: #636e72; text-align: center; padding: 180px 0;">⏳ Chargement du modèle 3D...</p>';
+
     // Vérifier que Three.js est chargé
     if (typeof THREE === 'undefined') {
       console.error('❌ Three.js n\'est pas chargé');
+      viewerContainer.innerHTML = '<p style="color: #d63031; text-align: center; padding: 180px 0;">❌ Three.js non chargé</p>';
       return;
     }
+    console.log('✅ Three.js version:', THREE.REVISION);
 
     // Vérifier que le viewer existe
     if (typeof initSTLViewer !== 'function') {
       console.error('❌ STL Viewer n\'est pas chargé');
+      viewerContainer.innerHTML = '<p style="color: #d63031; text-align: center; padding: 180px 0;">❌ Viewer non chargé</p>';
       return;
     }
+    console.log('✅ initSTLViewer disponible');
 
     // Télécharger le fichier STL
+    console.log('📥 Téléchargement du fichier STL...');
     const response = await fetch(stlUrl);
     if (!response.ok) {
-      throw new Error('Erreur lors du téléchargement du fichier STL');
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
     }
 
     const arrayBuffer = await response.arrayBuffer();
     console.log('✅ Fichier STL téléchargé:', arrayBuffer.byteLength, 'bytes');
 
     // Initialiser le viewer
+    console.log('🚀 Initialisation du viewer...');
     initSTLViewer('stlViewer', arrayBuffer);
-    console.log('✅ Viewer 3D initialisé');
+    console.log('✅ Viewer 3D initialisé avec succès');
 
   } catch (error) {
     console.error('❌ Erreur lors du chargement du viewer 3D:', error);
-    document.getElementById('stlViewer').innerHTML = `
-      <p style="color: #d63031;">
-        ❌ Erreur lors du chargement du modèle 3D
-      </p>
-    `;
+    const viewerContainer = document.getElementById('stlViewer');
+    if (viewerContainer) {
+      viewerContainer.innerHTML = `
+        <div style="text-align: center; padding: 150px 20px; color: #d63031;">
+          <p style="font-size: 48px; margin: 0;">❌</p>
+          <p style="margin: 10px 0 0 0; font-weight: 600;">Erreur lors du chargement du modèle 3D</p>
+          <p style="margin: 5px 0 0 0; font-size: 14px; color: #636e72;">${error.message}</p>
+        </div>
+      `;
+    }
   }
 }
 
