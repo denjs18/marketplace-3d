@@ -121,6 +121,13 @@ const projectSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Conversation'
   },
+  printerFound: {
+    type: Boolean,
+    default: false
+  },
+  printerFoundAt: {
+    type: Date
+  },
   maxPrintersInvited: {
     type: Number,
     default: 5,
@@ -188,6 +195,10 @@ projectSchema.virtual('quoteCount').get(function() {
 
 // Method to check if project is available for quotes
 projectSchema.methods.canReceiveQuotes = function() {
+  // Ne peut pas recevoir de devis si un imprimeur a été trouvé
+  if (this.printerFound) {
+    return false;
+  }
   return this.projectStatus === 'published' || this.projectStatus === 'quote_received';
 };
 

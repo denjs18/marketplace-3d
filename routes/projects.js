@@ -75,4 +75,11 @@ router.post('/:id/complete', authenticate, validateObjectId('id'), projectContro
  */
 router.post('/:id/cancel', authenticate, isClient, validateObjectId('id'), projectController.cancelProject);
 
+/**
+ * @route   POST /api/projects/:id/printer-found
+ * @desc    Mark project as printer found (closes new quote submissions)
+ * @access  Private (Client owner only)
+ */
+router.post('/:id/printer-found', authenticate, isClient, validateObjectId('id'), projectController.markPrinterFound);
+
 module.exports = router;

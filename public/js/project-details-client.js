@@ -101,6 +101,16 @@ function displayProject() {
   if (project.projectStatus === 'published' || project.projectStatus === 'quote_received') {
     document.getElementById('inviteBtn').classList.remove('hidden');
     document.getElementById('cancelBtn').classList.remove('hidden');
+
+    // Afficher le bouton "J'ai trouvé un imprimeur" si pas encore marqué
+    if (!project.printerFound) {
+      document.getElementById('printerFoundBtn').classList.remove('hidden');
+    }
+  }
+
+  // Si un imprimeur a été trouvé, afficher l'information
+  if (project.printerFound) {
+    document.getElementById('printerFoundInfo').classList.remove('hidden');
   }
 
   // Mettre à jour la progression
@@ -383,6 +393,31 @@ document.getElementById('cancelBtn')?.addEventListener('click', async () => {
   } catch (error) {
     console.error('Error cancelling:', error);
     alert('Erreur lors de l\'annulation');
+  }
+});
+
+// Marquer comme "imprimeur trouvé"
+document.getElementById('printerFoundBtn')?.addEventListener('click', async () => {
+  if (!confirm('Voulez-vous marquer ce projet comme "imprimeur trouvé" ?\n\nLes autres imprimeurs ne pourront plus soumettre de nouveaux devis, mais le projet restera visible.')) {
+    return;
+  }
+
+  try {
+    const response = await fetch(`${API_URL}/projects/${projectId}/printer-found`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!response.ok) throw new Error('Erreur');
+
+    alert('Projet marqué comme "imprimeur trouvé". Les nouveaux devis sont désormais bloqués.');
+    location.reload();
+  } catch (error) {
+    console.error('Error marking printer found:', error);
+    alert('Erreur lors de la mise à jour');
   }
 });
 

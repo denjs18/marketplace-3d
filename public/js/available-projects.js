@@ -138,7 +138,10 @@ function renderProjectCard(project) {
       <div class="project-card-content">
         <div class="project-card-header">
           <h3 class="project-card-title">${project.title}</h3>
-          <span class="status-badge badge-published">Publié</span>
+          ${project.printerFound
+            ? '<span class="status-badge" style="background: #fdcb6e; color: #2d3436;">✅ Imprimeur trouvé</span>'
+            : '<span class="status-badge badge-published">Publié</span>'
+          }
         </div>
 
         <p class="project-card-description">${project.description}</p>

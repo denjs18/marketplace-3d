@@ -505,3 +505,47 @@ exports.cancelProject = async (req, res) => {
     });
   }
 };
+
+/**
+ * Mark project as "printer found"
+ */
+exports.markPrinterFound = async (req, res) => {
+  try {
+    const project = await Project.findById(req.params.id);
+
+    if (!project) {
+      return res.status(404).json({
+        error: 'Project not found'
+      });
+    }
+
+    // Only client owner can mark as printer found
+    if (project.client.toString() !== req.userId.toString()) {
+      return res.status(403).json({
+        error: 'Access denied'
+      });
+    }
+
+    // Cannot mark if already found
+    if (project.printerFound) {
+      return res.status(400).json({
+        error: 'Project already marked as printer found'
+      });
+    }
+
+    project.printerFound = true;
+    project.printerFoundAt = new Date();
+    await project.save();
+
+    res.json({
+      message: 'Project marked as printer found successfully',
+      project
+    });
+  } catch (error) {
+    console.error('Mark printer found error:', error);
+    res.status(500).json({
+      error: 'Failed to mark printer found',
+      details: error.message
+    });
+  }
+};

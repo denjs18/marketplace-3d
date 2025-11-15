@@ -112,6 +112,14 @@ function displayProject() {
   statusBadge.className = `status-badge badge-${project.projectStatus || project.status}`;
   statusBadge.textContent = statusText;
 
+  // Afficher l'info si imprimeur trouvé
+  if (project.printerFound) {
+    const printerFoundInfo = document.getElementById('printerFoundInfo');
+    if (printerFoundInfo) {
+      printerFoundInfo.classList.remove('hidden');
+    }
+  }
+
   // Info client
   if (project.client) {
     document.getElementById('clientName').textContent =

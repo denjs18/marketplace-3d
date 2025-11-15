@@ -281,9 +281,16 @@ router.post('/:id/send-quote', authenticate, async (req, res) => {
 
     console.log('Received quote data:', { pricePerUnit, quantity, totalPrice, materials, deliveryDays, shippingCost, options });
 
-    const conversation = await Conversation.findById(conversationId);
+    const conversation = await Conversation.findById(conversationId).populate('project');
     if (!conversation) {
       return res.status(404).json({ error: 'Conversation non trouvée' });
+    }
+
+    // Vérifier si le projet accepte encore des devis
+    if (conversation.project && conversation.project.printerFound) {
+      return res.status(400).json({
+        error: 'Ce projet n\'accepte plus de nouveaux devis car le client a trouvé un imprimeur'
+      });
     }
 
     const user = await User.findById(req.userId);
@@ -332,9 +339,16 @@ router.post('/:id/counter-quote', authenticate, async (req, res) => {
     const { pricePerUnit, quantity, totalPrice, materials, deliveryDays, shippingCost, options } = req.body;
     const conversationId = req.params.id;
 
-    const conversation = await Conversation.findById(conversationId);
+    const conversation = await Conversation.findById(conversationId).populate('project');
     if (!conversation) {
       return res.status(404).json({ error: 'Conversation non trouvée' });
+    }
+
+    // Vérifier si le projet accepte encore des devis
+    if (conversation.project && conversation.project.printerFound) {
+      return res.status(400).json({
+        error: 'Ce projet n\'accepte plus de nouvelles propositions car le client a trouvé un imprimeur'
+      });
     }
 
     const user = await User.findById(req.userId);

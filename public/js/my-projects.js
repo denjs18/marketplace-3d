@@ -160,9 +160,12 @@ function renderProjectCard(project) {
       <div class="project-content">
         <div class="project-header">
           <h3 class="project-title">${project.title}</h3>
-          <span class="badge badge-${project.projectStatus}">
-            ${statusLabels[project.projectStatus] || project.projectStatus}
-          </span>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <span class="badge badge-${project.projectStatus}">
+              ${statusLabels[project.projectStatus] || project.projectStatus}
+            </span>
+            ${project.printerFound ? '<span class="badge" style="background: #00b894; color: white;">✅ Imprimeur trouvé</span>' : ''}
+          </div>
         </div>
         <p class="project-description">
           ${project.description.substring(0, 100)}${project.description.length > 100 ? '...' : ''}
