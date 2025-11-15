@@ -210,6 +210,11 @@ function renderProjectCard(project) {
               💰 Comparer devis
             </button>
           ` : ''}
+          ${['published', 'quote_received'].includes(project.projectStatus) && !project.printerFound ? `
+            <button class="btn btn-success" onclick="markPrinterFound('${project._id}')">
+              ✅ J'ai trouvé un imprimeur
+            </button>
+          ` : ''}
           ${project.projectStatus === 'draft' ? `
             <button class="btn btn-danger" onclick="deleteProject('${project._id}')">
               🗑️ Supprimer
@@ -310,6 +315,34 @@ function invitePrinters(projectId) {
 
 function compareQuotes(projectId) {
   window.location.href = `/compare-quotes.html?projectId=${projectId}`;
+}
+
+async function markPrinterFound(projectId) {
+  if (!confirm('Voulez-vous marquer ce projet comme "imprimeur trouvé" ?\n\nLes autres imprimeurs ne pourront plus soumettre de nouveaux devis, mais le projet restera visible.')) {
+    return;
+  }
+
+  try {
+    const token = getToken();
+    const response = await fetch(`/api/projects/${projectId}/printer-found`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (response.ok) {
+      showToast('Projet marqué comme "imprimeur trouvé"', 'success');
+      await loadProjects();
+    } else {
+      const data = await response.json();
+      showToast(data.error || 'Erreur lors de la mise à jour', 'error');
+    }
+  } catch (error) {
+    console.error('Erreur:', error);
+    showToast('Erreur de connexion', 'error');
+  }
 }
 
 async function deleteProject(projectId) {
